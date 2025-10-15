@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import commitLintConfig from '@commitlint/config-conventional';
 import type { ParserStreamOptions } from 'conventional-commits-parser';
@@ -35,7 +35,7 @@ export class ScopedCommitsReader<T extends string, U extends string> extends Par
     } = {},
   ) {
     super({ getCommitsOptions, parserStreamOptions });
-    this.scopes = allowedScopes ?? this.getScopes();
+    this.scopes = allowedScopes ?? ['root' as T, ...this.getScopes()];
     this.types = allowedTypes ?? commitLintConfig.rules['type-enum'][2].filter((type): type is U => true);
     this.scopesInformation = this.getScopesInformation(directoryName);
   }
@@ -78,34 +78,32 @@ export class ScopedCommitsReader<T extends string, U extends string> extends Par
     const packagesDirectory = join(process.cwd(), directoryName);
     
     try {
-      return [
-        ...readdirSync(packagesDirectory, { withFileTypes: true })
-          .filter((dirent) => dirent.isDirectory())
-          .map((folder) => {
-            try {
-              const pkg = JSON.parse(
-                readFileSync(
-                  join(
-                    packagesDirectory,
-                    folder.name,
-                    'package.json',
-                  ),
-                  'utf-8',
+      return readdirSync(packagesDirectory, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((folder) => {
+          try {
+            const pkg = JSON.parse(
+              readFileSync(
+                join(
+                  packagesDirectory,
+                  folder.name,
+                  'package.json',
                 ),
-              );
-              const validatedPackage = packageSchema.safeParse(pkg);
-              if (validatedPackage.success) {
-                const { scopeName } = validatedPackage.data;
-                return {
-                  scopeFolderPath: folder.name,
-                  scopeName,
-                };
+                'utf-8',
+              ),
+            );
+            const validatedPackage = packageSchema.safeParse(pkg);
+            if (validatedPackage.success) {
+              const { scopeName } = validatedPackage.data;
+              return {
+                scopeFolderPath: folder.name,
+                scopeName,
               };
-            } catch {
-              return;
-            }
-          }).filter((entry): entry is ScopeInformation<T> => entry !== undefined),
-        ];
+            };
+          } catch {
+            return;
+          }
+        }).filter((entry): entry is ScopeInformation<T> => entry !== undefined);
     } catch (err) {
       console.error('Error reading packages folder:', err);
       throw err;
