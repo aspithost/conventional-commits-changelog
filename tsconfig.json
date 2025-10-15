@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* Core Options */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Output */
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+
+    /* Module system */
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "lib": ["ESNext"],
+
+    /* Node compatibility */
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+
+    /* Types */
+    "types": ["node"],
+
+    /* Paths & aliases */
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+}

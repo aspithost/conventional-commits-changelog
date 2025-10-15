@@ -1,0 +1,28 @@
+{
+  "name": "@spithost/conventional-changelog-monorepo",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "module",
+  "keywords": [
+    "conventional-changelog-monorepo",
+    "conventional",
+    "changelog",
+    "monorepo"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Abel Spithost",
+    "url": "https://github.com/aspithost"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^20.0.0",
+    "@types/node": "^24.7.2",
+    "conventional-commits-parser": "^6.2.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.1.12"
+  }
+}
