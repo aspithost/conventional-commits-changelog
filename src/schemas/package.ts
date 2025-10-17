@@ -5,3 +5,4 @@ export const packageSchema = z.object({
 }).transform((pkg) => ({
   scopeName: pkg.name.includes('/') ? pkg.name.split('/')[1] : pkg.name,
 }));
+export type PackageSchema = z.infer<typeof packageSchema>;
