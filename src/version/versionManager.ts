@@ -1,64 +1,40 @@
-import type { ParserStreamOptions } from 'conventional-commits-parser';
 import { parse, inc, SemVer } from 'semver';
-import { Bumper, type BumperRecommendationResult } from 'conventional-recommended-bump';
+import { Bumper, type BumperRecommendation} from 'conventional-recommended-bump';
 
-import { ScopedCommitsReader } from '@/commits/scoped-commits-reader/scopedCommitsReader.js';
-
-import type { GetCommitsOptions } from '@/commits/commits-reader/commitsReader.js';
 import type { CommitSchema } from '@/schemas/commit.js';
+import { execSync } from 'child_process';
 
-export class VersionManger<T extends string, U extends string> extends ScopedCommitsReader<T, U> {
+export class VersionManger<T extends string, U extends string> {
   private readonly bumperPreset: string;
 
-  constructor(
-    allowedScopes?: readonly T[],
-    allowedTypes?: readonly U[],
-    {
-      getCommitsOptions,
-      parserStreamOptions,
-      directoryName,
-      bumperPreset = 'conventional-changelog-conventionalcommits',
-    }: {
-      getCommitsOptions?: GetCommitsOptions;
-      parserStreamOptions?: ParserStreamOptions;
-      directoryName?: string;
-      bumperPreset?: string,
-    } = {},
-  ) {
-    super(
-      allowedScopes,
-      allowedTypes,
-      {
-        getCommitsOptions,
-        parserStreamOptions,
-        directoryName,
-      }
-    );
+  constructor(bumperPreset: string = 'conventional-changelog-conventionalcommits') {
     this.bumperPreset = bumperPreset;
   }
 
-  bumpVersions() {
+  // write to multiple files if specified. Always include package and package-lock
+  // optional: README, 
+  bumpNpmVersion() {
+    try {
+      const res = execSync('npm version patch --no-git-tag-version', { encoding: 'utf-8' });
+      console.log('RES', res);
+    } catch (err) {
+      console.error('Error bumping version');
+      throw err;
+    }
+  }
+
+  writeToChangelog() {
 
   }
 
-  writeToChangelogs() {
-
-  }
-
-  bumpVersionsByScope(scope: T) {
-    const currentVersion = this.parseVersion(this.readCurrentVersion(scope), scope);
-    const recommendedBump = this.getRecommendBumpByScope(scope);
-    // to-do: read and bump files with version
-  }
-  
-  writeToChangelogByScope() {
-
-  }
-
-  async getRecommendBumpByScope(scope: T): Promise<BumperRecommendationResult> {
+  async getRecommendBump(): Promise<BumperRecommendation['releaseType'] | null> {
     const bumper = this.createBumper();
-    this.setBumperCommits(bumper, this.getCommitsByScope(scope) ?? []);
-    return await bumper.bump();
+    // this.setBumperCommits(bumper);
+    const recommendedBump = await bumper.bump();
+    if (!('releaseType' in recommendedBump)) {
+      return null;
+    }
+    return recommendedBump.releaseType;
   }
 
   private createBumper() {
@@ -69,15 +45,16 @@ export class VersionManger<T extends string, U extends string> extends ScopedCom
     bumper.commits(commits);
   }
 
-  private parseVersion(version: string, scope: T): SemVer {
-    const currentVersion = parse(version);
-    if (!currentVersion) {
-      throw new Error(`Could not parse current version for scope: ${scope}`);
-    }
-    return currentVersion;
-  }
+  // Necessary or can I use npm version
+  // private parseVersion(version: string): SemVer {
+  //   const currentVersion = parse(version);
+  //   if (!currentVersion) {
+  //     throw new Error(`Could not parse current version for scope: ${scope}`);
+  //   }
+  //   return currentVersion;
+  // }
 
-  private readCurrentVersion(scope: T): string {
-    // to-do: read function from package
-  }
+  // private readCurrentVersion(): string {
+  //   // to-do: read function from package
+  // }
 }

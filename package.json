@@ -10,9 +10,6 @@
     "changelog",
     "monorepo"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": {
     "name": "Abel Spithost",
     "url": "https://github.com/aspithost"

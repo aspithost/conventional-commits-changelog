@@ -7,8 +7,22 @@ export interface ScopeInformation<T extends string> {
   scopeName: T;
 }
 
-export class ScopesReader {
-  getScopesInformation<T extends string>(
+export class ScopesReader<T extends string> {
+  private readonly scopesInformation: readonly ScopeInformation<T>[];
+
+  constructor(directoryName: string = 'packages') {
+    this.scopesInformation = this.getScopesInformation(directoryName);
+  }
+
+  get scopes(): T[] {
+    if (!this.scopesInformation.length) {
+      console.error('No scopes found, returning an empty list');
+      return [];
+    }
+    return this.scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
+  }
+
+  private getScopesInformation<T extends string>(
     directoryName: string,
   ): readonly ScopeInformation<T>[] {
     const directoryPath = this.getDirectoryPath(directoryName);
