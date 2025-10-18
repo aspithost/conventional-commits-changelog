@@ -11,12 +11,10 @@ export class VersionManger<T extends string, U extends string> {
     this.bumperPreset = bumperPreset;
   }
 
-  // write to multiple files if specified. Always include package and package-lock
-  // optional: README, 
-  bumpNpmVersion() {
+  bumpNpmVersion(): string {
     try {
-      const res = execSync('npm version patch --no-git-tag-version', { encoding: 'utf-8' });
-      console.log('RES', res);
+      const bumpedVersion = execSync('npm version patch --no-git-tag-version', { encoding: 'utf-8' }).trim().slice(1);
+      return bumpedVersion;
     } catch (err) {
       console.error('Error bumping version');
       throw err;
