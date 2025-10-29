@@ -1,33 +1,84 @@
-import { parse, inc, SemVer } from 'semver';
-import { Bumper, type BumperRecommendation} from 'conventional-recommended-bump';
+import { execSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
+import { Bumper } from 'conventional-recommended-bump';
+
+import type { ReleaseType } from '@/types/index.js';
 import type { CommitSchema } from '@/schemas/commit.js';
-import { execSync } from 'child_process';
 
-export class VersionManger<T extends string, U extends string> {
+export class VersionManager<T extends string, U extends string> {
   private readonly bumperPreset: string;
 
   constructor(bumperPreset: string = 'conventional-changelog-conventionalcommits') {
     this.bumperPreset = bumperPreset;
   }
 
-  bumpNpmVersion(): string {
+  async bumpVersion(
+    folderPath: string,
+    commits: CommitSchema<T, U>[],
+    {
+      bumpReadme = true,
+      dryRun = false,
+    }: {
+      bumpReadme?: boolean;
+      dryRun?: boolean;
+    } = {},
+  ): Promise<{ version: string, releaseType: ReleaseType } | undefined> {
+    const releaseType = await this.getRecommendReleaseType(commits);
+    if (!releaseType) {
+      return;
+    }
+    if (dryRun) {
+      console.log(`[dry-run] Would bump ${folderPath} with release type ${releaseType}.`);
+      return;
+    }
+
+    const newVersion = this.bumpNpmVersion(folderPath, releaseType);
+    if (bumpReadme) {
+      this.bumpReadme(folderPath, newVersion);
+    }
+    return { version: newVersion, releaseType };
+  }
+
+  private bumpNpmVersion(
+    folderPath: string,
+    releaseType: ReleaseType,
+  ): string {
     try {
-      const bumpedVersion = execSync('npm version patch --no-git-tag-version', { encoding: 'utf-8' }).trim().slice(1);
+      const bumpedVersion = execSync(`npm version ${releaseType} --no-git-tag-version`, {
+        cwd: folderPath,
+        encoding: 'utf-8',
+      })
+        .trim()
+        .replace(/^v/, '');
       return bumpedVersion;
     } catch (err) {
-      console.error('Error bumping version');
+      console.error(`Error bumping version in folder path: ${folderPath}`);
       throw err;
     }
   }
 
-  writeToChangelog() {
-
+  private bumpReadme(folderPath: string, newVersion: string): void {
+    try {
+      const readmePath = join(folderPath, 'README.md');
+      const readmeContent = readFileSync(readmePath, 'utf-8');
+      writeFileSync(
+        readmePath,
+        readmeContent.replace(/\d+\.\d+\.\d+/m, newVersion),
+        'utf-8',
+      );
+    } catch (err) {
+      console.error(`Error bumping README.md in folder: ${folderPath}`);
+      throw err;
+    }
   }
 
-  async getRecommendBump(): Promise<BumperRecommendation['releaseType'] | null> {
+  async getRecommendReleaseType(
+    commits: CommitSchema<T, U>[],
+  ): Promise<ReleaseType | null> {
     const bumper = this.createBumper();
-    // this.setBumperCommits(bumper);
+    this.setBumperCommits(bumper, commits);
     const recommendedBump = await bumper.bump();
     if (!('releaseType' in recommendedBump)) {
       return null;
@@ -35,24 +86,11 @@ export class VersionManger<T extends string, U extends string> {
     return recommendedBump.releaseType;
   }
 
-  private createBumper() {
+  private createBumper(): Bumper {
     return new Bumper().loadPreset(this.bumperPreset);
   }
 
   private setBumperCommits(bumper: Bumper, commits: CommitSchema<T, U>[]): void {
     bumper.commits(commits);
   }
-
-  // Necessary or can I use npm version
-  // private parseVersion(version: string): SemVer {
-  //   const currentVersion = parse(version);
-  //   if (!currentVersion) {
-  //     throw new Error(`Could not parse current version for scope: ${scope}`);
-  //   }
-  //   return currentVersion;
-  // }
-
-  // private readCurrentVersion(): string {
-  //   // to-do: read function from package
-  // }
 }
