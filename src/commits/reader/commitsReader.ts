@@ -5,7 +5,7 @@ export type CommitsByScope<T extends string, U extends string> = Partial<Record<
 
 export class CommitsReader<T extends string, U extends string> {
   private commitsByScope: CommitsByScope<T, U> = {};
-  
+
   getCommitsByScope(scope: T): CommitSchema<T, U>[] | undefined {
     return this.commitsByScope[scope];
   }

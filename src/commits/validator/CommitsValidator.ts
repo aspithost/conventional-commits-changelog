@@ -1,7 +1,7 @@
 import { createCommitSchema, type CommitSchema } from '@/schemas/commit.js';
 import type { ParsedCommits } from '../parser/CommitsParser.js';
 
-export type ValidatedCommits<T extends string, U extends string> = AsyncGenerator<CommitSchema<T, U>, void, unknown>; 
+export type ValidatedCommits<T extends string, U extends string> = AsyncGenerator<CommitSchema<T, U>, void, unknown>;
 
 export class CommitsValidator<T extends string, U extends string>  {
   private readonly commitSchema: ReturnType<typeof createCommitSchema<T, U>>;
