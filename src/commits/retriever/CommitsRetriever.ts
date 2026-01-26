@@ -41,8 +41,7 @@ export class CommitsRetriever {
   }
 
   private getRawCommitsString(): string {
-    const command = `git log --no-abbrev-commit ${this.commitFormat} ${this.commitRange}`;
-    return this._execSync(command);
+    return this._execSync(`git log --no-abbrev-commit ${this.commitFormat} ${this.commitRange}`);
   }
 
   private getDefaultBranch(): string {
