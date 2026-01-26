@@ -1,7 +1,10 @@
 import { execFileSync } from 'node:child_process';
 
-export type RawCommits = Generator<string, void, unknown>;
-
+interface RawCommit {
+  hash: string;
+  body: string;
+}
+export type RawCommits = Generator<RawCommit, void, unknown>;
 export class CommitsRetriever {
   private readonly commitFormat: string;
   private readonly from: string | undefined;
@@ -9,7 +12,7 @@ export class CommitsRetriever {
   private readonly releaseBranch: string;
 
   constructor({
-    commitFormat = '%H %B%x00',
+    commitFormat = '%H||%B%x00',
     from = undefined,
     to = 'HEAD',
     releaseBranch = 'refs/remotes/origin/HEAD',
@@ -27,12 +30,11 @@ export class CommitsRetriever {
 
   *getRawCommits(): RawCommits {
     try {
+      // to-do: do not retrieve emtpy line last entry
       const commitsString = this.getRawCommitsString();
       for (const rawCommit of commitsString.split('\x00')) {
-        const commit = rawCommit.trim();
-        if (commit) {
-          yield commit;
-        }
+        const [hash, ...rest] = rawCommit.trim().split('||');
+        yield { hash, body: rest.join('||').trim() };
       }
     } catch {
       console.error('Could not retrieve commits.');

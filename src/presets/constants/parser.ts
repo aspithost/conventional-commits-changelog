@@ -1,8 +1,7 @@
 export const PARSER_STREAM_OPTIONS = {
-  headerPattern: /^(\w*)\s(\w*)(?:\((.*)\))?!?:\s(.*)$/,
-  breakingHeaderPattern: /^(\w*)\s(\w*)(?:\((.*)\))?!:\s(.*)$/,
+  headerPattern: /^(\w*)(?:\((.*)\))?!?:\s(.*)$/,
+  breakingHeaderPattern: /^(\w*)(?:\((.*)\))?!:\s(.*)$/,
   headerCorrespondence: [
-    'hash',
     'type',
     'scope',
     'subject',

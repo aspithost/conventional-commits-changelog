@@ -4,7 +4,10 @@ import { PARSER_STREAM_OPTIONS } from '@/presets/constants/parser.js';
 
 import type { RawCommits } from '@/commits/retriever/CommitsRetriever.js';
 
-export type ParsedCommits = AsyncGenerator<CommitBase, void, unknown>;
+export interface ParsedCommit extends CommitBase {
+  hash: string;
+}
+export type ParsedCommits = AsyncGenerator<ParsedCommit, void, unknown>;
 
 export class CommitsParser{
   private readonly parserStreamOptions: ParserStreamOptions;
@@ -13,7 +16,11 @@ export class CommitsParser{
     this.parserStreamOptions = parserStreamOptions;
   }
 
-  getParsedCommits(rawCommits: RawCommits): ParsedCommits {
-    return parseCommits(this.parserStreamOptions)(rawCommits);
+  async *getParsedCommits(rawCommits: RawCommits): ParsedCommits {
+    for (const { hash, body } of rawCommits) {
+      for await (const commit of parseCommits(this.parserStreamOptions)([body])) {
+        yield { ...commit, hash };
+      }
+    }
   }
 }
