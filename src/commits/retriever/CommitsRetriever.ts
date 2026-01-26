@@ -3,19 +3,23 @@ import { execSync } from 'node:child_process';
 export type RawCommits = Generator<string, void, unknown>;
 
 export class CommitsRetriever {
+  private readonly commitFormat: string;
   private readonly from: string | undefined;
   private readonly to: string;
   private readonly releaseBranch: string;
 
   constructor({
+    commitFormat = '--pretty=format:"%H %B%x00"',
     from = undefined,
     to = 'HEAD',
     releaseBranch = 'refs/remotes/origin/HEAD',
   }: {
+    commitFormat?: string;
     from?: string;
     to?: string;
     releaseBranch?: string;
   } = {}) {
+    this.commitFormat = commitFormat;
     this.from = from;
     this.to = to;
     this.releaseBranch = releaseBranch;
@@ -29,10 +33,6 @@ export class CommitsRetriever {
         yield commit;
       }
     }
-  }
-
-  private get commitFormat() {
-    return '--pretty=format:"%H %B%x00"';
   }
 
   private get commitRange() {
