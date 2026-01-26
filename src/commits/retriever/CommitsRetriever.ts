@@ -5,35 +5,34 @@ export type RawCommits = Generator<string, void, unknown>;
 export class CommitsRetriever {
   private readonly from: string | undefined;
   private readonly to: string;
+  private readonly releaseBranch: string;
 
   constructor({
     from = undefined,
     to = 'HEAD',
+    releaseBranch = 'refs/remotes/origin/HEAD',
   }: {
     from?: string;
     to?: string;
+    releaseBranch?: string;
   } = {}) {
     this.from = from;
     this.to = to;
+    this.releaseBranch = releaseBranch;
   }
 
   *getRawCommits(): RawCommits {
-    try {
-      const commitsString = this.getRawCommitsString();
-      for (const rawCommit of commitsString.split('\x00')) {
-        const commit = rawCommit.trim();
-        if (commit) {
-          yield commit;
-        }
+    const commitsString = this.getRawCommitsString();
+    for (const rawCommit of commitsString.split('\x00')) {
+      const commit = rawCommit.trim();
+      if (commit) {
+        yield commit;
       }
-    } catch {
-      console.error('Could not retrieve commits.');
-      return;
     }
   }
 
   private get commitFormat() {
-    return '--commitFormat="%H %B%x00';
+    return '--pretty=format:"%H %B%x00"';
   }
 
   private get commitRange() {
@@ -43,15 +42,31 @@ export class CommitsRetriever {
 
   private getRawCommitsString(): string {
     const command = `git log --no-abbrev-commit ${this.commitFormat} ${this.commitRange}`;
-    return execSync(command, { encoding: 'utf-8' }).trim();
+    return this._execSync(command);
+  }
+
+  private getDefaultBranch(): string {
+    try {
+      // Return type: 'origin/main'
+      return this._execSync(`git symbolic-ref ${this.releaseBranch}`);
+    } catch {
+      console.log('No remote HEAD reference found. Now defaults to origin/main.');
+      // Default fallback
+      return this.releaseBranch.replace('refs/remotes/', '');
+    }
   }
 
   private getLatestTag() {
     try {
-      return execSync('git describe --tags --abbrev=0', { encoding: 'utf-8' });
+      const defaultBranch = this.getDefaultBranch();
+      return this._execSync(`git describe --tags --abbrev=0 ${defaultBranch}`);
     } catch {
       console.log('No tags found.');
       return null;
     }
+  }
+
+  private _execSync(command: string): string {
+    return execSync(command, { encoding: 'utf-8' }).trim();
   }
 }
