@@ -1,4 +1,4 @@
-import { parseCommits, type CommitBase, type ParserStreamOptions } from 'conventional-commits-parser';
+import { CommitParser, type CommitBase, type ParserStreamOptions } from 'conventional-commits-parser';
 
 import { PARSER_STREAM_OPTIONS } from '@/presets/constants/parser.js';
 
@@ -10,17 +10,16 @@ export interface ParsedCommit extends CommitBase {
 export type ParsedCommits = AsyncGenerator<ParsedCommit, void, unknown>;
 
 export class CommitsParser{
-  private readonly parserStreamOptions: ParserStreamOptions;
+  private readonly commitParser: CommitParser;
 
   constructor(parserStreamOptions: ParserStreamOptions = PARSER_STREAM_OPTIONS) {
-    this.parserStreamOptions = parserStreamOptions;
+    this.commitParser = new CommitParser(parserStreamOptions);
   }
 
   async *getParsedCommits(rawCommits: RawCommits): ParsedCommits {
     for (const { hash, body } of rawCommits) {
-      for await (const commit of parseCommits(this.parserStreamOptions)([body])) {
-        yield { ...commit, hash };
-      }
+      const commit = this.commitParser.parse(body);
+      yield { ...commit, hash };
     }
   }
 }

@@ -33,7 +33,9 @@ export class CommitsRetriever {
       // to-do: do not retrieve emtpy line last entry
       const commitsString = this.getRawCommitsString();
       for (const rawCommit of commitsString.split('\x00')) {
-        const [hash, ...rest] = rawCommit.trim().split('||');
+        const rawCommitTrimmed = rawCommit.trim();
+        if (!rawCommitTrimmed) continue;
+        const [hash, ...rest] = rawCommitTrimmed.split('||');
         yield { hash, body: rest.join('||').trim() };
       }
     } catch {
