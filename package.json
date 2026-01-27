@@ -16,7 +16,7 @@
   },
   "license": "ISC",
   "scripts": {
-    "build": "npm run clean && npm run typecheck && tsc",
+    "build": "npm run clean && npm run typecheck && tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit"
   },
