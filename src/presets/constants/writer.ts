@@ -45,13 +45,13 @@ export const COMMIT_TYPES = [
     section: 'Chores',
     hidden: true,
   },
-];
+] as const;
 
 export const COMMIT_EMOJIS = {
   Features: ':sparkles:',
   'Bug Fixes': ':bug:',
-  'Performance Improvements': ':rocket',
-  'Refactors': ':recycle:',
+  'Performance Improvements': ':rocket:',
+  'Code Refactoring': ':recycle:',
   Reverts: ':rewind:',
   Tests: ':rotating_light:',
   'Build System': ':package:',

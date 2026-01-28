@@ -1,17 +1,17 @@
+import { writeChangelog, type Context, type Options } from 'conventional-changelog-writer';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { writeChangelog, type Context, type Options } from 'conventional-changelog-writer';
 
 import { getFormattedDate } from '@/utils/getFormattedDate.js';
 
-import type { ReleaseType } from '@/types/index.js';
 import type { CommitSchema } from '@/schemas/commit.js';
+import type { ReleaseType } from '@/types/index.js';
 
 export class ChangelogWriter<T extends string, U extends string> {
   private readonly changelogWriterPreset: Options;
   private readonly rootFolderPath: string;
 
-  constructor(changelogWriterPreset: Options, rootFolderPath: string = 'packages') {
+  constructor(changelogWriterPreset: Options, rootFolderPath: string = join(process.cwd(), 'packages')) {
     this.changelogWriterPreset = changelogWriterPreset;
     this.rootFolderPath = rootFolderPath;
   }

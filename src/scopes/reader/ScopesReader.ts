@@ -1,20 +1,21 @@
+import { Dirent, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { readdirSync, readFileSync, Dirent } from 'node:fs';
+
 import { packageSchema, type PackageSchema } from '@/schemas/package.js';
 
-export interface ScopeInformation<T extends string> {
+interface ScopeInformation {
   scopeFolderPath: string;
-  scopeName: T;
+  scopeName: string;
 }
 
-export class ScopesReader<T extends string> {
-  private readonly scopesInformation: readonly ScopeInformation<T>[];
+export class ScopesReader {
+  private readonly scopesInformation: readonly ScopeInformation[];
 
   constructor(directoryName: string = 'packages') {
     this.scopesInformation = this.getScopesInformation(directoryName);
   }
 
-  get scopes(): T[] {
+  get scopes(): string[] {
     if (!this.scopesInformation.length) {
       console.error('No scopes found, returning an empty list');
       return [];
@@ -22,9 +23,9 @@ export class ScopesReader<T extends string> {
     return this.scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
   }
 
-  private getScopesInformation<T extends string>(
+  private getScopesInformation(
     directoryName: string,
-  ): readonly ScopeInformation<T>[] {
+  ): readonly ScopeInformation[] {
     const directoryPath = this.getDirectoryPath(directoryName);
     try {
       return this.mapScopeInformation(
@@ -39,10 +40,10 @@ export class ScopesReader<T extends string> {
     }
   }
 
-  private mapScopeInformation<T extends string>(
+  private mapScopeInformation(
     directoryPath: string,
     directories: Dirent[],
-  ): ScopeInformation<T>[] {
+  ): ScopeInformation[] {
     return directories.map((folder) => {
       try {
         const folderPath = folder.name;
@@ -59,7 +60,7 @@ export class ScopesReader<T extends string> {
         console.error(`Error processing folder ${folder.name}:`, err);
         throw err;
       }
-    }).filter((entry): entry is ScopeInformation<T> => entry !== undefined);
+    }).filter((entry): entry is ScopeInformation => entry !== undefined);
   }
 
   private formatScopeInformation(
@@ -86,7 +87,6 @@ export class ScopesReader<T extends string> {
     }
   }
 
-  // to-do: check if necessary
   private filterDirectories(directories: Dirent<string>[]): Dirent<string>[] {
     return directories.filter((dirent) => dirent.isDirectory());
   }
