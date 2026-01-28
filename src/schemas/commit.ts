@@ -34,7 +34,7 @@ export function createCommitSchema<T extends string, U extends string>(
 ) {
   return z.object({
     ...baseCommitSchema.shape,
-    scope: z.enum(scopes).nullable(),
+    scope: z.enum(scopes).nullable().optional(),
     type: z.enum(types),
   }).catchall(z.string().nullable());
 }

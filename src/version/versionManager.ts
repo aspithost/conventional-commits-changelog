@@ -4,8 +4,8 @@ import { join } from 'node:path';
 
 import { Bumper } from 'conventional-recommended-bump';
 
+import type { ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
 import type { ReleaseType } from '@/types/index.js';
-import type { CommitSchema } from '@/schemas/commit.js';
 
 export class VersionManager<T extends string, U extends string> {
   private readonly bumperPreset: string;
@@ -16,7 +16,7 @@ export class VersionManager<T extends string, U extends string> {
 
   async bumpVersion(
     folderPath: string,
-    commits: CommitSchema<T, U>[],
+    commits: ValidatedCommits<T, U>,
     {
       bumpReadme = true,
       dryRun = false,
@@ -24,7 +24,7 @@ export class VersionManager<T extends string, U extends string> {
       bumpReadme?: boolean;
       dryRun?: boolean;
     } = {},
-  ): Promise<{ version: string, releaseType: ReleaseType } | undefined> {
+  ): Promise<{ version: string; releaseType: ReleaseType } | undefined> {
     const releaseType = await this.getRecommendReleaseType(commits);
     if (!releaseType) {
       return;
@@ -39,6 +39,29 @@ export class VersionManager<T extends string, U extends string> {
       this.bumpReadme(folderPath, newVersion);
     }
     return { version: newVersion, releaseType };
+  }
+
+  private async getRecommendReleaseType(
+    commits: ValidatedCommits<T, U>,
+  ): Promise<ReleaseType | null> {
+    const bumper = this.createBumper();
+    this.setBumperCommits(bumper, commits);
+    const recommendedBump = await bumper.bump();
+    if (!('releaseType' in recommendedBump)) {
+      return null;
+    }
+    return recommendedBump.releaseType;
+  }
+
+  private createBumper(): Bumper {
+    return new Bumper().loadPreset(this.bumperPreset);
+  }
+
+  private setBumperCommits(
+    bumper: Bumper,
+    commits: ValidatedCommits<T, U>,
+  ): void {
+    bumper.commits(commits);
   }
 
   private bumpNpmVersion(
@@ -72,25 +95,5 @@ export class VersionManager<T extends string, U extends string> {
       console.error(`Error bumping README.md in folder: ${folderPath}`);
       throw err;
     }
-  }
-
-  async getRecommendReleaseType(
-    commits: CommitSchema<T, U>[],
-  ): Promise<ReleaseType | null> {
-    const bumper = this.createBumper();
-    this.setBumperCommits(bumper, commits);
-    const recommendedBump = await bumper.bump();
-    if (!('releaseType' in recommendedBump)) {
-      return null;
-    }
-    return recommendedBump.releaseType;
-  }
-
-  private createBumper(): Bumper {
-    return new Bumper().loadPreset(this.bumperPreset);
-  }
-
-  private setBumperCommits(bumper: Bumper, commits: CommitSchema<T, U>[]): void {
-    bumper.commits(commits);
   }
 }

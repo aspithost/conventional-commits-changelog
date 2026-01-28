@@ -49,4 +49,19 @@ export class CommitsValidator<T extends string, U extends string> {
       yield validationResult.data;
     }
   }
+
+  async *getValidatedCommitsByScope(
+    validatedCommits: ValidatedCommits<T, U>,
+    scopeFilter: T,
+  ): ValidatedCommits<T, U> {
+    for await (const validatedCommit of validatedCommits) {
+      const { scope } = validatedCommit;
+      if (!scope && scopeFilter === 'root') {
+        console.warn('No scope found on commit, adding to root scope');
+        yield validatedCommit;
+      } else if (scope === scopeFilter) {
+        yield validatedCommit;
+      }
+    }
+  }
 }
