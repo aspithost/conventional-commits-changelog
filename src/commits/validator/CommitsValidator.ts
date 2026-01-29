@@ -3,7 +3,7 @@ import { createCommitSchema, type CommitSchema } from '@/schemas/commit.js';
 import { ScopesReader } from '@/scopes/reader/ScopesReader.js';
 import type { ParsedCommits } from '../parser/CommitsParser.js';
 
-export type ValidatedCommits<T extends string, U extends string> = AsyncGenerator<CommitSchema<T, U>, void, unknown>;
+export type ValidatedCommits<T extends string, U extends string> = Generator<CommitSchema<T, U>, void, unknown>;
 
 const DEFAULT_ALLOWED_TYPES = COMMIT_TYPES.map((entry) => entry.type);
 type DefaultAllowedTypes = typeof DEFAULT_ALLOWED_TYPES[number];
@@ -34,10 +34,10 @@ export class CommitsValidator<T extends string, U extends string> {
     return new CommitsValidator(new ScopesReader().scopes, DEFAULT_ALLOWED_TYPES);
   }
 
-  async *getValidatedCommits(
+  *getValidatedCommits(
     parsedCommits: ParsedCommits,
   ): ValidatedCommits<T, U> {
-    for await (const parsedCommit of parsedCommits) {
+    for (const parsedCommit of parsedCommits) {
       const validationResult = this.commitSchema.safeParse(parsedCommit);
       if (!validationResult.success) {
         console.error('Validation error, did not yield commit', {
@@ -50,11 +50,11 @@ export class CommitsValidator<T extends string, U extends string> {
     }
   }
 
-  async *getValidatedCommitsByScope(
+  *getValidatedCommitsByScope(
     validatedCommits: ValidatedCommits<T, U>,
     scopeFilter: T,
   ): ValidatedCommits<T, U> {
-    for await (const validatedCommit of validatedCommits) {
+    for (const validatedCommit of validatedCommits) {
       const { scope } = validatedCommit;
       if (!scope && scopeFilter === 'root') {
         console.warn('No scope found on commit, adding to root scope');

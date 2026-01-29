@@ -1,5 +1,17 @@
 export const COMMIT_TYPES = [
   {
+    type: 'build',
+    section: 'Build System',
+  },
+  {
+    type: 'ci',
+    section: 'Continuous Integration',
+  },
+  {
+    type: 'docs',
+    section: 'Documentation',
+  },
+  {
     type: 'feat',
     section: 'Features',
   },
@@ -23,26 +35,15 @@ export const COMMIT_TYPES = [
     type: 'test',
     section: 'Tests',
   },
+  // Commit types below not included in CHANGELOG
   {
-    type: 'build',
-    section: 'Build System',
-  },
-  {
-    type: 'ci',
-    section: 'Continuous Integration',
-  },
-  {
-    type: 'docs',
-    section: 'Documentation',
+    type: 'chore',
+    section: 'Chores',
+    hidden: true,
   },
   {
     type: 'style',
     section: 'Styles',
-    hidden: true,
-  },
-  {
-    type: 'chore',
-    section: 'Chores',
     hidden: true,
   },
 ] as const;

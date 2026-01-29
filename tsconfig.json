@@ -23,7 +23,7 @@
     "verbatimModuleSyntax": true,
 
     /* Types */
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
 
     /* Paths & aliases */
     "baseUrl": "./src",
@@ -32,5 +32,5 @@
     }
   },
   "include": ["**/*.ts", "eslint.config.ts"],
-  "exclude": ["dist","node_modules", "**/*.spec.ts"],
+  "exclude": ["dist","node_modules"],
 }

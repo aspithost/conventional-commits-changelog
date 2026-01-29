@@ -1,8 +1,8 @@
 import { execFileSync } from 'node:child_process';
 
-interface RawCommit {
+export interface RawCommit {
   hash: string;
-  body: string;
+  commit: string;
 }
 export type RawCommits = Generator<RawCommit, void, unknown>;
 export class CommitsRetriever {
@@ -30,13 +30,13 @@ export class CommitsRetriever {
 
   *getRawCommits(): RawCommits {
     try {
-      // to-do: do not retrieve emtpy line last entry
-      const commitsString = this.getRawCommitsString();
-      for (const rawCommit of commitsString.split('\x00')) {
+      // to-do: do not retrieve empty line last entry
+      const rawCommitsString = this.getRawCommitsString();
+      for (const rawCommit of rawCommitsString.split('\x00')) {
         const rawCommitTrimmed = rawCommit.trim();
         if (!rawCommitTrimmed) continue;
         const [hash, ...rest] = rawCommitTrimmed.split('||');
-        yield { hash, body: rest.join('||').trim() };
+        yield { hash, commit: rest.join('||').trim() };
       }
     } catch {
       console.error('Could not retrieve commits.');
@@ -63,7 +63,7 @@ export class CommitsRetriever {
       // Return type: 'origin/main'
       return this._execFileSync('git', ['symbolic-ref', this.releaseBranch]);
     } catch {
-      console.log('No remote HEAD reference found. Now defaults to origin/main.');
+      console.error('No remote HEAD reference found. Now defaults to origin/main.');
       // Default fallback
       return this.releaseBranch.replace('refs/remotes/', '');
     }
@@ -79,7 +79,7 @@ export class CommitsRetriever {
         defaultBranch,
       ]);
     } catch {
-      console.log('No tags found.');
+      console.error('No tags found.');
       return null;
     }
   }
