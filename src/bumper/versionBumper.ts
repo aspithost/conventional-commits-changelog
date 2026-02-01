@@ -2,19 +2,12 @@ import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { Bumper } from 'conventional-recommended-bump';
-
 import type { ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
+
 import type { ReleaseType } from '@/types/index.js';
 
-export class VersionManager<T extends string, U extends string> {
-  private readonly bumperPreset: string;
-
-  constructor(bumperPreset: string = 'conventional-changelog-conventionalcommits') {
-    this.bumperPreset = bumperPreset;
-  }
-
-  async bumpVersion(
+export class VersionBumper<T extends string, U extends string> {
+  bumpVersion(
     folderPath: string,
     commits: ValidatedCommits<T, U>,
     {
@@ -24,8 +17,8 @@ export class VersionManager<T extends string, U extends string> {
       bumpReadme?: boolean;
       dryRun?: boolean;
     } = {},
-  ): Promise<{ version: string; releaseType: ReleaseType } | undefined> {
-    const releaseType = await this.getRecommendReleaseType(commits);
+  ): { version: string; releaseType: ReleaseType } | undefined {
+    const releaseType = this.determineReleaseType(commits);
     if (!releaseType) {
       return;
     }
@@ -41,27 +34,32 @@ export class VersionManager<T extends string, U extends string> {
     return { version: newVersion, releaseType };
   }
 
-  private async getRecommendReleaseType(
+  private determineReleaseType(
     commits: ValidatedCommits<T, U>,
-  ): Promise<ReleaseType | null> {
-    const bumper = this.createBumper();
-    this.setBumperCommits(bumper, commits);
-    const recommendedBump = await bumper.bump();
-    if (!('releaseType' in recommendedBump)) {
-      return null;
+  ): ReleaseType | null {
+    let releaseType: ReleaseType | null = null;
+
+    for (const commit of commits) {
+      // Breaking change = major (highest priority, can return early)
+      const hasBreakingChange = commit.notes.some(note =>
+        note.title === 'BREAKING CHANGE' || note.title === 'BREAKING-CHANGE'
+      );
+      if (hasBreakingChange) {
+        return 'major';
+      }
+
+      // Feature = minor
+      if (commit.type === 'feat') {
+        releaseType = 'minor';
+      }
+
+      // Fix = patch (only if not already minor)
+      if (commit.type === 'fix' && releaseType !== 'minor') {
+        releaseType = 'patch';
+      }
     }
-    return recommendedBump.releaseType;
-  }
 
-  private createBumper(): Bumper {
-    return new Bumper().loadPreset(this.bumperPreset);
-  }
-
-  private setBumperCommits(
-    bumper: Bumper,
-    commits: ValidatedCommits<T, U>,
-  ): void {
-    bumper.commits(commits);
+    return releaseType;
   }
 
   private bumpNpmVersion(

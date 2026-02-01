@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { CommitsRetriever, type RawCommits } from './CommitsRetriever.js';
+import { CommitsRetriever } from './CommitsRetriever.js';
 
 vi.mock('node:child_process', () => ({
   execFileSync: vi.fn(),
@@ -29,16 +29,12 @@ function setupMocks({
 
 describe('CommitsRetriever', () => {
   describe('getRawCommits', () => {
-    let rawCommitsIterator: RawCommits;
-    beforeEach(() => {
-      rawCommitsIterator = new CommitsRetriever().getRawCommits();
-    });
-
     it('should parse a single commit', () => {
       setupMocks({ rawCommitsString: 'abc123||feat: add feature\x00c123||feat: ad\x00' });
 
-      const commit = rawCommitsIterator.next().value;
-      expect(commit).toStrictEqual(
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits[0]).toStrictEqual(
         { hash: 'abc123', commit: 'feat: add feature' },
       );
     });
@@ -46,12 +42,13 @@ describe('CommitsRetriever', () => {
     it('should parse multiple commits', () => {
       setupMocks({ rawCommitsString: 'abc123||feat: add feature\x00def456||fix: bug fix\x00' });
 
-      const firstCommit = rawCommitsIterator.next().value;
-      const secondCommit = rawCommitsIterator.next().value;
-      expect(firstCommit).toStrictEqual(
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits).toHaveLength(2);
+      expect(rawCommits[0]).toStrictEqual(
         { hash: 'abc123', commit: 'feat: add feature' },
       );
-      expect(secondCommit).toStrictEqual(
+      expect(rawCommits[1]).toStrictEqual(
         { hash: 'def456', commit: 'fix: bug fix' },
       );
     });
@@ -59,7 +56,9 @@ describe('CommitsRetriever', () => {
     it('should handle a commit commit containing a delimiter', () => {
       setupMocks({ rawCommitsString: 'abc123||feat: something || with pipes\x00' });
 
-      expect(rawCommitsIterator.next().value).toStrictEqual(
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits[0]).toStrictEqual(
         { hash: 'abc123', commit: 'feat: something || with pipes' },
       );
     });
@@ -67,7 +66,9 @@ describe('CommitsRetriever', () => {
     it('should handle a multiline commit commit', () => {
       setupMocks({ rawCommitsString: 'abc123||feat: add feature\n\nThis is the commit.\x00' });
 
-      expect(rawCommitsIterator.next().value).toStrictEqual(
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits[0]).toStrictEqual(
         { hash: 'abc123', commit: 'feat: add feature\n\nThis is the commit.' },
       );
     });
@@ -75,26 +76,23 @@ describe('CommitsRetriever', () => {
     it('should skip empty entries', () => {
       setupMocks({ rawCommitsString: 'abc123||feat: one\x00\x00def456||feat: two\x00 \x00' });
 
-      const firstIterationResult = rawCommitsIterator.next();
-      expect(firstIterationResult.done).toBe(false);
-      expect(firstIterationResult.value).toStrictEqual(
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits).toHaveLength(2);
+      expect(rawCommits[0]).toStrictEqual(
         { hash: 'abc123', commit: 'feat: one' },
       );
-
-      const secondIterationResult = rawCommitsIterator.next();
-      expect(secondIterationResult.done).toBe(false);
-      expect(secondIterationResult.value).toStrictEqual(
+      expect(rawCommits[1]).toStrictEqual(
         { hash: 'def456', commit: 'feat: two' },
       );
-
-      const thirdIterationResult = rawCommitsIterator.next();
-      expect(thirdIterationResult.done).toBe(true);
     });
 
     it('should return an empty array when git log fails', () => {
       setupMocks({ rawCommitsString: new Error('git error') });
 
-      expect(rawCommitsIterator.next().value).toBeUndefined();
+      const rawCommits = [...new CommitsRetriever().getRawCommits()];
+
+      expect(rawCommits).toHaveLength(0);
     });
   });
 
@@ -102,7 +100,7 @@ describe('CommitsRetriever', () => {
     it('use the from..to range when from provided', () => {
       mockExecFileSync.mockReturnValue('');
 
-      new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0' }).getRawCommits().next();
+      [...new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
@@ -114,7 +112,7 @@ describe('CommitsRetriever', () => {
     it('should use the latest tag when from is not specified', () => {
       setupMocks();
 
-      new CommitsRetriever({ to: 'HEAD' }).getRawCommits().next();
+      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -126,7 +124,7 @@ describe('CommitsRetriever', () => {
     it('should return all commits when no tags exist', () => {
       setupMocks({ latestTag: new Error('no tags') });
 
-      new CommitsRetriever({ to: 'HEAD' }).getRawCommits().next();
+      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -143,7 +141,7 @@ describe('CommitsRetriever', () => {
         latestTag: new Error('no tags'),
       });
 
-      new CommitsRetriever({ to: 'HEAD' }).getRawCommits().next();
+      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         2,

@@ -1,3 +1,1 @@
-import type { BumperRecommendation } from 'conventional-recommended-bump';
-
-export type ReleaseType = BumperRecommendation['releaseType'];
+export type ReleaseType = 'major' | 'minor' | 'patch';

@@ -20,7 +20,7 @@ export async function createWriterPreset<T extends string, U extends string>({
 }: {
   config?: WriterPresetConfig<T, U>;
   commitEmojisConfig?: Record<string, string>;
-}): Promise<FinalOptions<CommitKnownProps>> {
+} = {}): Promise<FinalOptions<CommitKnownProps>> {
   const preset = await createPreset(config ?? { types: COMMIT_TYPES });
   const commitGroupOrder = config.types.flatMap((entry) => entry.section);
   const { writer }: { writer: FinalOptions } = preset;

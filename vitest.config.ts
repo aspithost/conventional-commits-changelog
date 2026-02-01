@@ -10,10 +10,14 @@ export default defineConfig({
   test: {
     clearMocks: true,
 
+    coverage: {
+      exclude: ['src/schemas/**'],
+    },
+
     environment: 'node',
 
-    include: ['src/**/*.test.ts'],
-    exclude: ['dist', 'node_modules', 'src/schemas'],
+    include: ['src/**/*.spec.ts'],
+    exclude: ['dist', 'node_modules'],
 
     globals: true,
 

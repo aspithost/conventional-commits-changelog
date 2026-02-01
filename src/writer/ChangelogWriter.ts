@@ -2,6 +2,7 @@ import { writeChangelog, type Context, type Options } from 'conventional-changel
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { createWriterPreset } from '@/presets/writer.js';
 import { getFormattedDate } from '@/utils/getFormattedDate.js';
 
 import type { CommitSchema } from '@/schemas/commit.js';
@@ -11,9 +12,20 @@ export class ChangelogWriter<T extends string, U extends string> {
   private readonly changelogWriterPreset: Options;
   private readonly rootFolderPath: string;
 
-  constructor(changelogWriterPreset: Options, rootFolderPath: string = join(process.cwd(), 'packages')) {
+  constructor({
+    changelogWriterPreset,
+    rootFolderPath = join(process.cwd(), 'packages'),
+  }: {
+    changelogWriterPreset: Options;
+    rootFolderPath?: string;
+  }) {
     this.changelogWriterPreset = changelogWriterPreset;
     this.rootFolderPath = rootFolderPath;
+  }
+
+  static async withDefaultPreset<T extends string, U extends string>(rootFolderPath?: string) {
+    const preset = await createWriterPreset();
+    return new ChangelogWriter<T, U>({ changelogWriterPreset: preset, rootFolderPath });
   }
 
   async writeChangelog(

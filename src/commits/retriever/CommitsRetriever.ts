@@ -4,7 +4,7 @@ export interface RawCommit {
   hash: string;
   commit: string;
 }
-export type RawCommits = Generator<RawCommit, void, unknown>;
+export type RawCommits = Iterable<RawCommit>;
 export class CommitsRetriever {
   private readonly commitFormat: string;
   private readonly from: string | undefined;

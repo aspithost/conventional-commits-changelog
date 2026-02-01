@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { packageSchema, type PackageSchema } from '@/schemas/package.js';
 
-interface ScopeInformation {
+export interface ScopeInformation {
   scopeFolderPath: string;
   scopeName: string;
 }
@@ -21,6 +21,10 @@ export class ScopesReader {
       return [];
     }
     return this.scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
+  }
+
+  get scopeEntries(): readonly ScopeInformation[] {
+    return this.scopesInformation;
   }
 
   private getScopesInformation(
@@ -46,13 +50,14 @@ export class ScopesReader {
   ): ScopeInformation[] {
     return directories.map((folder) => {
       try {
-        const folderPath = folder.name;
+        const folderName = folder.name;
+        const folderPath = join(directoryPath, folderName);
         return this.formatScopeInformation(
           folderPath,
           this.validatePackageJson(
             this.readPackageJson(
               directoryPath,
-              folderPath,
+              folderName,
             ),
           ),
         );
@@ -60,17 +65,16 @@ export class ScopesReader {
         console.error(`Error processing folder ${folder.name}:`, err);
         throw err;
       }
-    }).filter((entry): entry is ScopeInformation => entry !== undefined);
+    });
   }
 
   private formatScopeInformation(
-    scopeFolderPath: string,
+    folderPath: string,
     validatedPkg: PackageSchema,
-  ) {
-    const { scopeName } = validatedPkg;
+  ): ScopeInformation {
     return {
-      scopeFolderPath,
-      scopeName,
+      scopeFolderPath: folderPath,
+      scopeName: validatedPkg.scopeName,
     };
   }
 
@@ -91,7 +95,7 @@ export class ScopesReader {
     return directories.filter((dirent) => dirent.isDirectory());
   }
 
-  private validatePackageJson(pkg: Dirent<string>): PackageSchema {
+  private validatePackageJson(pkg: unknown): PackageSchema {
     const validationResult = packageSchema.safeParse(pkg);
     if (!validationResult.success) {
       throw new Error('Error parsing package.json');
@@ -99,7 +103,7 @@ export class ScopesReader {
     return validationResult.data;
   }
 
-  private readPackageJson(packagesDirectory: string, folderPath: string): Dirent<string> {
+  private readPackageJson(packagesDirectory: string, folderPath: string): unknown {
     try {
       return JSON.parse(
         readFileSync(

@@ -10,7 +10,7 @@ export interface ParsedCommit extends CommitBase {
   subject: string | null;
   type: string | null;
 }
-export type ParsedCommits = Generator<ParsedCommit, void, unknown>;
+export type ParsedCommits = Iterable<ParsedCommit>;
 
 export class CommitsParser{
   private readonly commitParser: CommitParser;
