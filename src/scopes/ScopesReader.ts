@@ -11,13 +11,12 @@ export interface ScopeInformation {
 export class ScopesReader {
   private readonly scopesInformation: readonly ScopeInformation[];
 
-  constructor(directoryName: string = 'packages') {
-    this.scopesInformation = this.getScopesInformation(directoryName);
+  constructor(directoryPath: string = join(process.cwd(), 'packages')) {
+    this.scopesInformation = this.getScopesInformation(directoryPath);
   }
 
   get scopes(): string[] {
     if (!this.scopesInformation.length) {
-      console.error('No scopes found, returning an empty list');
       return [];
     }
     return this.scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
@@ -28,20 +27,14 @@ export class ScopesReader {
   }
 
   private getScopesInformation(
-    directoryName: string,
+    directoryPath: string,
   ): readonly ScopeInformation[] {
-    const directoryPath = this.getDirectoryPath(directoryName);
-    try {
-      return this.mapScopeInformation(
-        directoryPath,
-        this.filterDirectories(
-          this.readDirectories(directoryPath),
-        ),
-      );
-    } catch (err) {
-      console.error('Error retrieving scopes information');
-      throw err;
-    }
+    return this.mapScopeInformation(
+      directoryPath,
+      this.filterDirectories(
+        this.readDirectories(directoryPath),
+      ),
+    );
   }
 
   private mapScopeInformation(
@@ -49,22 +42,17 @@ export class ScopesReader {
     directories: Dirent[],
   ): ScopeInformation[] {
     return directories.map((folder) => {
-      try {
-        const folderName = folder.name;
-        const folderPath = join(directoryPath, folderName);
-        return this.formatScopeInformation(
-          folderPath,
-          this.validatePackageJson(
-            this.readPackageJson(
-              directoryPath,
-              folderName,
-            ),
+      const folderName = folder.name;
+      const folderPath = join(directoryPath, folderName);
+      return this.formatScopeInformation(
+        folderPath,
+        this.validatePackageJson(
+          this.readPackageJson(
+            directoryPath,
+            folderName,
           ),
-        );
-      } catch (err) {
-        console.error(`Error processing folder ${folder.name}:`, err);
-        throw err;
-      }
+        ),
+      );
     });
   }
 
@@ -76,10 +64,6 @@ export class ScopesReader {
       scopePath: folderPath,
       scopeName: validatedPkg.scopeName,
     };
-  }
-
-  private getDirectoryPath(directoryName: string): string {
-    return join(process.cwd(), directoryName);
   }
 
   private readDirectories(directoryPath: string): Dirent<string>[] {

@@ -1,6 +1,6 @@
 import { COMMIT_TYPES } from '@/presets/constants/writer.js';
 import { createCommitSchema, type CommitSchema } from '@/schemas/commit.js';
-import { ScopesReader } from '@/scopes/reader/ScopesReader.js';
+import { ScopesReader } from '@/scopes/ScopesReader.js';
 import type { ParsedCommits } from '../parser/CommitsParser.js';
 
 export type ValidatedCommit<T extends string, U extends string> = CommitSchema<T, U>;

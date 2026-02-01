@@ -1,7 +1,7 @@
 import type { ParsedCommit, ParsedCommits } from '../parser/CommitsParser.js';
 import { CommitsValidator, DEFAULT_ALLOWED_TYPES } from './CommitsValidator.js';
 
-vi.mock('@/scopes/reader/ScopesReader.js', () => ({
+vi.mock('@/scopes/ScopesReader.js', () => ({
   ScopesReader: class {
     get scopes() {
       return ['packageOne', 'packageTwo', 'packageThree'];
