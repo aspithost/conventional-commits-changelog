@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { packageSchema, type PackageSchema } from '@/schemas/package.js';
 
 export interface ScopeInformation {
-  scopeFolderPath: string;
+  scopePath: string;
   scopeName: string;
 }
 
@@ -73,7 +73,7 @@ export class ScopesReader {
     validatedPkg: PackageSchema,
   ): ScopeInformation {
     return {
-      scopeFolderPath: folderPath,
+      scopePath: folderPath,
       scopeName: validatedPkg.scopeName,
     };
   }

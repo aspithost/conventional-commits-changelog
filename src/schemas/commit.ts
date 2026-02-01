@@ -18,14 +18,15 @@ const commitReference = z.object({
 
 const baseCommitSchema = z.object({
   hash: z.string(),
-  merge: z.string().nullable(),
-  revert: commitMeta.nullable(),
-  header: z.string().nullable(),
   body: z.string().nullable(),
   footer: z.string().nullable(),
-  notes: z.array(commitNote),
+  header: z.string().nullable(),
   mentions: z.array(z.string()),
+  merge: z.string().nullable(),
+  notes: z.array(commitNote),
   references: z.array(commitReference),
+  revert: commitMeta.nullable(),
+  subject: z.string().optional(),
 });
 
 export function createCommitSchema<T extends string, U extends string>(
@@ -36,6 +37,6 @@ export function createCommitSchema<T extends string, U extends string>(
     ...baseCommitSchema.shape,
     scope: z.enum(scopes).nullable().optional(),
     type: z.enum(types),
-  }).catchall(z.string().nullable());
+  });
 }
 export type CommitSchema<T extends string, U extends string> = z.infer<ReturnType<typeof createCommitSchema<T, U>>>;

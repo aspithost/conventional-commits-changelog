@@ -19,9 +19,8 @@
     "build": "npm run clean && npm run typecheck && tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "test": "vitest",
-    "test-cov": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
-    "t": "tsx src/test.ts"
+    "test:cov": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.3.1",
@@ -33,7 +32,6 @@
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "conventional-changelog-writer": "^8.2.0",
     "conventional-commits-parser": "^6.2.1",
-    "conventional-recommended-bump": "^11.2.0",
     "eslint": "^9.39.2",
     "globals": "^17.2.0",
     "handlebars": "^4.7.8",

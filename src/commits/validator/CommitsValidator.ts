@@ -41,6 +41,7 @@ export class CommitsValidator<T extends string, U extends string> {
     for (const parsedCommit of parsedCommits) {
       const validationResult = this.commitSchema.safeParse(parsedCommit);
       if (!validationResult.success) {
+        // To-do: Replace with proper logger
         console.error('Validation error, did not yield commit', {
           commit: parsedCommit,
           error: validationResult.error,

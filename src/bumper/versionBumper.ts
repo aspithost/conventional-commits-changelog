@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -6,15 +6,15 @@ import type { ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
 
 import type { ReleaseType } from '@/types/index.js';
 
-export class VersionBumper<T extends string, U extends string> {
-  bumpVersion(
-    folderPath: string,
-    commits: ValidatedCommits<T, U>,
+export class VersionBumper {
+  static bumpVersion(
+    scopePath: string,
+    commits: ValidatedCommits<string, string>,
     {
-      bumpReadme = true,
+      updateReadme = true,
       dryRun = false,
     }: {
-      bumpReadme?: boolean;
+      updateReadme?: boolean;
       dryRun?: boolean;
     } = {},
   ): { version: string; releaseType: ReleaseType } | undefined {
@@ -23,19 +23,19 @@ export class VersionBumper<T extends string, U extends string> {
       return;
     }
     if (dryRun) {
-      console.log(`[dry-run] Would bump ${folderPath} with release type ${releaseType}.`);
+      console.log(`[dry-run] Would bump ${scopePath} with release type ${releaseType}.`);
       return;
     }
 
-    const newVersion = this.bumpNpmVersion(folderPath, releaseType);
-    if (bumpReadme) {
-      this.bumpReadme(folderPath, newVersion);
+    const newVersion = this.bumpNpmVersion(scopePath, releaseType);
+    if (updateReadme) {
+      this.updateReadme(scopePath, newVersion);
     }
     return { version: newVersion, releaseType };
   }
 
-  private determineReleaseType(
-    commits: ValidatedCommits<T, U>,
+  private static determineReleaseType(
+    commits: ValidatedCommits<string, string>,
   ): ReleaseType | null {
     let releaseType: ReleaseType | null = null;
 
@@ -62,27 +62,31 @@ export class VersionBumper<T extends string, U extends string> {
     return releaseType;
   }
 
-  private bumpNpmVersion(
-    folderPath: string,
+  private static bumpNpmVersion(
+    scopePath: string,
     releaseType: ReleaseType,
   ): string {
     try {
-      const bumpedVersion = execSync(`npm version ${releaseType} --no-git-tag-version`, {
-        cwd: folderPath,
+      const bumpedVersion = execFileSync(`npm`, [
+        'version',
+        releaseType,
+        '--no-git-tag-version',
+      ], {
+        cwd: scopePath,
         encoding: 'utf-8',
       })
         .trim()
         .replace(/^v/, '');
       return bumpedVersion;
     } catch (err) {
-      console.error(`Error bumping version in folder path: ${folderPath}`);
+      console.error(`Error bumping version in folder path: ${scopePath}`);
       throw err;
     }
   }
 
-  private bumpReadme(folderPath: string, newVersion: string): void {
+  private static updateReadme(scopePath: string, newVersion: string): void {
     try {
-      const readmePath = join(folderPath, 'README.md');
+      const readmePath = join(scopePath, 'README.md');
       const readmeContent = readFileSync(readmePath, 'utf-8');
       writeFileSync(
         readmePath,
@@ -90,7 +94,7 @@ export class VersionBumper<T extends string, U extends string> {
         'utf-8',
       );
     } catch (err) {
-      console.error(`Error bumping README.md in folder: ${folderPath}`);
+      console.error(`Error bumping README.md in folder: ${scopePath}`);
       throw err;
     }
   }
