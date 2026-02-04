@@ -1,11 +1,11 @@
 import type { ValidatedCommit, ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { VersionBumper } from './versionBumper.js';
 
 vi.mock('node:child_process', () => ({
-  execFileSync: vi.fn(),
+  execSync: vi.fn(),
 }));
 
 vi.mock('node:fs', () => ({
@@ -13,7 +13,7 @@ vi.mock('node:fs', () => ({
   writeFileSync: vi.fn(),
 }));
 
-const mockExecFileSync = vi.mocked(execFileSync);
+const mockExecSync = vi.mocked(execSync);
 const mockReadFileSync = vi.mocked(readFileSync);
 const mockWriteFileSync = vi.mocked(writeFileSync);
 
@@ -40,7 +40,7 @@ const VALIDATED_COMMIT = {
 
 describe('VersionBumper', () => {
   beforeEach(() => {
-    mockExecFileSync.mockReturnValue('v1.1.0\n');
+    mockExecSync.mockReturnValue('v1.1.0\n');
     mockReadFileSync.mockReturnValue('# Package\n\nVersion: 1.0.0\n');
   });
 
@@ -134,15 +134,14 @@ describe('VersionBumper', () => {
 
         VersionBumper.bumpVersion('/path/to/package', commits);
 
-        expect(mockExecFileSync).toHaveBeenCalledWith(
-          'npm',
-          ['version', 'minor', '--no-git-tag-version'],
+        expect(mockExecSync).toHaveBeenCalledWith(
+          'npm version minor --no-git-tag-version',
           { cwd: '/path/to/package', encoding: 'utf-8' },
         );
       });
 
       it('should return the bumped version without v prefix', () => {
-        mockExecFileSync.mockReturnValue('v2.0.0\n');
+        mockExecSync.mockReturnValue('v2.0.0\n');
         const commits = createValidatedCommits([
           { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'breaking' }] },
         ]);
@@ -159,7 +158,7 @@ describe('VersionBumper', () => {
 
         VersionBumper.bumpVersion('/path/to/package', commits, { dryRun: true });
 
-        expect(mockExecFileSync).not.toHaveBeenCalled();
+        expect(mockExecSync).not.toHaveBeenCalled();
       });
 
       it('should return undefined when dryRun is true', () => {
@@ -177,7 +176,7 @@ describe('VersionBumper', () => {
     const readmePath = join(packagePath, 'README.md');
 
     it('should update README with new version by default', () => {
-      mockExecFileSync.mockReturnValue('v1.2.0\n');
+      mockExecSync.mockReturnValue('v1.2.0\n');
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
       VersionBumper.bumpVersion(packagePath, commits);
@@ -198,7 +197,7 @@ describe('VersionBumper', () => {
     });
 
     it('should replace first semver match in README', () => {
-      mockExecFileSync.mockReturnValue('v2.0.0\n');
+      mockExecSync.mockReturnValue('v2.0.0\n');
       mockReadFileSync.mockReturnValue('Version 1.0.0 - depends on lib 3.4.5');
       const commits = createValidatedCommits([
         { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'breaking' }] },
@@ -216,7 +215,7 @@ describe('VersionBumper', () => {
 
   describe('error handling', () => {
     it('should throw and log error when npm version fails', () => {
-      mockExecFileSync.mockImplementation(() => {
+      mockExecSync.mockImplementation(() => {
         throw new Error('npm error');
       });
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);

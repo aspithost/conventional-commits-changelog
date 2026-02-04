@@ -118,7 +118,12 @@ describe('ChangelogWriter', () => {
       await writer.writeChangelog(DIRECTORY_PATH, '2.0.0', 'major', commits);
 
       expect(mockWriteChangelog).toHaveBeenCalledWith(
-        { version: '2.0.0', isPatch: false, date: '2024-01-15' },
+        {
+          date: '2024-01-15',
+          isPatch: false,
+          linkReferences: true,
+          version: '2.0.0',
+        },
         MOCK_WRITER_PRESET,
       );
     });
