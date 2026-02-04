@@ -57,7 +57,11 @@ export class VersionUpdater<T extends string, U extends string> {
 
       const bumperResult = VersionBumper.bumpVersion(scopePath, commits);
       if (bumperResult) {
-        const changelogWriter = await ChangelogWriter.withDefaultPreset<T, U>();
+        const changelogWriter = await ChangelogWriter.withDefaultPreset<T, U>({
+          host: 'https://github.com',
+          owner: 'aspithost',
+          repository: 'conventional-commits-changelog',
+        });
         changelogWriter.writeChangelog(
           scopePath,
           bumperResult.version,

@@ -30,7 +30,11 @@ export async function createWriterPreset<T extends string, U extends string>({
 
     return rankA - rankB;
   };
-  Handlebars.registerHelper('commitEmoji', (type: keyof typeof commitEmojisConfig) => commitEmojisConfig[type] ??  type);
+  Handlebars.registerHelper('commitEmoji', (type: keyof typeof commitEmojisConfig) => commitEmojisConfig[type] ?? type);
+  Handlebars.registerHelper('commitUrl', (hash: string, options: Handlebars.HelperOptions) => {
+    const { host, owner, repository } = options.data.root;
+    return `${host}/${owner}/${repository}/commit/${hash}`;
+  });
   const commitTemplate = readFileSync(
     join(process.cwd(), 'src', 'presets', 'templates', 'commit.hbs'),
     'utf-8',

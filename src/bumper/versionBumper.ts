@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -67,14 +67,13 @@ export class VersionBumper {
     releaseType: ReleaseType,
   ): string {
     try {
-      const bumpedVersion = execFileSync(`npm`, [
-        'version',
-        releaseType,
-        '--no-git-tag-version',
-      ], {
-        cwd: scopePath,
-        encoding: 'utf-8',
-      })
+      const bumpedVersion = execSync(
+        `npm version ${releaseType} --no-git-tag-version`,
+        {
+          cwd: scopePath,
+          encoding: 'utf-8',
+        },
+      )
         .trim()
         .replace(/^v/, '');
       return bumpedVersion;

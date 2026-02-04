@@ -19,6 +19,13 @@ export class CommitsValidator<T extends string, U extends string> {
     this.commitSchema = createCommitSchema(allowedScopes, allowedTypes);
   }
 
+  static init<T extends string, U extends string>(
+    allowedScopes: readonly T[],
+    allowedTypes: readonly U[],
+  ): CommitsValidator<T, U> {
+    return new CommitsValidator(allowedScopes, allowedTypes);
+  }
+
   static withDefaultScopes<T extends string>(
     allowedTypes: readonly T[],
   ): CommitsValidator<string, T> {

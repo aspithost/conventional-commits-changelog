@@ -24,10 +24,12 @@ export class CommitsParser{
       const parsedCommit = this.commitParser.parse(commit);
       yield {
         ...parsedCommit,
+        hash,
+        // Note: scope, subject, type should be properly handled by conventional-commits-parser.
+        // Not included on interface in CommitBase or Commit, so adding them here with fallback of null.
         scope: parsedCommit.scope ?? null,
         subject: parsedCommit.subject ?? null,
-        type: parsedCommit.type ?? null,
-        hash,
+        type: parsedCommit.type ?? null, 
       };
     }
   }

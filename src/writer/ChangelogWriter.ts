@@ -10,22 +10,33 @@ import type { ReleaseType } from '@/types/index.js';
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
 
+interface RepositoryInformation {
+  host: string;
+  owner: string;
+  repository: string;
+}
+
 export class ChangelogWriter<T extends string, U extends string> {
   private readonly changelogWriterPreset: Options;
+  private readonly repositoryInformation: RepositoryInformation | undefined;
 
-  constructor(changelogWriterPreset: Options) {
+  constructor(changelogWriterPreset: Options, repositoryInformation?: RepositoryInformation) {
     this.changelogWriterPreset = changelogWriterPreset;
+    this.repositoryInformation = repositoryInformation;
   }
 
-  static async withDefaultPreset<T extends string, U extends string>(): Promise<ChangelogWriter<T, U>> {
+  static async withDefaultPreset<T extends string, U extends string>(
+    repositoryInformation?: RepositoryInformation,
+  ): Promise<ChangelogWriter<T, U>> {
     const changelogWriterPreset = await createWriterPreset();
-    return new ChangelogWriter<T, U>(changelogWriterPreset);
+    return new ChangelogWriter<T, U>(changelogWriterPreset, repositoryInformation);
   }
 
   static withCustomPreset<T extends string, U extends string>(
     changelogWriterPreset: Options,
+    repositoryInformation?: RepositoryInformation,
   ): ChangelogWriter<T, U> {
-    return new ChangelogWriter<T, U>(changelogWriterPreset);
+    return new ChangelogWriter<T, U>(changelogWriterPreset, repositoryInformation);
   }
 
   async writeChangelog(
@@ -64,9 +75,11 @@ export class ChangelogWriter<T extends string, U extends string> {
     commits: ValidatedCommits<T, U>,
   ): AsyncGenerator<string, void, unknown> {
     const context = {
-      version: newVersion,
-      isPatch: releaseType === 'patch',
       date: getFormattedDate(),
+      isPatch: releaseType === 'patch',
+      linkReferences: true,
+      version: newVersion,
+      ...this.repositoryInformation
     } satisfies Context;
 
     return writeChangelog(context, this.changelogWriterPreset)(commits);
