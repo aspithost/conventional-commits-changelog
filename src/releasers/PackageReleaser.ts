@@ -7,21 +7,21 @@ import {
   type ValidatedCommit
 } from '@/commits/validator/CommitsValidator.js';
 import { ScopesReader } from '@/scopes/ScopesReader.js';
-import { ChangelogWriter } from '@/writer/ChangelogWriter.js';
+import { ChangelogWriter, type RemoteRepositoryInformation } from '@/writer/ChangelogWriter.js';
 
 interface ScopeContext<T extends string, U extends string> {
   scopePath: string;
   commits: ValidatedCommit<T, U>[];
 }
 
-export class VersionUpdater<T extends string, U extends string> {
+export class PackageReleaser<T extends string, U extends string> {
   private readonly scopes: Map<T, ScopeContext<T, U>>;
 
   private constructor(scopes: Map<T, ScopeContext<T, U>>) {
     this.scopes = scopes;
   }
 
-  static async init(): Promise<VersionUpdater<string, DefaultAllowedTypes>> {
+  static async init(): Promise<PackageReleaser<string, DefaultAllowedTypes>> {
     const scopesReader = new ScopesReader();
     const scopes = new Map<string, ScopeContext<string, DefaultAllowedTypes>>();
 
@@ -48,20 +48,16 @@ export class VersionUpdater<T extends string, U extends string> {
       scopes.get(scopeName)?.commits.push(commit);
     }
 
-    return new VersionUpdater<string, DefaultAllowedTypes>(scopes);
+    return new PackageReleaser<string, DefaultAllowedTypes>(scopes);
   }
 
-  async updateVersions() {
+  async releasePackages(remoteRepositoryInformation?: RemoteRepositoryInformation): Promise<void> {
     for (const { scopePath, commits } of this.scopes.values()) {
       if (commits.length === 0) continue;
 
       const bumperResult = VersionBumper.bumpVersion(scopePath, commits);
       if (bumperResult) {
-        const changelogWriter = await ChangelogWriter.withDefaultPreset<T, U>({
-          host: 'https://github.com',
-          owner: 'aspithost',
-          repository: 'conventional-commits-changelog',
-        });
+        const changelogWriter = await ChangelogWriter.withDefaultPreset(remoteRepositoryInformation);
         changelogWriter.writeChangelog(
           scopePath,
           bumperResult.version,
