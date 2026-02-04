@@ -29,9 +29,8 @@ export class CommitsParser{
         // Not included on interface in CommitBase or Commit, so adding them here with fallback of null.
         scope: parsedCommit.scope ?? null,
         subject: parsedCommit.subject ?? null,
-        type: parsedCommit.type ?? null, 
+        type: parsedCommit.type ?? null,
       };
     }
   }
 }
- 

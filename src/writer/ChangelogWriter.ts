@@ -79,7 +79,7 @@ export class ChangelogWriter<T extends string, U extends string> {
       isPatch: releaseType === 'patch',
       linkReferences: true,
       version: newVersion,
-      ...this.remoteRepositoryInformation
+      ...this.remoteRepositoryInformation,
     } satisfies Context;
 
     return writeChangelog(context, this.changelogWriterPreset)(commits);

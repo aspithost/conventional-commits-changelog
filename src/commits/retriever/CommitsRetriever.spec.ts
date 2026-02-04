@@ -100,7 +100,7 @@ describe('CommitsRetriever', () => {
     it('use the from..to range when from provided', () => {
       mockExecFileSync.mockReturnValue('');
 
-      [...new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0' }).getRawCommits()];
+      const _ = [...new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
@@ -112,7 +112,7 @@ describe('CommitsRetriever', () => {
     it('should use the latest tag when from is not specified', () => {
       setupMocks();
 
-      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
+      const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -124,7 +124,7 @@ describe('CommitsRetriever', () => {
     it('should return all commits when no tags exist', () => {
       setupMocks({ latestTag: new Error('no tags') });
 
-      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
+      const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -141,7 +141,7 @@ describe('CommitsRetriever', () => {
         latestTag: new Error('no tags'),
       });
 
-      [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
+      const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         2,

@@ -4,7 +4,7 @@ import { CommitsRetriever } from '@/commits/retriever/CommitsRetriever.js';
 import {
   CommitsValidator,
   type DefaultAllowedTypes,
-  type ValidatedCommit
+  type ValidatedCommit,
 } from '@/commits/validator/CommitsValidator.js';
 import { ScopesReader } from '@/scopes/ScopesReader.js';
 import { ChangelogWriter, type RemoteRepositoryInformation } from '@/writer/ChangelogWriter.js';

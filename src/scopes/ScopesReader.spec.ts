@@ -29,7 +29,7 @@ function createDirent(name: string, isDirectory: boolean) {
 describe('ScopesReader', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-  })
+  });
 
   beforeEach(() => {
     mockSafeParse.mockReturnValue({
@@ -42,7 +42,7 @@ describe('ScopesReader', () => {
     beforeEach(() => {
       mockReaddirSync.mockReturnValue([]);
     });
-  
+
     it('should use default packages directory when no path provided', () => {
       const _ = new ScopesReader();
 
@@ -154,7 +154,7 @@ describe('ScopesReader', () => {
     beforeEach(() => {
       mockReaddirSync.mockReturnValue([createDirent('my-pkg', true)]);
     });
-  
+
     it('should read and parse package.json from each folder', () => {
       const customPath = '/packages';
       mockReadFileSync.mockReturnValue('{}');
@@ -180,7 +180,7 @@ describe('ScopesReader', () => {
       mockSafeParse.mockReturnValueOnce({
         success: false,
         // @ts-expect-error: ZodError not relevant for test
-        error: new Error('Dummy error'), 
+        error: new Error('Dummy error'),
       });
 
       expect(() => new ScopesReader()).toThrow('Error parsing package.json');

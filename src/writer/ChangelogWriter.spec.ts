@@ -76,7 +76,7 @@ describe('ChangelogWriter', () => {
     });
 
     it('should create instance with custom preset', async () => {
-      const customPreset = await createWriterPreset()
+      const customPreset = await createWriterPreset();
 
       const writer = ChangelogWriter.withCustomPreset(customPreset);
 
@@ -131,7 +131,7 @@ describe('ChangelogWriter', () => {
 
       expect(mockWriteChangelog).toHaveBeenCalledWith(
         expect.objectContaining({ isPatch: true }),
-        MOCK_WRITER_PRESET
+        MOCK_WRITER_PRESET,
       );
     });
   });

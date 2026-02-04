@@ -14,7 +14,7 @@ interface WriterPresetConfig<T extends string, U extends string> extends Record<
   }[];
 }
 
-export async function createWriterPreset<T extends string, U extends string>({ 
+export async function createWriterPreset<T extends string, U extends string>({
   config = { types: COMMIT_TYPES},
   commitEmojisConfig = COMMIT_EMOJIS,
 }: {

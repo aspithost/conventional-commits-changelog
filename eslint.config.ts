@@ -1,19 +1,26 @@
-import eslint from '@eslint/js';
-import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+import eslint from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
+
 export default defineConfig([
-  eslint.configs.recommended,
-  tseslint.configs.recommended,
   {
-    files: ['**/*.{js,ts}'],
+    extends: [
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+    ],
+    files: ['src/**/*.{js,ts}'],
+    ignores: ['dist/**', 'node_modules/**'],
     plugins: {
       '@stylistic': stylistic,
     },
     languageOptions: {
       globals: globals.node,
+      parserOptions: {
+        projectService: true,
+      },
     },
     rules: {
       '@stylistic/comma-dangle': ['error', {
@@ -27,6 +34,10 @@ export default defineConfig([
       '@stylistic/indent': ['error', 2, { 'SwitchCase': 1 }],
       '@stylistic/no-trailing-spaces': 'error',
       '@stylistic/semi': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      }],
     },
   },
 ]);

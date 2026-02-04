@@ -42,7 +42,7 @@ export class VersionBumper {
     for (const commit of commits) {
       // Breaking change = major (highest priority, can return early)
       const hasBreakingChange = commit.notes.some(note =>
-        note.title === 'BREAKING CHANGE' || note.title === 'BREAKING-CHANGE'
+        note.title === 'BREAKING CHANGE' || note.title === 'BREAKING-CHANGE',
       );
       if (hasBreakingChange) {
         return 'major';

@@ -20,7 +20,7 @@ export const PARSER_STREAM_OPTIONS = {
     'fixed',
     'resolve',
     'resolves',
-    'resolved'
+    'resolved',
   ],
   revertCorrespondence: ['header', 'hash'],
   revertPattern: /^(?:Revert|revert:)\s"?([\s\S]+?)"?\s*This reverts commit (\w*)\./i,
