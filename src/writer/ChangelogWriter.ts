@@ -10,7 +10,7 @@ import type { ReleaseType } from '@/types/index.js';
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
 
-interface RepositoryInformation {
+export interface RemoteRepositoryInformation {
   host: string;
   owner: string;
   repository: string;
@@ -18,15 +18,15 @@ interface RepositoryInformation {
 
 export class ChangelogWriter<T extends string, U extends string> {
   private readonly changelogWriterPreset: Options;
-  private readonly repositoryInformation: RepositoryInformation | undefined;
+  private readonly remoteRepositoryInformation: RemoteRepositoryInformation | undefined;
 
-  constructor(changelogWriterPreset: Options, repositoryInformation?: RepositoryInformation) {
+  constructor(changelogWriterPreset: Options, repositoryInformation?: RemoteRepositoryInformation) {
     this.changelogWriterPreset = changelogWriterPreset;
-    this.repositoryInformation = repositoryInformation;
+    this.remoteRepositoryInformation = repositoryInformation;
   }
 
   static async withDefaultPreset<T extends string, U extends string>(
-    repositoryInformation?: RepositoryInformation,
+    repositoryInformation?: RemoteRepositoryInformation,
   ): Promise<ChangelogWriter<T, U>> {
     const changelogWriterPreset = await createWriterPreset();
     return new ChangelogWriter<T, U>(changelogWriterPreset, repositoryInformation);
@@ -34,7 +34,7 @@ export class ChangelogWriter<T extends string, U extends string> {
 
   static withCustomPreset<T extends string, U extends string>(
     changelogWriterPreset: Options,
-    repositoryInformation?: RepositoryInformation,
+    repositoryInformation?: RemoteRepositoryInformation,
   ): ChangelogWriter<T, U> {
     return new ChangelogWriter<T, U>(changelogWriterPreset, repositoryInformation);
   }
@@ -79,7 +79,7 @@ export class ChangelogWriter<T extends string, U extends string> {
       isPatch: releaseType === 'patch',
       linkReferences: true,
       version: newVersion,
-      ...this.repositoryInformation
+      ...this.remoteRepositoryInformation
     } satisfies Context;
 
     return writeChangelog(context, this.changelogWriterPreset)(commits);
