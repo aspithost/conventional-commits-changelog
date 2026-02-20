@@ -61,7 +61,7 @@ npm run clean      # Remove dist/ directory
 
 ## Code Style
 
-- Only use TypeScript type-casting as a last resort
+- NEVER use type assertion or type casting.
 - 2-space indentation
 - Trailing commas on multiline structures
 - Semicolons required

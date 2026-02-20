@@ -1,36 +1,7 @@
 {
+  "extends": "@abelspithost/tsconfig-node",
   "compilerOptions": {
-    /* Core Options */
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Output */
-    "outDir": "dist",
-    "declaration": true,
-    "declarationMap": true,
-    "inlineSourceMap": true,
-
-    /* Module system */
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "esnext",
-    "lib": ["ESNext"],
-
-    /* Node compatibility */
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
-
-    /* Types */
-    "types": ["node", "vitest/globals"],
-
-    /* Paths & aliases */
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["*"]
-    }
+    "types": ["node", "vitest/globals"]
   },
-  "include": ["**/*.ts", "eslint.config.ts"],
-  "exclude": ["dist", "node_modules"],
+  "include": ["**/*.ts"],
 }

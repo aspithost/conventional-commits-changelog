@@ -50,6 +50,7 @@ export class CommitsRetriever {
   }
 
   private getRawCommitsString(): string {
+    // return dummyCommitString;
     return this._execFileSync('git', [
       'log',
       '--no-abbrev-commit',

@@ -16,31 +16,32 @@
   },
   "license": "ISC",
   "scripts": {
-    "build": "npm run clean && npm run typecheck && tsc -p tsconfig.json",
+    "build": "npm run clean && tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "lint": "eslint .",
     "test": "vitest",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "vitest run --coverage --coverage.reporter=text",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@abelspithost/eslint-config-ts": "^1.0.1",
+    "@abelspithost/tsconfig-node": "^0.0.4",
     "@commitlint/config-conventional": "^20.3.1",
-    "@eslint/js": "^9.39.2",
-    "@stylistic/eslint-plugin": "^5.7.1",
-    "@types/node": "^25.2.0",
+    "@types/node": "^24.10.11",
     "@types/semver": "^7.7.1",
     "@vitest/coverage-v8": "^4.0.18",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "conventional-changelog-writer": "^8.2.0",
     "conventional-commits-parser": "^6.2.1",
-    "eslint": "^9.39.2",
-    "globals": "^17.2.0",
+    "eslint": "^10.0.0",
     "handlebars": "^4.7.8",
     "jiti": "^2.6.1",
     "rimraf": "^6.1.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
     "vitest": "^4.0.18",
     "zod": "^4.3.6"
+  },
+  "overrides": {
+    "minimatch": ">=10.2.1"
   }
 }

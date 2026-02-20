@@ -12,6 +12,11 @@ export default defineConfig({
 
     coverage: {
       exclude: ['src/schemas/**'],
+      thresholds: {
+        branches: 90,
+        functions: 95,
+        lines: 95,
+      },
     },
 
     environment: 'node',
