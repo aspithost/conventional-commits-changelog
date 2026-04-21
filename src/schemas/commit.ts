@@ -29,7 +29,8 @@ const baseCommitSchema = z.object({
   subject: z.string().optional(),
 });
 
-// eslint-disable @typescript-eslint/no-unnecessary-type-parameters
+// Note: stil need to address this
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function createCommitSchema<T extends string, U extends string>(
   scopes: readonly T[],
   types: readonly U[],
