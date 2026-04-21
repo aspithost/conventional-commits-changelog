@@ -35,7 +35,7 @@ function* createValidatedCommits(commits: ValidatedCommit<string, string>[]): Va
   yield* commits;
 }
 
-async function* createChangelogChunks(chunks: string[]): AsyncGenerator<string> {
+function* createChangelogChunks(chunks: string[]): Generator<string> {
   for (const chunk of chunks) {
     yield chunk;
   }
@@ -65,7 +65,7 @@ describe('ChangelogWriter', () => {
     mockCreateWriterPreset.mockResolvedValue(MOCK_WRITER_PRESET as never);
     mockGetFormattedDate.mockReturnValue('2024-01-15');
     mockReadFileSync.mockReturnValue('');
-    mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n', '### Features\n\n', '* add feature\n']));
+    mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n', '### Features\n\n', '* add feature\n']) as never);
   });
 
   describe('factory methods', () => {
@@ -144,7 +144,7 @@ describe('ChangelogWriter', () => {
   describe('changelog content insertion', () => {
     it('should create new changelog when file is empty', async () => {
       mockReadFileSync.mockReturnValue('');
-      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']));
+      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = await ChangelogWriter.withDefaultPreset();
 
@@ -159,7 +159,7 @@ describe('ChangelogWriter', () => {
 
     it('should append entry after header when no versions exist', async () => {
       mockReadFileSync.mockReturnValue('# Changelog\n\nAll notable changes.\n');
-      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']));
+      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = await ChangelogWriter.withDefaultPreset();
 
@@ -174,7 +174,7 @@ describe('ChangelogWriter', () => {
 
     it('should insert entry before existing versions', async () => {
       mockReadFileSync.mockReturnValue('# Changelog\n\n## 1.0.0\n\n* old feature\n');
-      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new feature\n']));
+      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = await ChangelogWriter.withDefaultPreset();
 
@@ -189,7 +189,7 @@ describe('ChangelogWriter', () => {
 
     it('should handle multiple existing versions', async () => {
       mockReadFileSync.mockReturnValue('# Changelog\n\n## 2.0.0\n\n* v2\n\n## 1.0.0\n\n* v1\n');
-      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 3.0.0\n\n* v3\n']));
+      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 3.0.0\n\n* v3\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = await ChangelogWriter.withDefaultPreset();
 
@@ -204,7 +204,7 @@ describe('ChangelogWriter', () => {
 
     it('should handle changelog with trailing whitespace', async () => {
       mockReadFileSync.mockReturnValue('# Changelog\n\n## 1.0.0\n\n* feature\n\n\n');
-      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new\n']));
+      mockWriteChangelog.mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = await ChangelogWriter.withDefaultPreset();
 

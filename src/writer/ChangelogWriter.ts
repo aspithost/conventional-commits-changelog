@@ -17,12 +17,12 @@ export interface RemoteRepositoryInformation {
 }
 
 export class ChangelogWriter<T extends string, U extends string> {
-  private readonly changelogWriterPreset: Options;
-  private readonly remoteRepositoryInformation: RemoteRepositoryInformation | undefined;
+  readonly #changelogWriterPreset: Options;
+  readonly #remoteRepositoryInformation: RemoteRepositoryInformation | undefined;
 
   constructor(changelogWriterPreset: Options, repositoryInformation?: RemoteRepositoryInformation) {
-    this.changelogWriterPreset = changelogWriterPreset;
-    this.remoteRepositoryInformation = repositoryInformation;
+    this.#changelogWriterPreset = changelogWriterPreset;
+    this.#remoteRepositoryInformation = repositoryInformation;
   }
 
   static async withDefaultPreset<T extends string, U extends string>(
@@ -44,7 +44,7 @@ export class ChangelogWriter<T extends string, U extends string> {
     newVersion: string,
     releaseType: ReleaseType,
     commits: ValidatedCommits<T, U>,
-    filename: string = 'CHANGELOG.md',
+    filename = 'CHANGELOG.md',
   ): Promise<void> {
     const changelogPath = join(directoryPath, filename);
     const currentContent = this.readChangelog(changelogPath);
@@ -79,10 +79,10 @@ export class ChangelogWriter<T extends string, U extends string> {
       isPatch: releaseType === 'patch',
       linkReferences: true,
       version: newVersion,
-      ...this.remoteRepositoryInformation,
+      ...this.#remoteRepositoryInformation,
     } satisfies Context;
 
-    return writeChangelog(context, this.changelogWriterPreset)(commits);
+    return writeChangelog(context, this.#changelogWriterPreset)(commits);
   }
 
   private insertChangelogEntry(currentContent: string, newEntry: string): string {
