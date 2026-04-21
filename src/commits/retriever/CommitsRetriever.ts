@@ -6,14 +6,14 @@ export interface RawCommit {
 }
 export type RawCommits = Iterable<RawCommit>;
 export class CommitsRetriever {
-  private readonly commitFormat: string;
-  private readonly from: string | undefined;
-  private readonly to: string;
-  private readonly releaseBranch: string;
+  readonly #commitFormat: string;
+  readonly #from: string | undefined;
+  readonly #to: string;
+  readonly #releaseBranch: string;
 
   constructor({
     commitFormat = '%H||%B%x00',
-    from = undefined,
+    from,
     to = 'HEAD',
     releaseBranch = 'refs/remotes/origin/HEAD',
   }: {
@@ -22,10 +22,10 @@ export class CommitsRetriever {
     to?: string;
     releaseBranch?: string;
   } = {}) {
-    this.commitFormat = commitFormat;
-    this.from = from;
-    this.to = to;
-    this.releaseBranch = releaseBranch;
+    this.#commitFormat = commitFormat;
+    this.#from = from;
+    this.#to = to;
+    this.#releaseBranch = releaseBranch;
   }
 
   *getRawCommits(): RawCommits {
@@ -45,8 +45,8 @@ export class CommitsRetriever {
   }
 
   private get commitRange() {
-    const from = this.from ?? this.getLatestTag();
-    return from ? `${from}..${this.to}` : this.to;
+    const from = this.#from ?? this.getLatestTag();
+    return from ? `${from}..${this.#to}` : this.#to;
   }
 
   private getRawCommitsString(): string {
@@ -54,7 +54,7 @@ export class CommitsRetriever {
     return this._execFileSync('git', [
       'log',
       '--no-abbrev-commit',
-      `--pretty=format:${this.commitFormat}`,
+      `--pretty=format:${this.#commitFormat}`,
       this.commitRange,
     ]);
   }
@@ -62,11 +62,11 @@ export class CommitsRetriever {
   private getDefaultBranch(): string {
     try {
       // Return type: 'origin/main'
-      return this._execFileSync('git', ['symbolic-ref', this.releaseBranch]);
+      return this._execFileSync('git', ['symbolic-ref', this.#releaseBranch]);
     } catch {
       console.error('No remote HEAD reference found. Now defaults to origin/main.');
       // Default fallback
-      return this.releaseBranch.replace('refs/remotes/', '');
+      return this.#releaseBranch.replace('refs/remotes/', '');
     }
   }
 

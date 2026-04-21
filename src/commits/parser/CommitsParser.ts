@@ -13,15 +13,15 @@ export interface ParsedCommit extends CommitBase {
 export type ParsedCommits = Iterable<ParsedCommit>;
 
 export class CommitsParser{
-  private readonly commitParser: CommitParser;
+  readonly #commitParser: CommitParser;
 
   constructor(parserStreamOptions: ParserStreamOptions = PARSER_STREAM_OPTIONS) {
-    this.commitParser = new CommitParser(parserStreamOptions);
+    this.#commitParser = new CommitParser(parserStreamOptions);
   }
 
   *getParsedCommits(rawCommits: RawCommits): ParsedCommits {
     for (const { commit, hash } of rawCommits) {
-      const parsedCommit = this.commitParser.parse(commit);
+      const parsedCommit = this.#commitParser.parse(commit);
       yield {
         ...parsedCommit,
         hash,

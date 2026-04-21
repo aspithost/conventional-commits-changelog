@@ -10,13 +10,13 @@ export const DEFAULT_ALLOWED_TYPES = COMMIT_TYPES.map((entry) => entry.type);
 export type DefaultAllowedTypes = typeof DEFAULT_ALLOWED_TYPES[number];
 
 export class CommitsValidator<T extends string, U extends string> {
-  private readonly commitSchema: ReturnType<typeof createCommitSchema<T, U>>;
+  readonly #commitSchema: ReturnType<typeof createCommitSchema<T, U>>;
 
   constructor(
     allowedScopes: readonly T[],
     allowedTypes: readonly U[],
   ) {
-    this.commitSchema = createCommitSchema(allowedScopes, allowedTypes);
+    this.#commitSchema = createCommitSchema(allowedScopes, allowedTypes);
   }
 
   static init<T extends string, U extends string>(
@@ -46,7 +46,7 @@ export class CommitsValidator<T extends string, U extends string> {
     parsedCommits: ParsedCommits,
   ): ValidatedCommits<T, U> {
     for (const parsedCommit of parsedCommits) {
-      const validationResult = this.commitSchema.safeParse(parsedCommit);
+      const validationResult = this.#commitSchema.safeParse(parsedCommit);
       if (!validationResult.success) {
         // To-do: Replace with proper logger
         console.error('Validation error, did not yield commit', {
