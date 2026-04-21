@@ -1,4 +1,4 @@
-import { Dirent, readdirSync, readFileSync } from 'node:fs';
+import { type Dirent, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { packageSchema, type PackageSchema } from '@/schemas/package.js';
@@ -9,21 +9,21 @@ export interface ScopeInformation {
 }
 
 export class ScopesReader {
-  private readonly scopesInformation: readonly ScopeInformation[];
+  readonly #scopesInformation: readonly ScopeInformation[];
 
   constructor(directoryPath: string = join(process.cwd(), 'packages')) {
-    this.scopesInformation = this.getScopesInformation(directoryPath);
+    this.#scopesInformation = this.getScopesInformation(directoryPath);
   }
 
   get scopes(): string[] {
-    if (!this.scopesInformation.length) {
+    if (!this.#scopesInformation.length) {
       return [];
     }
-    return this.scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
+    return this.#scopesInformation.map((scopeInformation) => scopeInformation.scopeName);
   }
 
   get scopeEntries(): readonly ScopeInformation[] {
-    return this.scopesInformation;
+    return this.#scopesInformation;
   }
 
   private getScopesInformation(
@@ -31,8 +31,8 @@ export class ScopesReader {
   ): readonly ScopeInformation[] {
     return this.mapScopeInformation(
       directoryPath,
-      this.filterDirectories(
-        this.readDirectories(directoryPath),
+      this.#filterDirectories(
+        this.#readDirectories(directoryPath),
       ),
     );
   }
@@ -46,8 +46,8 @@ export class ScopesReader {
       const folderPath = join(directoryPath, folderName);
       return this.formatScopeInformation(
         folderPath,
-        this.validatePackageJson(
-          this.readPackageJson(
+        this.#validatePackageJson(
+          this.#readPackageJson(
             directoryPath,
             folderName,
           ),
@@ -66,7 +66,7 @@ export class ScopesReader {
     };
   }
 
-  private readDirectories(directoryPath: string): Dirent<string>[] {
+  #readDirectories(directoryPath: string): Dirent[] {
     try {
       return readdirSync(directoryPath, { withFileTypes: true });
     } catch (err) {
@@ -75,11 +75,11 @@ export class ScopesReader {
     }
   }
 
-  private filterDirectories(directories: Dirent<string>[]): Dirent<string>[] {
+  #filterDirectories(directories: Dirent[]): Dirent[] {
     return directories.filter((dirent) => dirent.isDirectory());
   }
 
-  private validatePackageJson(pkg: unknown): PackageSchema {
+  #validatePackageJson(pkg: unknown): PackageSchema {
     const validationResult = packageSchema.safeParse(pkg);
     if (!validationResult.success) {
       throw new Error('Error parsing package.json');
@@ -87,7 +87,7 @@ export class ScopesReader {
     return validationResult.data;
   }
 
-  private readPackageJson(packagesDirectory: string, folderPath: string): unknown {
+  #readPackageJson(packagesDirectory: string, folderPath: string): unknown {
     try {
       return JSON.parse(
         readFileSync(

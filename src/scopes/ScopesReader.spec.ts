@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { packageSchema } from '@/schemas/package.js';
 import { ScopesReader } from './ScopesReader.js';
 
 vi.mock('node:fs', () => ({
@@ -9,15 +8,17 @@ vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
 }));
 
+const { safeParse } = vi.hoisted(() => ({
+  safeParse: vi.fn(),
+}));
 vi.mock('@/schemas/package.js', () => ({
   packageSchema: {
-    safeParse: vi.fn(),
+    safeParse,
   },
 }));
 
 const mockReaddirSync = vi.mocked(readdirSync);
 const mockReadFileSync = vi.mocked(readFileSync);
-const mockSafeParse = vi.mocked(packageSchema.safeParse);
 
 function createDirent(name: string, isDirectory: boolean) {
   return {
@@ -32,7 +33,7 @@ describe('ScopesReader', () => {
   });
 
   beforeEach(() => {
-    mockSafeParse.mockReturnValue({
+    safeParse.mockReturnValue({
       success: true,
       data: { scopeName: 'package-one' },
     });
@@ -89,7 +90,7 @@ describe('ScopesReader', () => {
         createDirent('package-three', true),
       ]);
       mockReadFileSync.mockReturnValue('{}');
-      mockSafeParse
+      safeParse
         .mockReturnValueOnce({ success: true, data: { scopeName: 'package-one' } })
         .mockReturnValueOnce({ success: true, data: { scopeName: 'package-two' } })
         .mockReturnValueOnce({ success: true, data: { scopeName: 'package-three' } });
@@ -177,9 +178,8 @@ describe('ScopesReader', () => {
 
     it('should throw when package.json validation fails', () => {
       mockReadFileSync.mockReturnValue('{}');
-      mockSafeParse.mockReturnValueOnce({
+      safeParse.mockReturnValueOnce({
         success: false,
-        // @ts-expect-error: ZodError not relevant for test
         error: new Error('Dummy error'),
       });
 
@@ -192,7 +192,7 @@ describe('ScopesReader', () => {
 
       const _ = new ScopesReader();
 
-      expect(mockSafeParse).toHaveBeenCalledWith(packageJson);
+      expect(safeParse).toHaveBeenCalledWith(packageJson);
     });
   });
 });
