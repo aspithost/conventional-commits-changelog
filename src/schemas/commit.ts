@@ -29,14 +29,15 @@ const baseCommitSchema = z.object({
   subject: z.string().optional(),
 });
 
-export function createCommitSchema<
-  T extends readonly string[],
-  U extends readonly string[]
->(scopes: T, types: U) {
+// eslint-disable @typescript-eslint/no-unnecessary-type-parameters
+export function createCommitSchema<T extends string, U extends string>(
+  scopes: readonly T[],
+  types: readonly U[],
+) {
   return z.object({
     ...baseCommitSchema.shape,
     scope: z.enum(scopes).nullable().optional(),
     type: z.enum(types),
   });
 }
-export type CommitSchema<T extends readonly string[], U extends readonly string[]> = z.infer<ReturnType<typeof createCommitSchema<T, U>>>;
+export type CommitSchema<T extends string, U extends string> = z.infer<ReturnType<typeof createCommitSchema<T, U>>>;
