@@ -1,4 +1,4 @@
-import { VersionBumper } from '@/bumper/versionBumper.js';
+import { bumpVersion } from '@/bumper/versionBumper.js';
 import { CommitsParser } from '@/commits/parser/CommitsParser.js';
 import { CommitsRetriever } from '@/commits/retriever/CommitsRetriever.js';
 import {
@@ -15,13 +15,13 @@ interface ScopeContext<T extends string, U extends string> {
 }
 
 export class PackageReleaser<T extends string, U extends string> {
-  private readonly scopes: Map<T, ScopeContext<T, U>>;
+  readonly #scopes: Map<T, ScopeContext<T, U>>;
 
   private constructor(scopes: Map<T, ScopeContext<T, U>>) {
-    this.scopes = scopes;
+    this.#scopes = scopes;
   }
 
-  static async init(): Promise<PackageReleaser<string, DefaultAllowedTypes>> {
+  static init(): PackageReleaser<string, DefaultAllowedTypes> {
     const scopesReader = new ScopesReader();
     const scopes = new Map<string, ScopeContext<string, DefaultAllowedTypes>>();
 
@@ -52,18 +52,22 @@ export class PackageReleaser<T extends string, U extends string> {
   }
 
   async releasePackages(remoteRepositoryInformation?: RemoteRepositoryInformation): Promise<void> {
-    for (const { scopePath, commits } of this.scopes.values()) {
+    for (const { scopePath, commits } of this.#scopes.values()) {
       if (commits.length === 0) continue;
 
-      const bumperResult = VersionBumper.bumpVersion(scopePath, commits);
+      const bumperResult = bumpVersion(scopePath, commits);
       if (bumperResult) {
         const changelogWriter = await ChangelogWriter.withDefaultPreset(remoteRepositoryInformation);
-        changelogWriter.writeChangelog(
-          scopePath,
-          bumperResult.version,
-          bumperResult.releaseType,
-          commits,
-        );
+        try {
+          await changelogWriter.writeChangelog(
+            scopePath,
+            bumperResult.version,
+            bumperResult.releaseType,
+            commits,
+          );
+        } catch (err) {
+          console.error(`Failed to write changelog for scope at ${scopePath}:`, err);
+        }
       }
     }
   }
