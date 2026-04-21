@@ -2,7 +2,7 @@ import type { ValidatedCommit, ValidatedCommits } from '@/commits/validator/Comm
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { VersionBumper } from './versionBumper.js';
+import { bumpVersion } from './versionBumper.js';
 
 vi.mock('node:child_process', () => ({
   execSync: vi.fn(),
@@ -51,7 +51,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'removed old API' }] },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('major');
       });
@@ -61,7 +61,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING-CHANGE', text: 'removed old API' }] },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('major');
       });
@@ -71,7 +71,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, type: 'feat' },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('minor');
       });
@@ -81,7 +81,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, type: 'fix' },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('patch');
       });
@@ -92,7 +92,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, type: 'feat' },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('minor');
       });
@@ -103,7 +103,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'breaking' }] },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.releaseType).toBe('major');
       });
@@ -114,7 +114,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, type: 'chore' },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result).toBeUndefined();
       });
@@ -122,7 +122,7 @@ describe('VersionBumper', () => {
       it('should return undefined for empty commits', () => {
         const commits = createValidatedCommits([]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result).toBeUndefined();
       });
@@ -132,7 +132,7 @@ describe('VersionBumper', () => {
       it('should call npm version with correct arguments', () => {
         const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-        VersionBumper.bumpVersion('/path/to/package', commits);
+        bumpVersion('/path/to/package', commits);
 
         expect(mockExecSync).toHaveBeenCalledWith(
           'npm version minor --no-git-tag-version',
@@ -146,7 +146,7 @@ describe('VersionBumper', () => {
           { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'breaking' }] },
         ]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits);
+        const result = bumpVersion('/path/to/package', commits);
 
         expect(result?.version).toBe('2.0.0');
       });
@@ -156,7 +156,7 @@ describe('VersionBumper', () => {
       it('should not call npm version when dryRun is true', () => {
         const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-        VersionBumper.bumpVersion('/path/to/package', commits, { dryRun: true });
+        bumpVersion('/path/to/package', commits, { dryRun: true });
 
         expect(mockExecSync).not.toHaveBeenCalled();
       });
@@ -164,7 +164,7 @@ describe('VersionBumper', () => {
       it('should return undefined when dryRun is true', () => {
         const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-        const result = VersionBumper.bumpVersion('/path/to/package', commits, { dryRun: true });
+        const result = bumpVersion('/path/to/package', commits, { dryRun: true });
 
         expect(result).toBeUndefined();
       });
@@ -179,7 +179,7 @@ describe('VersionBumper', () => {
       mockExecSync.mockReturnValue('v1.2.0\n');
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-      VersionBumper.bumpVersion(packagePath, commits);
+      bumpVersion(packagePath, commits);
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         readmePath,
@@ -191,7 +191,7 @@ describe('VersionBumper', () => {
     it('should not update README when updateReadme is false', () => {
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-      VersionBumper.bumpVersion(packagePath, commits, { updateReadme: false });
+      bumpVersion(packagePath, commits, { isUpdateReadme: false });
 
       expect(mockWriteFileSync).not.toHaveBeenCalled();
     });
@@ -203,7 +203,7 @@ describe('VersionBumper', () => {
         { ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING CHANGE', text: 'breaking' }] },
       ]);
 
-      VersionBumper.bumpVersion(packagePath, commits);
+      bumpVersion(packagePath, commits);
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         readmePath,
@@ -220,7 +220,7 @@ describe('VersionBumper', () => {
       });
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-      expect(() => VersionBumper.bumpVersion('/path/to/package', commits)).toThrow('npm error');
+      expect(() => bumpVersion('/path/to/package', commits)).toThrow('npm error');
     });
 
     it('should throw and log error when README update fails', () => {
@@ -229,7 +229,7 @@ describe('VersionBumper', () => {
       });
       const commits = createValidatedCommits([{ ...VALIDATED_COMMIT, type: 'feat' }]);
 
-      expect(() => VersionBumper.bumpVersion('/path/to/package', commits)).toThrow('write error');
+      expect(() => bumpVersion('/path/to/package', commits)).toThrow('write error');
     });
   });
 });
