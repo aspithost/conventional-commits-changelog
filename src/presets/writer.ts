@@ -1,9 +1,8 @@
 import Handlebars from 'handlebars';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-// @ts-expect-error: No declaration file for library
 import createPreset from 'conventional-changelog-conventionalcommits';
-import type { CommitKnownProps, FinalOptions } from 'conventional-changelog-writer';
+import type { FinalOptions } from 'conventional-changelog-writer';
 
 import { COMMIT_EMOJIS, COMMIT_TYPES } from '@/presets/constants/writer.js';
 
@@ -20,8 +19,8 @@ export async function createWriterPreset<T extends string, U extends string>({
 }: {
   config?: WriterPresetConfig<T, U>;
   commitEmojisConfig?: Record<string, string>;
-} = {}): Promise<FinalOptions<CommitKnownProps>> {
-  const preset = await createPreset(config ?? { types: COMMIT_TYPES });
+} = {}): Promise<FinalOptions> {
+  const preset = await createPreset(config);
   const commitGroupOrder = config.types.flatMap((entry) => entry.section);
   const { writer }: { writer: FinalOptions } = preset;
   writer.commitGroupsSort = (a, b) => {
@@ -32,6 +31,13 @@ export async function createWriterPreset<T extends string, U extends string>({
   };
   Handlebars.registerHelper('commitEmoji', (type: keyof typeof commitEmojisConfig) => commitEmojisConfig[type] ?? type);
   Handlebars.registerHelper('commitUrl', (hash: string, options: Handlebars.HelperOptions) => {
+    // Note: Handlebars does not expose proper TS types for the `options` parameter, so we have to use `any` here.
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access,
+      @typescript-eslint/no-unsafe-assignment,
+      @typescript-eslint/restrict-template-expressions */
+    if (!options.data?.root) {
+      return hash;
+    }
     const { host, owner, repository } = options.data.root;
     return `${host}/${owner}/${repository}/commit/${hash}`;
   });

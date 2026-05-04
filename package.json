@@ -16,7 +16,7 @@
   },
   "license": "ISC",
   "scripts": {
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean && npm run typecheck && tsc -p tsconfig.build.json",
     "clean": "rimraf dist",
     "lint": "eslint .",
     "test": "vitest",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@abelspithost/commitlint": "^0.0.3",
-    "@abelspithost/eslint-config-ts": "^1.0.3",
+    "@abelspithost/eslint-config-ts": "^1.1.0",
     "@abelspithost/tsconfig-node": "^0.0.5",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
