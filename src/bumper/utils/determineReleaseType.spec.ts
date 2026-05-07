@@ -1,4 +1,5 @@
-import type { ValidatedCommit } from '@/classes/validator/CommitsValidator.js';
+import type { ValidatedCommit } from '@/commits/validator/CommitsValidator.js';
+
 import { determineReleaseType } from './determineReleaseType.js';
 
 const VALIDATED_COMMIT = {

@@ -1,4 +1,4 @@
-import { bumpVersion } from '@/bumper/versionBumper.js';
+import { bumpVersion } from '@/bumper/bumpVersion.js';
 import { CommitsParser } from '@/commits/parser/CommitsParser.js';
 import { CommitsRetriever } from '@/commits/retriever/CommitsRetriever.js';
 import {

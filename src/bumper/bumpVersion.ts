@@ -1,9 +1,10 @@
 import type { ReleaseType } from '@/types/index.js';
 
+import type { ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
+
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { determineReleaseType } from './utils/determineReleaseType.js';
 import { updateReadme } from './utils/updateReadme.js';
-import type { ValidatedCommits } from '@/classes/validator/CommitsValidator.js';
 
 export function bumpVersion(
   scopePath: string,

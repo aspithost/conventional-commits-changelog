@@ -1,4 +1,4 @@
-import type { ValidatedCommit } from '@/classes/validator/CommitsValidator.js';
+import type { ValidatedCommit } from '@/commits/validator/CommitsValidator.js';
 
 import { bumpVersion } from './bumpVersion.js';
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';

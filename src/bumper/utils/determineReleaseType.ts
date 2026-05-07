@@ -1,4 +1,4 @@
-import type { ValidatedCommits } from '@/classes/validator/CommitsValidator.js';
+import type { ValidatedCommits } from '@/commits/validator/CommitsValidator.js';
 import type { ReleaseType } from '@/types/index.js';
 
 export function determineReleaseType(commits: ValidatedCommits<string, string>): ReleaseType | null {
