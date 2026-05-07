@@ -1,4 +1,5 @@
 import type { ParsedCommit, ParsedCommits } from '../parser/CommitsParser.js';
+
 import { CommitsValidator, DEFAULT_ALLOWED_TYPES } from './CommitsValidator.js';
 
 vi.mock('@/scopes/ScopesReader.js', () => ({

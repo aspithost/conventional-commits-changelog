@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+
 import { CommitsRetriever } from './CommitsRetriever.js';
 
 vi.mock('node:child_process', () => ({
