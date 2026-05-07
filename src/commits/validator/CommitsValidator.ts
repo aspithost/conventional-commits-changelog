@@ -1,6 +1,7 @@
 import { COMMIT_TYPES } from '@/presets/constants/writer.js';
 import { createCommitSchema, type CommitSchema } from '@/schemas/commit.js';
 import { ScopesReader } from '@/scopes/ScopesReader.js';
+
 import type { ParsedCommits } from '../parser/CommitsParser.js';
 
 export type ValidatedCommit<T extends string, U extends string> = CommitSchema<T, U>;
@@ -17,13 +18,6 @@ export class CommitsValidator<T extends string, U extends string> {
     allowedTypes: readonly U[],
   ) {
     this.#commitSchema = createCommitSchema(allowedScopes, allowedTypes);
-  }
-
-  static init<T extends string, U extends string>(
-    allowedScopes: readonly T[],
-    allowedTypes: readonly U[],
-  ): CommitsValidator<T, U> {
-    return new CommitsValidator(allowedScopes, allowedTypes);
   }
 
   static withDefaultScopes<T extends string>(
