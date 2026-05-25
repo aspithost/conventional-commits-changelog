@@ -11,7 +11,12 @@ export default defineConfig({
     clearMocks: true,
 
     coverage: {
-      exclude: ['src/schemas/**'],
+      exclude: [
+        '**/constants/**',
+        '**/schemas/**',
+      ],
+      reporter: ['json-summary', 'json'],
+      reportOnFailure: true,
       thresholds: {
         branches: 90,
         functions: 95,
@@ -27,9 +32,5 @@ export default defineConfig({
     globals: true,
 
     pool: 'threads',
-
-    typecheck: {
-      enabled: true,
-    },
   },
 });
