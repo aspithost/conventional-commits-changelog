@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, type Dirent } from 'node:fs';
 import { join } from 'node:path';
 
-import { packageJsonSchema, type PackageJsonSchema } from '@/shared/scopes/schemas/package.js';
 import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
+import { packageJsonSchema, type PackageJsonSchema } from './schemas/package.js';
 
 type RootScopeOptions<T extends string> = {
   addRootScope: true;
