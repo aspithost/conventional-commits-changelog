@@ -1,65 +1,37 @@
-import { ScopesReader, type ScopesInformation } from '@/shared/scopes/ScopesReader.js';
-import type { ValidatedCommitsWithScope, ValidatedCommitWithScope } from '../validate-commits/types/commits.js';
+import type { ValidatedCommit } from '../validate-commits/types/commit.js';
 
-interface CommitsByScope<T extends string, U extends string> {
-  directoryPath: string;
-  commits: ValidatedCommitWithScope<T, U>[];
-}
-type ScopeKey<T> = T | 'root';
-type CommitsByScopeMap<T extends string, U extends string> = Map<ScopeKey<T>, CommitsByScope<T, U>>;
+export type CommitsByScopeMap = Map<string, ValidatedCommit<string, string>[]>;
 
-interface GroupCommitsByScopeOptions<T extends string> {
-  scopesInformation?: ScopesInformation<T>;
-  rootScopeName?: ScopeKey<T>;
-}
-
-export class CommitsGrouper<T extends string, U extends string> {
-  readonly #commitsByScopeMap: CommitsByScopeMap<T, U>;
-  readonly #scopesInformation: ScopesInformation<T>;
-  readonly #rootScopeName: ScopeKey<T>;
+export class CommitsGrouper {
+  readonly #commitsByScopeMap: CommitsByScopeMap;
 
   constructor(
-    validatedCommits: ValidatedCommitsWithScope<T, U>,
-    {
-      scopesInformation = ScopesReader.withPackagesDirectory<T>().scopesInformation,
-      rootScopeName = 'root',
-    }: GroupCommitsByScopeOptions<T> = {},
+    validatedCommits: Iterable<ValidatedCommit<string, string>>,
   ) {
-    this.#scopesInformation = scopesInformation;
-    this.#rootScopeName = rootScopeName;
-    this.#commitsByScopeMap = new Map();
-    this.#initializeScopesMap();
-    this.#groupCommitsByScope(validatedCommits);
+    this.#commitsByScopeMap = this.#groupCommitsByScope(validatedCommits);
   }
 
-  get scopes(): MapIterator<ScopeKey<T>> {
-    return this.#commitsByScopeMap.keys();
-  }
-
-  get commitsByScope(): CommitsByScopeMap<T, U> {
+  get commitsByScope(): CommitsByScopeMap {
     return this.#commitsByScopeMap;
   }
 
-  #groupCommitsByScope(validatedCommits: ValidatedCommitsWithScope<T, U>): void {
-    for (const commit of validatedCommits) {
-      const scopeName = commit.scope ?? this.#rootScopeName;
-      const commitsByScope = this.#commitsByScopeMap.get(scopeName);
-      if (!commitsByScope) continue;
-      commitsByScope.commits.push(commit);
-    }
-  }
+  #groupCommitsByScope(
+    validatedCommits: Iterable<ValidatedCommit<string, string>>,
+  ): CommitsByScopeMap {
+    const commitsByScopeMap: CommitsByScopeMap = new Map();
 
-  #initializeScopesMap(): void {
-    // Note: Initializes a key of 'root' on Map to group commits without a scope
-    this.#commitsByScopeMap.set(this.#rootScopeName, {
-      directoryPath: process.cwd(),
-      commits: [],
-    });
-    for (const { scopeName, directoryPath } of this.#scopesInformation) {
-      this.#commitsByScopeMap.set(scopeName, {
-        directoryPath,
-        commits: [],
-      });
+    for (const commit of validatedCommits) {
+      const { scope } = commit;
+      if (!scope) continue;
+
+      const commitsByScope = commitsByScopeMap.get(scope);
+      if (!commitsByScope) {
+        commitsByScopeMap.set(scope, [commit]);
+      } else {
+        commitsByScope.push(commit);
+      }
     }
+
+    return commitsByScopeMap;
   }
 }
