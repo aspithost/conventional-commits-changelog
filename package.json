@@ -38,9 +38,9 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "conventional-changelog-conventionalcommits": "^9.3.1",
-    "conventional-changelog-writer": "^8.4.0",
-    "conventional-commits-parser": "^6.4.0"
+    "conventional-changelog-conventionalcommits": "^10.4.0",
+    "conventional-changelog-writer": "^9.2.1",
+    "conventional-commits-parser": "^7.1.2"
   },
   "devDependencies": {
     "@abelspithost/commitlint": "^0.1.6",
