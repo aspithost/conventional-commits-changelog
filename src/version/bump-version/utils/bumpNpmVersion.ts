@@ -1,8 +1,17 @@
 import { execSync } from 'node:child_process';
 
-import type { ReleaseType } from '@/types/index.js';
+import type { ReleaseType } from '@/shared/types/release.js';
+import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
 
-export function bumpNpmVersion(directoryPath: string, releaseType: ReleaseType): string {
+export function bumpNpmVersion(
+  directoryPath: string,
+  releaseType: ReleaseType,
+  {
+    onError = logError,
+  }: {
+    onError?: ErrorHandler;
+  } = {},
+): string {
   try {
     const bumpedVersion = execSync(
       `npm version ${releaseType} --no-git-tag-version`,
@@ -15,7 +24,9 @@ export function bumpNpmVersion(directoryPath: string, releaseType: ReleaseType):
       .replace(/^v/, '');
     return bumpedVersion;
   } catch (err) {
-    console.error(`Error bumping version in folder path: ${directoryPath}`);
+    onError(`Error bumping version in folder path: ${directoryPath}`, {
+      error: err,
+    });
     throw err;
   }
 }

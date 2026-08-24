@@ -1,3 +1,4 @@
+import { DEFAULT_ALLOWED_TYPES } from '@/shared/constants/commit.js';
 import { z } from 'zod';
 
 const commitMeta = z.record(z.string(), z.string());
@@ -16,7 +17,8 @@ const commitReference = z.object({
   prefix: z.string(),
 });
 
-const baseCommitSchema = z.object({
+// Note: only exported for unit testing purposes
+export const commitSchema = z.looseObject({
   hash: z.string(),
   body: z.string().nullable(),
   footer: z.string().nullable(),
@@ -26,32 +28,37 @@ const baseCommitSchema = z.object({
   notes: z.array(commitNote),
   references: z.array(commitReference),
   revert: commitMeta.nullable(),
-  subject: z.string().optional(),
+  scope: z.string().nullable(),
+  subject: z.string().nullable(),
+  type: z.string().nullable(),
 });
+export type CommitSchema = z.infer<typeof commitSchema>;
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function createValidatedCommitSchema<T extends string>(
-  types: readonly T[],
+export function createCommitSchemaWithScope<T extends string>(
+  allowedScopes: readonly T[],
 ) {
-  return z.looseObject({
-    ...baseCommitSchema.shape,
-    type: z.enum(types),
-  });
-}
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function createValidatedCommitSchemaWithScope<T extends string, U extends string>(
-  scopes: readonly T[],
-  types: readonly U[],
-) {
-  return z.looseObject({
-    ...createValidatedCommitSchema(types).shape,
-    scope: z.enum(scopes).nullable(),
+  return createCommitSchemaWithType(DEFAULT_ALLOWED_TYPES).extend({
+    scope: z.enum(allowedScopes),
   });
 }
 
-export type ValidatedCommitSchema<T extends string> = z.infer<
-  ReturnType<typeof createValidatedCommitSchema<T>>
->;
-export type ValidatedCommitSchemaWithScope<T extends string, U extends string> = z.infer<
-  ReturnType<typeof createValidatedCommitSchemaWithScope<T, U>>
->;
+export function createCommitSchemaWithType<T extends string>(
+  allowedTypes: readonly T[],
+) {
+  return commitSchema.extend({
+    type: z.enum(allowedTypes),
+  });
+}
+
+export function createCommitSchemaWithScopeAndType<
+  T extends string,
+  U extends string
+>(
+  allowedScopes: readonly T[],
+  allowedTypes: readonly U[],
+) {
+  return commitSchema.extend({
+    scope: z.enum(allowedScopes),
+    type: z.enum(allowedTypes),
+  });
+}

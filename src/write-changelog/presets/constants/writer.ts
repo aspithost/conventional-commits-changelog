@@ -47,7 +47,6 @@ export const COMMIT_TYPES = [
     hidden: true,
   },
 ] as const;
-export const DEFAULT_ALLOWED_TYPES = COMMIT_TYPES.map((entry) => entry.type);
 
 export const COMMIT_EMOJIS = {
   Features: ':sparkles:',

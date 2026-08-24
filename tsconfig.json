@@ -1,8 +1,6 @@
 {
   "extends": "@abelspithost/tsconfig-node",
   "compilerOptions": {
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vitest/globals"],
   },
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "node_modules"],
 }

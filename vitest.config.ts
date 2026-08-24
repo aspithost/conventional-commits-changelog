@@ -26,7 +26,7 @@ export default defineConfig({
 
     environment: 'node',
 
-    include: ['src/**/*.spec.ts'],
+    include: ['**/*.spec.ts'],
     exclude: ['dist', 'node_modules'],
 
     globals: true,

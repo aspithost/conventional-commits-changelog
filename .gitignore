@@ -1,20 +1,5 @@
 node_modules/
-lib/
 .env
-.expo/
-android
 dist/
 npm-debug.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
-web-build/
 .husky/_
-
-# macOS
-.DS_Store
-
-expo-env.d.ts

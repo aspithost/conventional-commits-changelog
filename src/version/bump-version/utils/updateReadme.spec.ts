@@ -1,30 +1,31 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { updateReadme } from './updateReadme.js';
 import { join } from 'node:path';
+import { updateReadme } from './updateReadme.js';
 
 vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
   writeFileSync: vi.fn(),
 }));
 
+vi.mock('@/shared/error/logError.js');
+
 const PACKAGE_PATH = join('path', 'to', 'package');
 const README_PATH = join(PACKAGE_PATH, 'README.md');
 
-describe('updateReadme', () => {
-  beforeAll(() => {
-    console.error = vi.fn(); // Prevent console.errors from clogging unit test output
-  });
+const mockOnError = vi.fn();
 
+describe('updateReadme', () => {
   it('should update README with new version by default', () => {
     vi.mocked(readFileSync).mockReturnValue('# Package\n\nVersion: 1.1.0\n\n');
 
-    updateReadme(PACKAGE_PATH, '1.2.0');
+    updateReadme(PACKAGE_PATH, '1.2.0', { onError: mockOnError });
 
     expect(writeFileSync).toHaveBeenCalledWith(
       README_PATH,
       '# Package\n\nVersion: 1.2.0\n\n',
       'utf-8',
     );
+    expect(mockOnError).not.toHaveBeenCalled();
   });
 
   it('should replace first semver match in README', () => {
@@ -47,9 +48,13 @@ describe('updateReadme', () => {
     });
 
     expect(() => {
-      updateReadme('some path', '1.0.0');
+      updateReadme('some path', '1.0.0', { onError: mockOnError });
     }).toThrow(ERROR);
-    expect(readFileSync).toHaveBeenCalledTimes(1);
+    expect(readFileSync).toHaveBeenCalledOnce();
+    expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
+      expect.any(String),
+      { error: ERROR },
+    );
   });
 
   it('should throw an error if writeFileSync fails', () => {
@@ -60,8 +65,12 @@ describe('updateReadme', () => {
     });
 
     expect(() => {
-      updateReadme('some path', '1.0.0');
+      updateReadme('some path', '1.0.0', { onError: mockOnError });
     }).toThrow(ERROR);
-    expect(writeFileSync).toHaveBeenCalledTimes(1);
+    expect(writeFileSync).toHaveBeenCalledOnce();
+    expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
+      expect.any(String),
+      { error: ERROR },
+    );
   });
 });

@@ -5,6 +5,8 @@ vi.mock('node:child_process', () => ({
   execSync: vi.fn(),
 }));
 
+vi.mock('@/shared/error/logError.js');
+
 describe('bumpNpmVersion', () => {
   beforeEach(() => {
     vi.mocked(execSync);
@@ -31,13 +33,19 @@ describe('bumpNpmVersion', () => {
   });
 
   it('should throw an error if npm version fails', () => {
-    console.error = vi.fn(); // Suppress logs
     const ERROR = new Error('npm version failed');
     vi.mocked(execSync).mockImplementation(() => {
       throw ERROR;
     });
+    const mockOnError = vi.fn();
 
-    expect(() => bumpNpmVersion('/path/to/package', 'minor')).toThrow(ERROR);
+    expect(() => bumpNpmVersion('/path/to/package', 'minor', {
+      onError: mockOnError,
+    })).toThrow(ERROR);
     expect(execSync).toHaveBeenCalledTimes(1);
+    expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
+      expect.any(String),
+      { error: ERROR },
+    );
   });
 });

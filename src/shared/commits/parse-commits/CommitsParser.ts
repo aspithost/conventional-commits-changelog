@@ -1,7 +1,5 @@
-import { CommitParser, type CommitBase, type ParserStreamOptions } from 'conventional-commits-parser';
-
 import { PARSER_STREAM_OPTIONS } from '@/shared/commits/parse-commits/constants/parser.js';
-
+import { CommitParser, type CommitBase, type ParserStreamOptions } from 'conventional-commits-parser';
 import type { RawCommits } from '../retrieve-commits/CommitsRetriever.js';
 
 export interface ParsedCommit extends CommitBase {

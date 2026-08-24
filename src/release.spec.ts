@@ -2,9 +2,9 @@ import { retrieveValidatedCommits } from '@/shared/commits/retrieveValidatedComm
 import { bumpVersion } from '@/version/bump-version/bumpVersion.js';
 import { determineReleaseType } from '@/version/determine-release-type/determineReleaseType.js';
 import { ChangelogWriter, type ChangelogWriterPreset, type RemoteRepositoryInformation } from '@/write-changelog/ChangelogWriter.js';
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commits.js';
 
 import { release } from './release.js';
+import type { ValidatedCommitWithScopeAndType } from './shared/commits/validate-commits/types/commit.js';
 
 vi.mock('@/shared/commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(),
@@ -18,13 +18,18 @@ vi.mock('@/version/determine-release-type/determineReleaseType.js', () => ({
   determineReleaseType: vi.fn(),
 }));
 
+const { mockWriteChangelogPreset, mockWriteChangelog } = vi.hoisted(() => ({
+  mockWriteChangelogPreset: vi.fn(),
+  mockWriteChangelog: vi.fn(),
+}));
+
 vi.mock('@/write-changelog/ChangelogWriter.js', () => {
   const ChangelogWriter = vi.fn(class {
     static withDefaultPreset = vi.fn().mockResolvedValue({ // NOSONAR
-      writeChangelog: vi.fn(),
+      writeChangelog: mockWriteChangelogPreset,
     });
 
-    writeChangelog = vi.fn();
+    writeChangelog = mockWriteChangelog;
   });
 
   return { ChangelogWriter };
@@ -33,11 +38,11 @@ vi.mock('@/write-changelog/ChangelogWriter.js', () => {
 const BUTTON_FEAT_COMMIT = {
   scope: 'button',
   type: 'feat',
-} as unknown as ValidatedCommit<string, string>; // Type casting for unit testing purposes
+} as unknown as ValidatedCommitWithScopeAndType<string, string>; // Type casting for unit testing purposes
 const BUTTON_FIX_COMMIT = {
   scope: 'button',
   type: 'fix',
-} as unknown as ValidatedCommit<string, string>; // Type casting for unit testing purposes
+} as unknown as ValidatedCommitWithScopeAndType<string, string>; // Type casting for unit testing purposes
 const BUTTON_COMMITS = [BUTTON_FEAT_COMMIT, BUTTON_FIX_COMMIT];
 
 const REMOTE_REPOSITORY_INFORMATION: RemoteRepositoryInformation = {
@@ -52,6 +57,10 @@ describe('release', () => {
   });
 
   describe('determine release type', () => {
+    beforeEach(() => {
+      vi.mocked(determineReleaseType).mockReturnValue('patch');
+    });
+
     it('should determine the release type based on the retrieved validated commits', async () => {
       await release();
 
@@ -74,12 +83,21 @@ describe('release', () => {
 
     it('should not release if the validated commits do not contain types that warrant a release', async () => {
       vi.mocked(determineReleaseType).mockReturnValue(null);
+      const onError = vi.fn();
 
-      await release();
+      await release({ onError });
 
       expect(determineReleaseType).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledExactlyOnceWith(
+        expect.any(String),
+        expect.any(Error),
+      );
       expect(bumpVersion).not.toHaveBeenCalled();
-      // to-do: check if writer was called
+      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
+      expect(withDefaultPreset).not.toHaveBeenCalled();
+      expect(vi.mocked(ChangelogWriter)).not.toHaveBeenCalled();
+      expect(mockWriteChangelogPreset).not.toHaveBeenCalled();
+      expect(mockWriteChangelog).not.toHaveBeenCalled();
     });
   });
 
@@ -96,19 +114,20 @@ describe('release', () => {
 
     it('should bump the version with a custom directory path', async () => {
       const DIRECTORY_PATH = 'path/to/directory';
-      await release({ bumpVersionOptions: { directoryPath: DIRECTORY_PATH }});
+      await release({ directoryPath: DIRECTORY_PATH });
 
       expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(DIRECTORY_PATH, 'minor', { isUpdateReadme: true });
     });
 
     it('should not update the readme, if specified by the user', async () => {
-      await release({ bumpVersionOptions: { isUpdateReadme: false }});
+      await release({ isUpdateReadme: false });
 
       expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(process.cwd(), 'minor', { isUpdateReadme: false });
     });
 
     it('should not bump the version if the user wants to perform a dry run', async () => {
-      await release({ bumpVersionOptions: { isDryRun: true } });
+      console.log = vi.fn(); // Note: suppress console output for this test
+      await release({ isDryRun: true });
 
       expect(determineReleaseType).toHaveBeenCalledTimes(1);
       expect(bumpVersion).not.toHaveBeenCalled();
@@ -126,28 +145,34 @@ describe('release', () => {
       await release();
 
       expect(withDefaultPreset).toHaveBeenCalledTimes(1);
+      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
     });
 
     it('should use a ChangelogWriter with parameters specified by the user', async () => {
       const CHANGELOG_WRITER_PRESET = { someKey: 'someValue' } as unknown as ChangelogWriterPreset;
 
-      await release({ changelogWriterOptions: {
+      const changelogWriterOptions = {
         changelogWriterPreset: CHANGELOG_WRITER_PRESET,
-        remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
-      }});
+        options: {
+          remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
+        },
+      };
+      await release({ changelogWriterOptions});
 
-      expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledWith(CHANGELOG_WRITER_PRESET, REMOTE_REPOSITORY_INFORMATION);
+      expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledWith(
+        changelogWriterOptions.changelogWriterPreset,
+        changelogWriterOptions.options,
+      );
+      expect(mockWriteChangelog).toHaveBeenCalledTimes(1);
+      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
+      expect(withDefaultPreset).not.toHaveBeenCalled();
     });
 
     it('should retrieve validated commits and write changelog entries', async () => {
-      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      const { writeChangelog } = vi.mocked(await withDefaultPreset());
-
       await release();
 
-      expect(writeChangelog).toHaveBeenCalledTimes(1);
-      expect(writeChangelog).toHaveBeenCalledWith(
+      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
+      expect(mockWriteChangelogPreset).toHaveBeenCalledWith(
         process.cwd(),
         'v1.1.1',
         'patch',
@@ -160,11 +185,8 @@ describe('release', () => {
 
       await release({ commits: [SINGLE_COMMIT] });
 
-      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      const { writeChangelog } = vi.mocked(await withDefaultPreset());
-      expect(writeChangelog).toHaveBeenCalledTimes(1);
-      expect(writeChangelog).toHaveBeenCalledWith(
+      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
+      expect(mockWriteChangelogPreset).toHaveBeenCalledWith(
         process.cwd(),
         'v1.1.1',
         'patch',

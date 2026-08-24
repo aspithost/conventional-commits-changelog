@@ -2,21 +2,29 @@
   "name": "@abelspithost/conventional-commits-changelog",
   "version": "0.0.0",
   "description": "",
-  "main": "src/index.ts",
-  "type": "module",
   "keywords": [
     "conventional-changelog-monorepo",
     "conventional",
     "changelog",
     "monorepo"
   ],
+  "license": "ISC",
   "author": {
     "name": "Abel Spithost",
     "url": "https://github.com/aspithost"
   },
-  "license": "ISC",
+  "homepage": "https://github.com/aspithost/eslint-config-ts#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aspithost/conventional-commits-changelog.git"
+  },
+  "main": "src/index.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "build": "npm run clean && npm run typecheck && tsc -p tsconfig.build.json",
+    "build": "npm run clean && npm run typecheck && tsc -p tsconfig.build.json && npm run deps:check",
     "clean": "rimraf dist",
     "deps:check": "npx -y npm-check-updates --cooldown 2",
     "deps:update": "npx -y npm-check-updates -u --target minor --cooldown 2 && npm install",
@@ -26,7 +34,7 @@
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
     "test:cov:ci": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.spec.json",
     "prepare": "husky"
   },
   "dependencies": {
@@ -35,21 +43,21 @@
     "conventional-commits-parser": "^6.4.0"
   },
   "devDependencies": {
-    "@abelspithost/commitlint": "^0.1.0",
-    "@abelspithost/eslint-config-ts": "^1.1.1",
-    "@abelspithost/tsconfig-node": "^0.0.5",
-    "@commitlint/cli": "^21.0.1",
-    "@commitlint/config-conventional": "^21.0.1",
-    "@types/node": "^24.12.4",
-    "@types/semver": "^7.7.1",
-    "@vitest/coverage-v8": "^4.1.6",
-    "eslint": "^10.4.0",
+    "@abelspithost/commitlint": "^0.1.5",
+    "@abelspithost/eslint-config-ts": "^1.1.3",
+    "@abelspithost/tsconfig-node": "^0.1.1",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@types/node": "^24.13.3",
+    "@types/semver": "^7.8.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.8.0",
     "handlebars": "^4.7.9",
     "husky": "^9.1.7",
     "jiti": "^2.7.0",
     "rimraf": "^6.1.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.6",
+    "vitest": "^4.1.10",
     "zod": "^4.4.3"
   }
 }

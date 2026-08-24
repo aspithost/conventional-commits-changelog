@@ -1,88 +1,100 @@
 import { bumpVersion, type BumpVersionOptions } from '@/version/bump-version/bumpVersion.js';
 import { determineReleaseType } from '@/version/determine-release-type/determineReleaseType.js';
-import type { DefaultAllowedTypes } from '@/write-changelog/presets/types/writer.js';
 
 import { retrieveValidatedCommits, type RetrieveCommitsOptions } from './shared/commits/retrieveValidatedCommits.js';
+import type { ValidatedCommit } from './shared/commits/validate-commits/types/commit.js';
+import type { DefaultAllowedTypes } from './shared/types/commit.js';
+import type { ReleaseType } from './shared/types/release.js';
+import { logError, type ErrorHandler } from './shared/utils/error/logError.js';
 import { ChangelogWriter, type ChangelogWriterOptions } from './write-changelog/ChangelogWriter.js';
-import type { ReleaseType } from './types/index.js';
-import type { ValidatedCommits } from './shared/commits/validate-commits/types/commits.js';
 
-interface BaseReleaseOptions {
-  releaseType?: ReleaseType;
-  bumpVersionOptions?: BumpVersionOptions & { directoryPath?: string };
+export interface BaseReleaseOptions extends BumpVersionOptions {
   changelogWriterOptions?: Partial<ChangelogWriterOptions>;
+  directoryPath?: string;
+  isDryRun?: boolean;
+  isUpdateReadme?: boolean;
+  releaseType?: ReleaseType;
+  onError?: ErrorHandler;
 }
 
-interface ReleaseOptionsWithoutCommits<T extends string, U extends DefaultAllowedTypes = DefaultAllowedTypes> extends BaseReleaseOptions {
-  retrieveCommitsOptions?: Partial<RetrieveCommitsOptions<T, U>>;
-}
-interface ReleaseOptionsWithCommits<T extends string, U extends string> extends BaseReleaseOptions {
-  commits: ValidatedCommits<T, U>;
+export type ReleaseOptionsWithoutCommits<
+  T extends string,
+  U extends DefaultAllowedTypes = DefaultAllowedTypes
+> = BaseReleaseOptions & RetrieveCommitsOptions<T, U>;
+
+export interface ReleaseOptionsWithCommits<
+  T extends string,
+  U extends string
+> extends BaseReleaseOptions {
+  commits: Iterable<ValidatedCommit<T, U>>;
 }
 
-interface ReleaseOptions<T extends string, U extends string> extends BaseReleaseOptions {
-  retrieveCommitsOptions?: Partial<RetrieveCommitsOptions<T, U>>;
-  commits?: ValidatedCommits<T, U>;
+export interface ReleaseOptions<
+  T extends string,
+  U extends string
+> extends BaseReleaseOptions, Partial<RetrieveCommitsOptions<T, U>> {
+  commits?: Iterable<ValidatedCommit<T, U>>;
 }
 
-export async function release(): Promise<void>;
-export async function release<T extends string, U extends DefaultAllowedTypes = DefaultAllowedTypes>({
-  releaseType,
-  bumpVersionOptions,
-  changelogWriterOptions,
-  retrieveCommitsOptions,
-}: ReleaseOptionsWithoutCommits<T, U>): Promise<void>;
-export async function release<T extends string, U extends string>({
-  releaseType,
-  bumpVersionOptions,
-  changelogWriterOptions,
-  commits,
-}: ReleaseOptionsWithCommits<T, U>): Promise<void>;
+export async function release<
+  T extends string,
+  U extends DefaultAllowedTypes = DefaultAllowedTypes
+>(options?: ReleaseOptionsWithoutCommits<T, U>): Promise<void>;
+export async function release<
+  T extends string,
+  U extends string
+>(options: ReleaseOptionsWithCommits<T, U>): Promise<void>;
 export async function release({
-  releaseType: _releaseType,
-  bumpVersionOptions: {
-    isDryRun = false,
-    isUpdateReadme = true,
-    directoryPath = process.cwd(),
-  } = {},
   changelogWriterOptions,
-  retrieveCommitsOptions,
   commits,
+  commitsParserOptions,
+  commitsRetrieverOptions,
+  commitsValidatorOptions,
+  directoryPath = process.cwd(),
+  isDryRun = false,
+  isUpdateReadme = true,
+  releaseType: _releaseType,
+  onError = logError,
 }: ReleaseOptions<string, string> = {}): Promise<void> {
+  const resolvedCommits = [...(commits ?? retrieveValidatedCommits({
+    commitsParserOptions,
+    commitsRetrieverOptions,
+    commitsValidatorOptions,
+    onError,
+  }))];
+
   // Determine release type
-  const releaseType = _releaseType ?? determineReleaseType(commits ?? retrieveValidatedCommits({
-    allowedScopes: retrieveCommitsOptions?.allowedScopes,
-    allowedTypes: retrieveCommitsOptions?.allowedTypes,
-    commitsParserOptions: retrieveCommitsOptions?.commitsParserOptions,
-    commitsRetrieverOptions: retrieveCommitsOptions?.commitsRetrieverOptions,
-  }));
+  const releaseType = _releaseType ?? determineReleaseType(resolvedCommits);
   if (!releaseType) {
-    console.log('No release needed based on the commits since the latest tag.');
+    const errorMessage = 'No release needed based on the commits since the latest tag.';
+    onError(errorMessage, new Error(errorMessage));
     return;
   }
   if (isDryRun) {
     console.log(`[dry-run] Would bump with release type ${releaseType}.`);
+    return;
   }
 
   // Bump version
   const newVersion = bumpVersion(directoryPath, releaseType, { isUpdateReadme });
 
   // Write changelog
+  const { remoteRepositoryInformation } = changelogWriterOptions?.options ?? {};
   const changelogWriter = changelogWriterOptions?.changelogWriterPreset
     ? new ChangelogWriter(
       changelogWriterOptions.changelogWriterPreset,
-      changelogWriterOptions.remoteRepositoryInformation,
-    ) : await ChangelogWriter.withDefaultPreset(changelogWriterOptions?.remoteRepositoryInformation);
+      {
+        remoteRepositoryInformation,
+      },
+    ) : await ChangelogWriter.withDefaultPreset(
+      remoteRepositoryInformation,
+      onError,
+    );
 
   await changelogWriter.writeChangelog(
     directoryPath,
     newVersion,
     releaseType,
-    commits ?? retrieveValidatedCommits({
-      allowedScopes: retrieveCommitsOptions?.allowedScopes,
-      allowedTypes: retrieveCommitsOptions?.allowedTypes,
-      commitsParserOptions: retrieveCommitsOptions?.commitsParserOptions,
-      commitsRetrieverOptions: retrieveCommitsOptions?.commitsRetrieverOptions,
-    }),
+    resolvedCommits,
   );
 }

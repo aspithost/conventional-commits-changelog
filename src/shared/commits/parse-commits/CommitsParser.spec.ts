@@ -1,7 +1,7 @@
-import type { RawCommit, RawCommits } from '../retrieve-commits/CommitsRetriever.js';
+import type { RawCommits } from '../retrieve-commits/CommitsRetriever.js';
 import { CommitsParser } from './CommitsParser.js';
 
-function* createRawCommits(commits: RawCommit[]): RawCommits {
+function* createRawCommits(commits: RawCommits): RawCommits {
   for (const commit of commits) {
     yield commit;
   }
