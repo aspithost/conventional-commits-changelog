@@ -1,4 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["src/**/*.spec.ts"]
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "types": ["node"]
+  },
+  "exclude": ["**/*.spec.ts"]
 }
