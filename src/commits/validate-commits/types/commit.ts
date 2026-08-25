@@ -1,4 +1,4 @@
-import type { DefaultAllowedTypes } from '@/shared/types/commit.js';
+import type { DefaultAllowedTypes } from '@/commits/types/commit.js';
 import type { CommitSchema } from '../schemas/commit.js';
 
 export type ValidatedCommitWithDefaultType = CommitSchema & { type: DefaultAllowedTypes };

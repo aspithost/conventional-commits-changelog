@@ -1,5 +1,6 @@
-import { DEFAULT_ALLOWED_TYPES } from '@/shared/constants/commit.js';
 import { z } from 'zod';
+
+import { DEFAULT_ALLOWED_TYPES } from '@/commits/constants/commit.js';
 
 const commitMeta = z.record(z.string(), z.string());
 

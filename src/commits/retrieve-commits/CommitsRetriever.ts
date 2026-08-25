@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
-import type { OnError } from '@/shared/types/error.js';
-import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
+import { logError, type ErrorHandler } from '@/utils/error/logError.js';
+import type { OnError } from '@/utils/error/types/error.js';
 
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
 

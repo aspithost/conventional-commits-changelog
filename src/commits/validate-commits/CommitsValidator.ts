@@ -1,4 +1,4 @@
-import { DEFAULT_ALLOWED_TYPES } from '@/shared/constants/commit.js';
+import { DEFAULT_ALLOWED_TYPES } from '../constants/commit.js';
 
 import type { ParsedCommits } from '../parse-commits/CommitsParser.js';
 import { BaseCommitsValidator, type BaseCommitsValidatorOptions } from './base/BaseCommitsValidator.js';

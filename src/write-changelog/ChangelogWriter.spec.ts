@@ -2,7 +2,7 @@ import { writeChangelog } from 'conventional-changelog-writer';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
 import { createWriterPreset } from '@/write-changelog/presets/writer.js';
 import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 import { ChangelogWriter } from './ChangelogWriter.js';

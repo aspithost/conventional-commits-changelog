@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 
-import type { ReleaseType } from '@/shared/types/release.js';
-import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
+import type { ReleaseType } from '@/release/types/release.js';
+import { logError, type ErrorHandler } from '@/utils/error/logError.js';
 
 export function bumpNpmVersion(
   directoryPath: string,

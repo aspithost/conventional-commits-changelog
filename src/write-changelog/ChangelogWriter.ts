@@ -5,9 +5,9 @@ import {
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '@/shared/types/release.js';
-import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import type { ReleaseType } from '@/release/types/release.js';
+import { logError, type ErrorHandler } from '@/utils/error/logError.js';
 import { createWriterPreset } from '@/write-changelog/presets/writer.js';
 import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 

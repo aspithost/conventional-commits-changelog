@@ -1,4 +1,4 @@
-import type { ReleaseType } from '@/shared/types/release.js';
+import type { ReleaseType } from '@/release/types/release.js';
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { updateReadme } from './utils/updateReadme.js';
 

@@ -1,5 +1,5 @@
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '@/shared/types/release.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import type { ReleaseType } from '@/release/types/release.js';
 
 export function determineReleaseType(
   commits: Iterable<ValidatedCommit<string, string>>,

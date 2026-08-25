@@ -1,20 +1,19 @@
-import { retrieveValidatedCommits } from '@/shared/commits/retrieveValidatedCommits.js';
-import { bumpVersion } from '@/version/bump-version/bumpVersion.js';
-import { determineReleaseType } from '@/version/determine-release-type/determineReleaseType.js';
+import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
+import { bumpVersion } from '@/version/bumpVersion.js';
 import { ChangelogWriter, type ChangelogWriterPreset, type RemoteRepositoryInformation } from '@/write-changelog/ChangelogWriter.js';
-
+import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
+import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commits/types/commit.js';
 import { release } from './release.js';
-import type { ValidatedCommitWithScopeAndType } from './shared/commits/validate-commits/types/commit.js';
 
-vi.mock('@/shared/commits/retrieveValidatedCommits.js', () => ({
+vi.mock('@/commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(),
 }));
 
-vi.mock('@/version/bump-version/bumpVersion.js', () => ({
+vi.mock('@/version/bumpVersion.js', () => ({
   bumpVersion: vi.fn(),
 }));
 
-vi.mock('@/version/determine-release-type/determineReleaseType.js', () => ({
+vi.mock('@/release/utils/determineReleaseType.js', () => ({
   determineReleaseType: vi.fn(),
 }));
 

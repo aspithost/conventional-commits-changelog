@@ -1,5 +1,5 @@
-import type { OnError } from '@/shared/types/error.js';
-import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
+import { logError, type ErrorHandler } from '@/utils/error/logError.js';
+import type { OnError } from '@/utils/error/types/error.js';
 import type z from 'zod';
 import type { ParsedCommits } from '../../parse-commits/CommitsParser.js';
 

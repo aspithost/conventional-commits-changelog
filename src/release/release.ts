@@ -1,12 +1,12 @@
-import { bumpVersion, type BumpVersionOptions } from '@/version/bump-version/bumpVersion.js';
-import { determineReleaseType } from '@/version/determine-release-type/determineReleaseType.js';
-
-import { retrieveValidatedCommits, type RetrieveCommitsOptions } from './shared/commits/retrieveValidatedCommits.js';
-import type { ValidatedCommit } from './shared/commits/validate-commits/types/commit.js';
-import type { DefaultAllowedTypes } from './shared/types/commit.js';
-import type { ReleaseType } from './shared/types/release.js';
-import { logError, type ErrorHandler } from './shared/utils/error/logError.js';
-import { ChangelogWriter, type ChangelogWriterOptions } from './write-changelog/ChangelogWriter.js';
+import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
+import { bumpVersion, type BumpVersionOptions } from '@/version/bumpVersion.js';
+import type { RetrieveCommitsOptions } from '../commits/retrieveValidatedCommits.js';
+import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
+import type { DefaultAllowedTypes } from '../commits/types/commit.js';
+import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
+import { logError, type ErrorHandler } from '../utils/error/logError.js';
+import { ChangelogWriter, type ChangelogWriterOptions } from '../write-changelog/ChangelogWriter.js';
+import type { ReleaseType } from './types/release.js';
 
 export interface BaseReleaseOptions extends BumpVersionOptions {
   changelogWriterOptions?: Partial<ChangelogWriterOptions>;
@@ -56,12 +56,12 @@ export async function release({
   releaseType: _releaseType,
   onError = logError,
 }: ReleaseOptions<string, string> = {}): Promise<void> {
-  const resolvedCommits = [...(commits ?? retrieveValidatedCommits({
+  const resolvedCommits = commits ?? retrieveValidatedCommits({
     commitsParserOptions,
     commitsRetrieverOptions,
     commitsValidatorOptions,
     onError,
-  }))];
+  });
 
   // Determine release type
   const releaseType = _releaseType ?? determineReleaseType(resolvedCommits);

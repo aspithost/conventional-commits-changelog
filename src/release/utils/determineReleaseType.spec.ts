@@ -1,5 +1,5 @@
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
-import { determineReleaseType } from './determineReleaseType.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
 
 const VALIDATED_COMMIT = {
   hash: 'abc123',
