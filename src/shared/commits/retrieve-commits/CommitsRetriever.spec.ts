@@ -158,6 +158,7 @@ describe('CommitsRetriever', () => {
     });
 
     it('should return all commits when no tags exist', () => {
+      console.error = vi.fn();
       setupMocks({ latestTag: new Error('no tags') });
 
       const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];

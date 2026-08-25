@@ -1,7 +1,6 @@
 import {
   writeChangelog as _writeChangelog,
   type Options as ChangelogWriterPreset,
-  type Context,
 } from 'conventional-changelog-writer';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -101,7 +100,7 @@ export class ChangelogWriter {
       linkReferences: true,
       version: newVersion,
       ...this.#remoteRepositoryInformation,
-    } satisfies Context;
+    };
 
     try {
       return _writeChangelog(context, this.#changelogWriterPreset)(commits);

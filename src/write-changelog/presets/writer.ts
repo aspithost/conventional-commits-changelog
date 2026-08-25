@@ -1,8 +1,8 @@
+import createPreset from 'conventional-changelog-conventionalcommits';
+import type { FinalOptions } from 'conventional-changelog-writer';
 import Handlebars from 'handlebars';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import createPreset from 'conventional-changelog-conventionalcommits';
-import type { FinalOptions } from 'conventional-changelog-writer';
 
 import { COMMIT_EMOJIS, COMMIT_TYPES } from '@/write-changelog/presets/constants/writer.js';
 
@@ -41,10 +41,11 @@ export async function createWriterPreset<T extends string, U extends string>({
     const { host, owner, repository } = options.data.root;
     return `${host}/${owner}/${repository}/commit/${hash}`;
   });
-  const commitTemplate = readFileSync(
+  const commitTemplateSource = readFileSync(
     join(process.cwd(), 'src', 'presets', 'templates', 'commit.hbs'),
     'utf-8',
   );
-  writer.commitPartial = commitTemplate;
+  const compiledCommitTemplate = Handlebars.compile(commitTemplateSource);
+  writer.commitPartial = (context, commit) => compiledCommitTemplate({ ...context, ...commit });
   return writer;
 }
