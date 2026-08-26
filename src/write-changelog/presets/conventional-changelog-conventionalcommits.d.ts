@@ -6,5 +6,5 @@ declare module 'conventional-changelog-conventionalcommits' {
 
   export default function createPreset(
     config?: Record<string, unknown>,
-  ): Promise<Preset>;
+  ): Preset;
 }

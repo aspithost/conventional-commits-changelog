@@ -5,8 +5,9 @@ import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js
 import type { DefaultAllowedTypes } from '../commits/types/commit.js';
 import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
 import { logError, type ErrorHandler } from '../utils/error/logError.js';
-import { ChangelogWriter, type ChangelogWriterOptions } from '../write-changelog/ChangelogWriter.js';
+import { type ChangelogWriterOptions } from '../write-changelog/ChangelogWriter.js';
 import type { ReleaseType } from './types/release.js';
+import { createChangelogWriter } from './utils/createChangelogWriter.js';
 
 export interface BaseReleaseOptions extends BumpVersionOptions {
   changelogWriterOptions?: Partial<ChangelogWriterOptions>;
@@ -56,12 +57,12 @@ export async function release({
   releaseType: _releaseType,
   onError = logError,
 }: ReleaseOptions<string, string> = {}): Promise<void> {
-  const resolvedCommits = commits ?? retrieveValidatedCommits({
+  const resolvedCommits = [...(commits ?? retrieveValidatedCommits({
     commitsParserOptions,
     commitsRetrieverOptions,
     commitsValidatorOptions,
     onError,
-  });
+  }))];
 
   // Determine release type
   const releaseType = _releaseType ?? determineReleaseType(resolvedCommits);
@@ -79,17 +80,7 @@ export async function release({
   const newVersion = bumpVersion(directoryPath, releaseType, { isUpdateReadme });
 
   // Write changelog
-  const { remoteRepositoryInformation } = changelogWriterOptions?.options ?? {};
-  const changelogWriter = changelogWriterOptions?.changelogWriterPreset
-    ? new ChangelogWriter(
-      changelogWriterOptions.changelogWriterPreset,
-      {
-        remoteRepositoryInformation,
-      },
-    ) : await ChangelogWriter.withDefaultPreset(
-      remoteRepositoryInformation,
-      onError,
-    );
+  const changelogWriter = await createChangelogWriter(changelogWriterOptions, onError);
 
   await changelogWriter.writeChangelog(
     directoryPath,

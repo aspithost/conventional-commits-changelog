@@ -1,6 +1,5 @@
 import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
 import { bumpVersion } from '@/version/bumpVersion.js';
-import { ChangelogWriter, type ChangelogWriterPreset, type RemoteRepositoryInformation } from '@/write-changelog/ChangelogWriter.js';
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commits/types/commit.js';
 import { release } from './release.js';
@@ -17,22 +16,15 @@ vi.mock('@/release/utils/determineReleaseType.js', () => ({
   determineReleaseType: vi.fn(),
 }));
 
-const { mockWriteChangelogPreset, mockWriteChangelog } = vi.hoisted(() => ({
-  mockWriteChangelogPreset: vi.fn(),
+const { mockWriteChangelog } = vi.hoisted(() => ({
   mockWriteChangelog: vi.fn(),
 }));
 
-vi.mock('@/write-changelog/ChangelogWriter.js', () => {
-  const ChangelogWriter = vi.fn(class {
-    static withDefaultPreset = vi.fn().mockResolvedValue({ // NOSONAR
-      writeChangelog: mockWriteChangelogPreset,
-    });
-
-    writeChangelog = mockWriteChangelog;
-  });
-
-  return { ChangelogWriter };
-});
+vi.mock('@/release/utils/createChangelogWriter.js', () => ({
+  createChangelogWriter: () => ({
+    writeChangelog: mockWriteChangelog,
+  }),
+}));
 
 const BUTTON_FEAT_COMMIT = {
   scope: 'button',
@@ -43,12 +35,6 @@ const BUTTON_FIX_COMMIT = {
   type: 'fix',
 } as unknown as ValidatedCommitWithScopeAndType<string, string>; // Type casting for unit testing purposes
 const BUTTON_COMMITS = [BUTTON_FEAT_COMMIT, BUTTON_FIX_COMMIT];
-
-const REMOTE_REPOSITORY_INFORMATION: RemoteRepositoryInformation = {
-  host: 'somesite.com',
-  owner: 'someguy',
-  repository: 'somrepo',
-};
 
 describe('release', () => {
   beforeEach(() => {
@@ -92,10 +78,6 @@ describe('release', () => {
         expect.any(Error),
       );
       expect(bumpVersion).not.toHaveBeenCalled();
-      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
-      expect(withDefaultPreset).not.toHaveBeenCalled();
-      expect(vi.mocked(ChangelogWriter)).not.toHaveBeenCalled();
-      expect(mockWriteChangelogPreset).not.toHaveBeenCalled();
       expect(mockWriteChangelog).not.toHaveBeenCalled();
     });
   });
@@ -139,39 +121,10 @@ describe('release', () => {
       vi.mocked(bumpVersion).mockReturnValue('v1.1.1');
     });
 
-    it('should use a ChangelogWriter with default parameters', async () => {
-      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
-      await release();
-
-      expect(withDefaultPreset).toHaveBeenCalledTimes(1);
-      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
-    });
-
-    it('should use a ChangelogWriter with parameters specified by the user', async () => {
-      const CHANGELOG_WRITER_PRESET = { someKey: 'someValue' } as unknown as ChangelogWriterPreset;
-
-      const changelogWriterOptions = {
-        changelogWriterPreset: CHANGELOG_WRITER_PRESET,
-        options: {
-          remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
-        },
-      };
-      await release({ changelogWriterOptions});
-
-      expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledWith(
-        changelogWriterOptions.changelogWriterPreset,
-        changelogWriterOptions.options,
-      );
-      expect(mockWriteChangelog).toHaveBeenCalledTimes(1);
-      const { withDefaultPreset } = vi.mocked(ChangelogWriter);
-      expect(withDefaultPreset).not.toHaveBeenCalled();
-    });
-
     it('should retrieve validated commits and write changelog entries', async () => {
       await release();
 
-      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
-      expect(mockWriteChangelogPreset).toHaveBeenCalledWith(
+      expect(mockWriteChangelog).toHaveBeenCalledExactlyOnceWith(
         process.cwd(),
         'v1.1.1',
         'patch',
@@ -184,8 +137,7 @@ describe('release', () => {
 
       await release({ commits: [SINGLE_COMMIT] });
 
-      expect(mockWriteChangelogPreset).toHaveBeenCalledTimes(1);
-      expect(mockWriteChangelogPreset).toHaveBeenCalledWith(
+      expect(mockWriteChangelog).toHaveBeenCalledExactlyOnceWith(
         process.cwd(),
         'v1.1.1',
         'patch',
