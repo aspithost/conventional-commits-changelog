@@ -5,10 +5,10 @@ import {
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '@/shared/types/release.js';
-import { logError, type ErrorHandler } from '@/shared/utils/error/logError.js';
-import { createWriterPreset } from '@/write-changelog/presets/writer.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import type { ReleaseType } from '@/release/types/release.js';
+import { logError, type ErrorHandler } from '@/utils/error/logError.js';
+import { createWriterPreset } from '@/write-changelog/presets/createWriterPreset.js';
 import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 
 export type { Options as ChangelogWriterPreset } from 'conventional-changelog-writer';
@@ -46,11 +46,11 @@ export class ChangelogWriter {
     this.#onError = onError;
   }
 
-  static async withDefaultPreset(
+  static withDefaultPreset(
     remoteRepositoryInformation?: RemoteRepositoryInformation,
     onError: ErrorHandler = logError,
-  ): Promise<ChangelogWriter> {
-    const changelogWriterPreset = await createWriterPreset();
+  ): ChangelogWriter {
+    const changelogWriterPreset = createWriterPreset();
     return new ChangelogWriter(changelogWriterPreset, { remoteRepositoryInformation, onError });
   }
 

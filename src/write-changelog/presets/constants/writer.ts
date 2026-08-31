@@ -1,63 +1,39 @@
 export const COMMIT_TYPES = [
   {
-    type: 'build',
-    section: 'Build System',
-  },
-  {
-    type: 'ci',
-    section: 'Continuous Integration',
-  },
-  {
-    type: 'docs',
-    section: 'Documentation',
-  },
-  {
     type: 'feat',
-    section: 'Features',
+    section: ':sparkles: Features',
   },
   {
     type: 'fix',
-    section: 'Bug Fixes',
-  },
-  {
-    type: 'perf',
-    section: 'Performance Improvements',
-  },
-  {
-    type: 'refactor',
-    section: 'Code Refactoring',
+    section: ':bug: Bug Fixes',
   },
   {
     type: 'revert',
-    section: 'Reverts',
+    section: ':rewind: Reverts',
+  },
+  {
+    type: 'perf',
+    section: ':rocket: Performance Improvements',
+  },
+  {
+    type: 'refactor',
+    section: ':recycle: Code Refactoring',
   },
   {
     type: 'test',
-    section: 'Tests',
-  },
-  // Commit types below not included in CHANGELOG
-  {
-    type: 'chore',
-    section: 'Chores',
-    hidden: true,
+    section: ':rotating_light: Tests',
   },
   {
-    type: 'style',
-    section: 'Styles',
-    hidden: true,
+    type: 'build',
+    section: ':package: Build System',
+  },
+  {
+    type: 'ci',
+    section: ':construction_worker: Continuous Integration',
+  },
+
+  {
+    type: 'docs',
+    section: ':books: Documentation',
   },
 ] as const;
-
-export const COMMIT_EMOJIS = {
-  Features: ':sparkles:',
-  'Bug Fixes': ':bug:',
-  'Performance Improvements': ':rocket:',
-  'Code Refactoring': ':recycle:',
-  Reverts: ':rewind:',
-  Tests: ':rotating_light:',
-  'Build System': ':package:',
-  'Continuous Integration': ':construction_worker:',
-  Documentation: ':books:',
-  Chores: ':construction:',
-  Styles: ':art:',
-} as const;

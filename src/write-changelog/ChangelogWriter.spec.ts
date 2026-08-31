@@ -2,8 +2,8 @@ import { writeChangelog } from 'conventional-changelog-writer';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { ValidatedCommit } from '@/shared/commits/validate-commits/types/commit.js';
-import { createWriterPreset } from '@/write-changelog/presets/writer.js';
+import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import { createWriterPreset } from '@/write-changelog/presets/createWriterPreset.js';
 import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 import { ChangelogWriter } from './ChangelogWriter.js';
 
@@ -16,7 +16,7 @@ vi.mock('conventional-changelog-writer', () => ({
   writeChangelog: vi.fn(),
 }));
 
-vi.mock('./presets/writer', () => ({
+vi.mock('./presets/createWriterPreset', () => ({
   createWriterPreset: vi.fn(),
 }));
 
@@ -60,15 +60,15 @@ describe('ChangelogWriter', () => {
   });
 
   beforeEach(() => {
-    vi.mocked(createWriterPreset).mockResolvedValue(MOCK_WRITER_PRESET as never);
+    vi.mocked(createWriterPreset).mockReturnValue(MOCK_WRITER_PRESET as never);
     vi.mocked(getFormattedDate).mockReturnValue('2024-01-15');
     vi.mocked(readFileSync).mockReturnValue('');
     vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n', '### Features\n\n', '* add feature\n']) as never);
   });
 
   describe('factory methods', () => {
-    it('should create instance with default preset', async () => {
-      const writer = await ChangelogWriter.withDefaultPreset();
+    it('should create instance with default preset', () => {
+      const writer = ChangelogWriter.withDefaultPreset();
 
       expect(writer).toBeInstanceOf(ChangelogWriter);
     });
@@ -77,7 +77,7 @@ describe('ChangelogWriter', () => {
   describe('writeChangelog', () => {
     it('should write changelog entries to the correct path', async () => {
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits);
 
@@ -90,7 +90,7 @@ describe('ChangelogWriter', () => {
 
     it('should use a custom filename when provided', async () => {
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits, 'HISTORY.md');
 
@@ -103,7 +103,7 @@ describe('ChangelogWriter', () => {
 
     it('should pass correct context to writeChangelog', async () => {
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '2.0.0', 'major', commits);
 
@@ -120,7 +120,7 @@ describe('ChangelogWriter', () => {
 
     it('should set isPatch to true for patch releases', async () => {
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '1.0.1', 'patch', commits);
 
@@ -135,7 +135,7 @@ describe('ChangelogWriter', () => {
       vi.mocked(writeChangelog).mockImplementation(() => {
         throw someError;
       });
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await expect(writer.writeChangelog(DIRECTORY_PATH, '1.0.1', 'patch', [BASE_VALIDATED_COMMIT])).rejects.toThrow(someError);
     });
@@ -145,7 +145,7 @@ describe('ChangelogWriter', () => {
     it('should create new changelog when file is empty', async () => {
       vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits);
 
@@ -160,7 +160,7 @@ describe('ChangelogWriter', () => {
       vi.mocked(readFileSync).mockReturnValue('# Changelog\n\nAll notable changes.\n');
       vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits);
 
@@ -175,7 +175,7 @@ describe('ChangelogWriter', () => {
       vi.mocked(readFileSync).mockReturnValue('# Changelog\n\n## 1.0.0\n\n* old feature\n');
       vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '2.0.0', 'major', commits);
 
@@ -190,7 +190,7 @@ describe('ChangelogWriter', () => {
       vi.mocked(readFileSync).mockReturnValue('# Changelog\n\n## 2.0.0\n\n* v2\n\n## 1.0.0\n\n* v1\n');
       vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 3.0.0\n\n* v3\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '3.0.0', 'major', commits);
 
@@ -205,7 +205,7 @@ describe('ChangelogWriter', () => {
       vi.mocked(readFileSync).mockReturnValue('# Changelog\n\n## 1.0.0\n\n* feature\n\n\n');
       vi.mocked(writeChangelog).mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await writer.writeChangelog(DIRECTORY_PATH, '2.0.0', 'major', commits);
 
@@ -223,7 +223,7 @@ describe('ChangelogWriter', () => {
         throw new Error('ENOENT: no such file or directory');
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await expect(writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits))
         .rejects.toThrow('ENOENT: no such file or directory');
@@ -234,7 +234,7 @@ describe('ChangelogWriter', () => {
         throw new Error('EACCES: permission denied');
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
-      const writer = await ChangelogWriter.withDefaultPreset();
+      const writer = ChangelogWriter.withDefaultPreset();
 
       await expect(writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits))
         .rejects.toThrow('EACCES: permission denied');
