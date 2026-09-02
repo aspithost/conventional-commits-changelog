@@ -1,41 +1,10 @@
 import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
-import { bumpVersion, type BumpVersionOptions } from '@/version/bumpVersion.js';
-import type { RetrieveCommitsOptions } from '../commits/retrieveValidatedCommits.js';
+import { bumpVersion } from '@/version/bumpVersion.js';
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import type { DefaultAllowedTypes } from '../commits/types/commit.js';
-import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
-import { logError, type ErrorHandler } from '../utils/error/logError.js';
-import { type ChangelogWriterOptions } from '../write-changelog/ChangelogWriter.js';
-import type { ReleaseType } from './types/release.js';
+import { logError } from '../utils/error/logError.js';
+import type { ReleaseOptions, ReleaseOptionsWithCommits, ReleaseOptionsWithoutCommits } from './types/release.js';
 import { createChangelogWriter } from './utils/createChangelogWriter.js';
-
-export interface BaseReleaseOptions extends BumpVersionOptions {
-  changelogWriterOptions?: Partial<ChangelogWriterOptions>;
-  directoryPath?: string;
-  isDryRun?: boolean;
-  isUpdateReadme?: boolean;
-  releaseType?: ReleaseType;
-  onError?: ErrorHandler;
-}
-
-export type ReleaseOptionsWithoutCommits<
-  T extends string,
-  U extends DefaultAllowedTypes = DefaultAllowedTypes
-> = BaseReleaseOptions & RetrieveCommitsOptions<T, U>;
-
-export interface ReleaseOptionsWithCommits<
-  T extends string,
-  U extends string
-> extends BaseReleaseOptions {
-  commits: Iterable<ValidatedCommit<T, U>>;
-}
-
-export interface ReleaseOptions<
-  T extends string,
-  U extends string
-> extends BaseReleaseOptions, Partial<RetrieveCommitsOptions<T, U>> {
-  commits?: Iterable<ValidatedCommit<T, U>>;
-}
 
 export async function release<
   T extends string,

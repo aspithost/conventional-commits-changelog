@@ -1,6 +1,7 @@
 import type { ValidatedCommit } from '../validate-commits/types/commit.js';
 
-export type CommitsByScopeMap = Map<string, ValidatedCommit<string, string>[]>;
+type ValidatedCommits = ValidatedCommit<string, string>[];
+export type CommitsByScopeMap = Map<string, ValidatedCommits>;
 
 export class CommitsGrouper {
   readonly #commitsByScopeMap: CommitsByScopeMap;
@@ -11,7 +12,7 @@ export class CommitsGrouper {
     this.#commitsByScopeMap = this.#groupCommitsByScope(validatedCommits);
   }
 
-  get commitsByScope(): CommitsByScopeMap {
+  get commitsByScopeMap(): CommitsByScopeMap {
     return this.#commitsByScopeMap;
   }
 
