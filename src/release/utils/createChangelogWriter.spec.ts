@@ -18,11 +18,11 @@ const CHANGELOG_WRITER_OPTIONS = {
 vi.mock('@/write-changelog/ChangelogWriter.js');
 
 describe('createChangelogWriter', () => {
-  it('should create and return a ChangelogWriter with default parameters', async () => {
+  it('should create and return a ChangelogWriter with default parameters', () => {
     const onError = vi.fn();
     const { withDefaultPreset } = vi.mocked(ChangelogWriter);
 
-    await createChangelogWriter(
+    createChangelogWriter(
       undefined,
       onError,
     );
@@ -33,7 +33,7 @@ describe('createChangelogWriter', () => {
     );
   });
 
-  it('should create and return a ChangelogWriter with parameters specified by the user', async () => {
+  it('should create and return a ChangelogWriter with parameters specified by the user', () => {
     const onError = vi.fn();
     const CHANGELOG_WRITER_PRESET = { someKey: 'someValue' } as unknown as ChangelogWriterPreset;
     const changelogWriterOptions = {
@@ -41,7 +41,7 @@ describe('createChangelogWriter', () => {
       ...CHANGELOG_WRITER_OPTIONS,
     };
 
-    await createChangelogWriter(changelogWriterOptions, onError);
+    createChangelogWriter(changelogWriterOptions, onError);
 
     expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledWith(
       changelogWriterOptions.changelogWriterPreset,

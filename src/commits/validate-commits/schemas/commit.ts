@@ -53,7 +53,7 @@ export function createCommitSchemaWithType<T extends string>(
 
 export function createCommitSchemaWithScopeAndType<
   T extends string,
-  U extends string
+  U extends string,
 >(
   allowedScopes: readonly T[],
   allowedTypes: readonly U[],

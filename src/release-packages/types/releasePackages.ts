@@ -3,11 +3,11 @@ import type { ScopesReaderOptions } from '@/read-directories/DirectoriesReader.j
 import type { BaseReleaseOptions } from '@/release/types/release.js';
 
 interface BaseReleasePackageOptions<
-  T extends string
+  T extends string,
 > extends Omit<BaseReleaseOptions, 'releaseType'> {
   rootScopeOptions?: ScopesReaderOptions<T>['rootScopeOptions'];
 }
 
 export type ReleasePackagesOptions<
-  T extends string
+  T extends string,
 > = BaseReleasePackageOptions<T> & RetrieveCommitsOptions<T, string>;

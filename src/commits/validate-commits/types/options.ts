@@ -8,5 +8,5 @@ export interface AllowedCommitTypes<T extends string> {
 
 export type CommitsValidatorOptions<
   T extends string,
-  U extends string
+  U extends string,
 > = Partial<AllowedCommitScopes<T>> & Partial<AllowedCommitTypes<U>>;

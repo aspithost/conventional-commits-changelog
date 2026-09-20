@@ -24,7 +24,7 @@ export interface ScopesReaderOptions<T extends string> {
 // See: https://stackoverflow.com/questions/61047551/typescript-union-of-string-and-string-literals
 type ScopeName<T extends string> = T | (string & {});
 export type DirectoryPathByScopeMap<
-  T extends string
+  T extends string,
 > = Map<ScopeName<T>, { directoryPath: string }>;
 
 export class DirectoriesReader<T extends string> {

@@ -5,7 +5,7 @@ import type { ValidatedCommitWithScope } from './types/commit.js';
 import type { AllowedCommitScopes } from './types/options.js';
 
 type CommitsValidatorWithScopeOptions<
-  T extends string
+  T extends string,
 > = BaseCommitsValidatorOptions & AllowedCommitScopes<T>;
 
 export class CommitsValidatorWithScope<T extends string> extends BaseCommitsValidator {
@@ -15,7 +15,7 @@ export class CommitsValidatorWithScope<T extends string> extends BaseCommitsVali
     allowedCommitScopes,
     onError,
   }: CommitsValidatorWithScopeOptions<T>) {
-    super({ onError});
+    super({ onError });
     this.#allowedCommitScopes = allowedCommitScopes;
   }
 

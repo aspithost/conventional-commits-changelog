@@ -27,7 +27,7 @@ describe('determineReleaseType', () => {
 
   it('should return major for commits with a BREAKING-CHANGE note (hyphenated)', () => {
     const releaseType = determineReleaseType(
-      [{ ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING-CHANGE', text: 'breaking!!' }]} ],
+      [{ ...VALIDATED_COMMIT, notes: [{ title: 'BREAKING-CHANGE', text: 'breaking!!' }] } ],
     );
 
     expect(releaseType).toBe('major');

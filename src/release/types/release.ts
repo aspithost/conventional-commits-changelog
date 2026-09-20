@@ -17,19 +17,19 @@ export interface BaseReleaseOptions extends BumpVersionOptions {
 
 export type ReleaseOptionsWithoutCommits<
   T extends string,
-  U extends DefaultAllowedTypes = DefaultAllowedTypes
+  U extends DefaultAllowedTypes = DefaultAllowedTypes,
 > = BaseReleaseOptions & RetrieveCommitsOptions<T, U>;
 
 export interface ReleaseOptionsWithCommits<
   T extends string,
-  U extends string
+  U extends string,
 > extends BaseReleaseOptions {
   commits: Iterable<ValidatedCommit<T, U>>;
 }
 
 export interface ReleaseOptions<
   T extends string,
-  U extends string
+  U extends string,
 > extends BaseReleaseOptions, Partial<RetrieveCommitsOptions<T, U>> {
   commits?: Iterable<ValidatedCommit<T, U>>;
 }

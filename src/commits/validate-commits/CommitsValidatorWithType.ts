@@ -5,7 +5,7 @@ import type { ValidatedCommitWithType } from './types/commit.js';
 import type { AllowedCommitTypes } from './types/options.js';
 
 type CommitsValidatorWithTypeOptions<
-  T extends string
+  T extends string,
 > = BaseCommitsValidatorOptions & AllowedCommitTypes<T>;
 
 export class CommitsValidatorWithType<T extends string> extends BaseCommitsValidator {
@@ -15,7 +15,7 @@ export class CommitsValidatorWithType<T extends string> extends BaseCommitsValid
     allowedCommitTypes,
     onError,
   }: CommitsValidatorWithTypeOptions<T>) {
-    super({ onError});
+    super({ onError });
     this.#allowedCommitTypes = allowedCommitTypes;
   }
 

@@ -6,12 +6,12 @@ import type { AllowedCommitScopes, AllowedCommitTypes } from './types/options.js
 
 type CommitsValidatorWithScopeAndTypeOptions<
   T extends string,
-  U extends string
+  U extends string,
 > = BaseCommitsValidatorOptions & AllowedCommitScopes<T> & AllowedCommitTypes<U>;
 
 export class CommitsValidatorWithScopeAndType<
   T extends string,
-  U extends string
+  U extends string,
 > extends BaseCommitsValidator {
   readonly #allowedCommitScopes: readonly T[];
   readonly #allowedCommitTypes: readonly U[];

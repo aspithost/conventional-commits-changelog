@@ -1,29 +1,35 @@
-import type { ValidatedCommit } from '../validate-commits/types/commit.js';
+import type { ValidatedCommitWithScope, ValidatedCommitWithScopeAndType } from '../validate-commits/types/commit.js';
 
-type ValidatedCommits = ValidatedCommit<string, string>[];
-export type CommitsByScopeMap = Map<string, ValidatedCommits>;
+type CommitWithScope<
+  T extends string,
+> = ValidatedCommitWithScope<T> | ValidatedCommitWithScopeAndType<T, string>;
 
-export class CommitsGrouper {
-  readonly #commitsByScopeMap: CommitsByScopeMap;
+export type CommitsByScopeMap<T extends string> = Map<T, CommitWithScope<T>[]>;
+
+export class CommitsGrouper<T extends string> {
+  readonly #allowedCommitScopes: readonly T[];
+  readonly #commitsByScopeMap: CommitsByScopeMap<T>;
 
   constructor(
-    validatedCommits: Iterable<ValidatedCommit<string, string>>,
+    validatedCommits: Iterable<CommitWithScope<T>>,
+    allowedCommitScopes: readonly T[],
   ) {
+    this.#allowedCommitScopes = allowedCommitScopes;
     this.#commitsByScopeMap = this.#groupCommitsByScope(validatedCommits);
   }
 
-  get commitsByScopeMap(): CommitsByScopeMap {
+  get commitsByScopeMap(): CommitsByScopeMap<T> {
     return this.#commitsByScopeMap;
   }
 
   #groupCommitsByScope(
-    validatedCommits: Iterable<ValidatedCommit<string, string>>,
-  ): CommitsByScopeMap {
-    const commitsByScopeMap: CommitsByScopeMap = new Map();
+    validatedCommits: Iterable<CommitWithScope<T>>,
+  ): CommitsByScopeMap<T> {
+    const commitsByScopeMap: CommitsByScopeMap<T> = new Map();
 
     for (const commit of validatedCommits) {
       const { scope } = commit;
-      if (!scope) continue;
+      if (!scope || !this.#allowedCommitScopes.includes(scope)) continue;
 
       const commitsByScope = commitsByScopeMap.get(scope);
       if (!commitsByScope) {

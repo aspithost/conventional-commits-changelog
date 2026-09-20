@@ -1,10 +1,10 @@
 import type { ErrorHandler } from '@/utils/error/logError.js';
 import { ChangelogWriter, type ChangelogWriterOptions } from '@/write-changelog/ChangelogWriter.js';
 
-export async function createChangelogWriter(
+export function createChangelogWriter(
   changelogWriterOptions?: Partial<ChangelogWriterOptions>,
   onError?: ErrorHandler,
-): Promise<ChangelogWriter> {
+): ChangelogWriter {
   const { remoteRepositoryInformation } = changelogWriterOptions?.options ?? {};
   const changelogWriter = changelogWriterOptions?.changelogWriterPreset
     ? new ChangelogWriter(
@@ -13,7 +13,7 @@ export async function createChangelogWriter(
         remoteRepositoryInformation,
         onError,
       },
-    ) : await ChangelogWriter.withDefaultPreset(
+    ) : ChangelogWriter.withDefaultPreset(
       remoteRepositoryInformation,
       onError,
     );

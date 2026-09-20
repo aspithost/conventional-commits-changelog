@@ -8,11 +8,11 @@ import { createChangelogWriter } from './utils/createChangelogWriter.js';
 
 export async function release<
   T extends string,
-  U extends DefaultAllowedTypes = DefaultAllowedTypes
+  U extends DefaultAllowedTypes = DefaultAllowedTypes,
 >(options?: ReleaseOptionsWithoutCommits<T, U>): Promise<void>;
 export async function release<
   T extends string,
-  U extends string
+  U extends string,
 >(options: ReleaseOptionsWithCommits<T, U>): Promise<void>;
 export async function release({
   changelogWriterOptions,
@@ -49,7 +49,7 @@ export async function release({
   const newVersion = bumpVersion(directoryPath, releaseType, { isUpdateReadme });
 
   // Write changelog
-  const changelogWriter = await createChangelogWriter(changelogWriterOptions, onError);
+  const changelogWriter = createChangelogWriter(changelogWriterOptions, onError);
 
   await changelogWriter.writeChangelog(
     directoryPath,

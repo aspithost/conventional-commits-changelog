@@ -141,7 +141,7 @@ describe('releasePackages', () => {
     vi.mocked(releaseByScope).mockResolvedValueOnce(releasePackagesResult);
     const onError = vi.fn();
 
-    await releasePackages({ onError});
+    await releasePackages({ onError });
 
     expect(vi.mocked(handleReleasePackagesErrors)).toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
   });

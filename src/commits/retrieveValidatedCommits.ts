@@ -20,7 +20,7 @@ import type {
 
 export interface RetrieveCommitsOptions<
   T extends string,
-  U extends string
+  U extends string,
 > {
   commitsParserOptions?: CommitsParserOptions,
   commitsRetrieverOptions?: CommitsRetrieverOptions,
@@ -29,29 +29,29 @@ export interface RetrieveCommitsOptions<
 
 type RetrieveCommitsOptionsWithOnError<
   T extends string,
-  U extends string
+  U extends string,
 > = RetrieveCommitsOptions<T, U> & OnError;
 
 type OptionsWithoutValidatorOptions = Omit<RetrieveCommitsOptionsWithOnError<string, string>, 'commitsValidatorOptions'>;
 type OptionsWithoutValidatorOptionsWithScope<
-  T extends string
+  T extends string,
 > = OptionsWithoutValidatorOptions & {
   commitsValidatorOptions: AllowedCommitScopes<T>;
 };
 type OptionsWithoutValidatorOptionsWithType<
-  U extends string
+  U extends string,
 > = OptionsWithoutValidatorOptions & {
   commitsValidatorOptions: AllowedCommitTypes<U>;
 };
 type OptionsWithoutValidatorOptionsWithScopeAndType<
   T extends string,
-  U extends string
+  U extends string,
 > = OptionsWithoutValidatorOptions & {
   commitsValidatorOptions: AllowedCommitScopes<T> & AllowedCommitTypes<U>;
 };
 type OptionsWithValidatorOptions<
   T extends string,
-  U extends string
+  U extends string,
 > = OptionsWithoutValidatorOptions & {
   commitsValidatorOptions?: CommitsValidatorOptions<T, U>;
 };
