@@ -11,10 +11,15 @@ vi.mock('node:fs', () => ({
 const PACKAGE_JSON_NAME = 'some-package';
 const PACKAGE_JSON = `{"name": "${PACKAGE_JSON_NAME}"}`;
 
-function createDirent(name: string, isDirectory: boolean) {
+function createDirent(
+  isDirectory: boolean,
+  name: string,
+  parentPath = process.cwd(),
+) {
   return {
-    name,
     isDirectory: () => isDirectory,
+    name,
+    parentPath,
   } as never;
 }
 
@@ -39,7 +44,10 @@ describe('DirectoriesReader', () => {
 
       expect(readdirSync).toHaveBeenCalledWith(
         process.cwd(),
-        { withFileTypes: true },
+        {
+          recursive: true,
+          withFileTypes: true,
+        },
       );
     });
 
@@ -50,16 +58,10 @@ describe('DirectoriesReader', () => {
 
       expect(readdirSync).toHaveBeenCalledWith(
         customPath,
-        { withFileTypes: true },
-      );
-    });
-
-    it('should expose a static helper to create an instance that combines process.cwd() with packages path', () => {
-      const _ = DirectoriesReader.withPackagesDirectory();
-
-      expect(readdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), 'packages'),
-        { withFileTypes: true },
+        {
+          recursive: true,
+          withFileTypes: true,
+        },
       );
     });
   });
@@ -98,7 +100,7 @@ describe('DirectoriesReader', () => {
         const onError = vi.fn();
         const ROOT_SCOPE_NAME = 'root';
         const ROOT_SCOPE_DIRECTORY_PATH = '/path/for/root/scope';
-        vi.mocked(readdirSync).mockReturnValue([createDirent(ROOT_SCOPE_NAME, true)]);
+        vi.mocked(readdirSync).mockReturnValue([createDirent(true, ROOT_SCOPE_NAME)]);
         vi.mocked(readFileSync).mockReturnValue(`{"name": "${ROOT_SCOPE_NAME}"}`);
 
         expect(() => new DirectoriesReader({
@@ -124,10 +126,10 @@ describe('DirectoriesReader', () => {
           .mockReturnValueOnce(PACKAGE_JSON)
           .mockReturnValueOnce(PACKAGE_JSON_TWO);
         vi.mocked(readdirSync).mockReturnValue([
-          createDirent('package-one', true),
-          createDirent('README.md', false),
-          createDirent('package-two', true),
-          createDirent('.gitignore', false),
+          createDirent(true, 'package-one'),
+          createDirent(false, 'README.md'),
+          createDirent(true, 'package-two'),
+          createDirent(false, '.gitignore'),
         ]);
         const directoriesReader = new DirectoriesReader();
 
@@ -169,12 +171,13 @@ describe('DirectoriesReader', () => {
 
     describe('package.json handling for each directory', () => {
       beforeEach(() => {
-        vi.mocked(readdirSync).mockReturnValue([createDirent('my-pkg', true)]);
+        vi.mocked(readdirSync).mockReturnValue([createDirent(true, 'my-pkg')]);
         vi.mocked(readFileSync).mockReturnValue(PACKAGE_JSON);
       });
 
       it('should read and parse package.json from each directory', () => {
         const customPath = '/packages/custom';
+        vi.mocked(readdirSync).mockReturnValue([createDirent(true, 'my-pkg', customPath)]);
 
         const _ = new DirectoriesReader({ directoryPath: customPath });
 
@@ -230,7 +233,7 @@ describe('DirectoriesReader', () => {
       });
 
       it('should return an iterable of scope names', () => {
-        vi.mocked(readdirSync).mockReturnValue([createDirent('package-one', true)]);
+        vi.mocked(readdirSync).mockReturnValue([createDirent(true, 'package-one')]);
 
         const directoriesReader = new DirectoriesReader();
 
@@ -247,9 +250,9 @@ describe('DirectoriesReader', () => {
 
       it('should return multiple scope names', () => {
         vi.mocked(readdirSync).mockReturnValue([
-          createDirent('package-one', true),
-          createDirent('package-two', true),
-          createDirent('package-three', true),
+          createDirent(true, 'package-one'),
+          createDirent(true, 'package-two'),
+          createDirent(true, 'package-three'),
         ]);
         vi.mocked(readFileSync)
           .mockReturnValueOnce('{"name": "app-one"}')
@@ -261,19 +264,10 @@ describe('DirectoriesReader', () => {
         expect([...directoriesReader.scopes]).toStrictEqual(['app-one', 'app-two', 'app-three']);
       });
 
-      it('should strip the org prefix from a scoped package name', () => {
-        vi.mocked(readdirSync).mockReturnValue([createDirent('my-pkg', true)]);
-        vi.mocked(readFileSync).mockReturnValue('{"name": "@my-org/my-pkg"}');
-
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toStrictEqual(['my-pkg']);
-      });
-
       it('should skip directories without a package.json but keep the rest', () => {
         vi.mocked(readdirSync).mockReturnValue([
-          createDirent('package-one', true),
-          createDirent('no-package-json', true),
+          createDirent(true, 'package-one'),
+          createDirent(true, 'no-package-json'),
         ]);
 
         const directoriesReader = new DirectoriesReader();
@@ -282,11 +276,15 @@ describe('DirectoriesReader', () => {
       });
     });
 
-    describe('scopesInformation', () => {
+    describe('directoryPathByScopeMap', () => {
       it('should return a readonly array of ScopeInformation', () => {
         const DIRECTORY_PATH = '/path/to/packages';
         const NESTED_DIRECTORY = join('package-one');
-        vi.mocked(readdirSync).mockReturnValue([createDirent(NESTED_DIRECTORY, true)]);
+        vi.mocked(readdirSync).mockReturnValue([createDirent(
+          true,
+          NESTED_DIRECTORY,
+          DIRECTORY_PATH,
+        )]);
         vi.mocked(readFileSync).mockReturnValue(PACKAGE_JSON);
 
         const directoriesReader = new DirectoriesReader({ directoryPath: DIRECTORY_PATH });
@@ -294,6 +292,36 @@ describe('DirectoriesReader', () => {
         expect(directoriesReader.directoryPathByScopeMap.size).toBe(1);
         expect(directoriesReader.directoryPathByScopeMap.get(PACKAGE_JSON_NAME)).toStrictEqual({
           directoryPath: join(DIRECTORY_PATH, NESTED_DIRECTORY),
+        });
+      });
+
+      it('should return nested scopes and their directory paths', () => {
+        const DIRECTORY_PATH = '/packages';
+        const FIRST_LEVEL_DIRECTORY = join(DIRECTORY_PATH, 'i');
+        const SECOND_LEVEL_DIRECTORY = join(FIRST_LEVEL_DIRECTORY, 'am');
+        const THIRD_LEVEL_DIRECTORY = join(SECOND_LEVEL_DIRECTORY, 'nested');
+
+        vi.mocked(readdirSync).mockReturnValue([
+          createDirent(true, 'i', DIRECTORY_PATH),
+          createDirent(true, 'am', FIRST_LEVEL_DIRECTORY),
+          createDirent(true, 'nested', SECOND_LEVEL_DIRECTORY),
+        ]);
+
+        vi.mocked(readFileSync)
+          .mockReturnValueOnce('{"name": "i"}')
+          .mockReturnValueOnce('{"name": "am"}')
+          .mockReturnValueOnce('{"name": "nested"}');
+
+        const directoriesReader = new DirectoriesReader({ directoryPath: DIRECTORY_PATH });
+        expect(directoriesReader.directoryPathByScopeMap.size).toBe(3);
+        expect(directoriesReader.directoryPathByScopeMap.get('i')).toStrictEqual({
+          directoryPath: FIRST_LEVEL_DIRECTORY,
+        });
+        expect(directoriesReader.directoryPathByScopeMap.get('am')).toStrictEqual({
+          directoryPath: SECOND_LEVEL_DIRECTORY,
+        });
+        expect(directoriesReader.directoryPathByScopeMap.get('nested')).toStrictEqual({
+          directoryPath: THIRD_LEVEL_DIRECTORY,
         });
       });
     });

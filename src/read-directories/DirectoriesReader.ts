@@ -14,7 +14,7 @@ type RootScopeOptions<T extends string> = {
   rootScopeName?: undefined;
 };
 
-export interface ScopesReaderOptions<T extends string> {
+export interface DirectoriesReaderOptions<T extends string> {
   directoryPath?: string;
   rootScopeOptions?: RootScopeOptions<T>;
   onError?: ErrorHandler;
@@ -37,16 +37,12 @@ export class DirectoriesReader<T extends string> {
       addRootScope: false,
     },
     onError = logError,
-  }: ScopesReaderOptions<T> = {}) {
+  }: DirectoriesReaderOptions<T> = {}) {
     this.#onError = onError;
     this.#directoryPathByScopeMap = this.#createDirectoryPathByScopeMap(
       directoryPath,
       rootScopeOptions,
     );
-  }
-
-  static withPackagesDirectory<T extends string>() {
-    return new DirectoriesReader<T>({ directoryPath: join(process.cwd(), 'packages') });
   }
 
   // To-do: add documentation
@@ -66,7 +62,7 @@ export class DirectoriesReader<T extends string> {
     const directories = this.#readDirectories(directoryPath);
     const filteredDirectories = this.#filterDirectories(directories);
     const scopesMap: DirectoryPathByScopeMap<T> = new Map();
-    this.#addMapEntries(scopesMap, directoryPath, filteredDirectories);
+    this.#addMapEntries(scopesMap, filteredDirectories);
 
     if (rootScopeOptions?.addRootScope) {
       const { rootScopeName, rootScopeDirectoryPath } = rootScopeOptions;
@@ -82,7 +78,10 @@ export class DirectoriesReader<T extends string> {
 
   #readDirectories(directoryPath: string): Dirent[] {
     try {
-      return readdirSync(directoryPath, { withFileTypes: true });
+      return readdirSync(directoryPath, {
+        recursive: true,
+        withFileTypes: true,
+      });
     } catch (err) {
       this.#onError(`Could not read directory with path: ${directoryPath}`, err);
       throw err;
@@ -95,28 +94,20 @@ export class DirectoriesReader<T extends string> {
 
   #addMapEntries(
     scopesMap: DirectoryPathByScopeMap<T>,
-    packagesDirectoryPath: string,
     directories: Dirent[],
   ): DirectoryPathByScopeMap<T> {
     for (const directory of directories) {
-      const directoryName = directory.name;
-      const directoryPath = join(packagesDirectoryPath, directoryName);
+      const directoryPath = join(directory.parentPath, directory.name);
       const packageJson = this.#readPackageJson(directoryPath);
       if (!packageJson) {
         continue;
       }
       const parsedPackageJson = this.#parseJson(packageJson, directoryPath);
-      const validatedPackageJson = this.#validatePackageJson(parsedPackageJson);
-      const formattedPackageName = this.#formatPackageJsonName(validatedPackageJson.name);
-      scopesMap.set(formattedPackageName, { directoryPath });
+      const { name } = this.#validatePackageJson(parsedPackageJson);
+      scopesMap.set(name, { directoryPath });
     }
     return scopesMap;
   }
-
-  #formatPackageJsonName(pkgName: PackageJsonSchema['name']): string {
-    return pkgName.includes('/') ? pkgName.split('/')[1] : pkgName;
-  }
-
   #validatePackageJson(pkg: unknown): PackageJsonSchema {
     const validationResult = packageJsonSchema.safeParse(pkg);
     if (!validationResult.success) {
