@@ -12,8 +12,8 @@ jobs:
       contents: read
       pull-requests: write
     with:
+      run-sonar: true
       test-command: npm run test:cov:ci
       upload-vitest-coverage-report: true
-      run-sonar: true
     secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}

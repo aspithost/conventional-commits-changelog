@@ -12,7 +12,7 @@ jobs:
       id-token: write
       pull-requests: write
     with:
-      test-command: npm run test:cov:ci
       run-sonar: true
+      test-command: npm run test:cov:ci 
     secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}
