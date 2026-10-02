@@ -5,7 +5,7 @@ describe('CommitsValidatorWithType', () => {
   it('should validate commits with allowed types', () => {
     const onError = vi.fn();
     const ALLOWED_TYPE = 'some-unusual-type';
-    const ALLOWED_TYPES = [ALLOWED_TYPE];
+    const ALLOWED_TYPES = new Set([ALLOWED_TYPE]);
     const validCommit = { ...BASE_PARSED_COMMIT, type: ALLOWED_TYPE };
     const invalidCommit = { ...BASE_PARSED_COMMIT, type: 'invalid' };
 

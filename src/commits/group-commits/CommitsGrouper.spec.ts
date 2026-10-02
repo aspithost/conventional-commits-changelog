@@ -14,7 +14,7 @@ const BASE_COMMIT = {
 
 describe('CommitsGrouper', () => {
   it('should not return any scopes information when the user has not provided any commits', () => {
-    const commitsGrouper = new CommitsGrouper([], ['root']);
+    const commitsGrouper = new CommitsGrouper([], new Set(['root']));
 
     expect(commitsGrouper.commitsByScopeMap.size).toBe(0);
   });
@@ -42,7 +42,7 @@ describe('CommitsGrouper', () => {
     it('should add scope entries to the commits by scope map', () => {
       const commitsGrouper = new CommitsGrouper(
         [FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT, CARD_COMMIT],
-        ['button', 'card'],
+        new Set(['button', 'card']),
       );
 
       expect(commitsGrouper.commitsByScopeMap.size).toBe(2);
@@ -53,7 +53,7 @@ describe('CommitsGrouper', () => {
     it('should only add commits with scopes provided in the the allowed scopes list', () => {
       const commitsGrouper = new CommitsGrouper(
         [FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT, CARD_COMMIT],
-        ['button'],
+        new Set(['button']),
       );
 
       expect(commitsGrouper.commitsByScopeMap.size).toBe(1);

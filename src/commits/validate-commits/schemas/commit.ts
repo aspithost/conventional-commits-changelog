@@ -38,6 +38,7 @@ export type CommitSchema = z.infer<typeof commitSchema>;
 export function createCommitSchemaWithScope<T extends string>(
   allowedScopes: readonly T[],
 ) {
+  if (!allowedScopes.length) throw new Error('should provide at least one allowed scope');
   return createCommitSchemaWithType(DEFAULT_ALLOWED_TYPES).extend({
     scope: z.enum(allowedScopes),
   });
@@ -46,6 +47,7 @@ export function createCommitSchemaWithScope<T extends string>(
 export function createCommitSchemaWithType<T extends string>(
   allowedTypes: readonly T[],
 ) {
+  if (!allowedTypes.length) throw new Error('should provide at least one allowed type');
   return commitSchema.extend({
     type: z.enum(allowedTypes),
   });

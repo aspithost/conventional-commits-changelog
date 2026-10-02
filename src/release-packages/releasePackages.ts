@@ -30,10 +30,10 @@ export async function releasePackages<T extends string>({
   const { directoryPathByScopeMap } = directoriesReader;
   if (!directoryPathByScopeMap.size) throw new Error('No scopes found in the specified directory');
 
-  const allowedCommitScopes = [...getAllowedCommitScopes(
+  const allowedCommitScopes = getAllowedCommitScopes(
     directoriesReader.scopes,
     commitsValidatorOptions?.allowedCommitScopes,
-  )];
+  );
 
   const resolvedCommits = [...retrieveValidatedCommits({
     commitsParserOptions,

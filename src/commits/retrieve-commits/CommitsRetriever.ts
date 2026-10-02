@@ -11,7 +11,7 @@ interface RawCommit {
 }
 export type RawCommits = Iterable<RawCommit>;
 export interface CommitsRetrieverOptions {
-  commitFormat?: string
+  commitFormat?: string;
   cwd?: string;
   from?: string;
   to?: string;

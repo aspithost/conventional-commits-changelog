@@ -1,8 +1,8 @@
 export function getAllowedCommitScopes<T extends string>(
   foundScopes: MapIterator<string>,
-  allowedScopes?: readonly T[],
+  allowedScopes?: Set<T>,
 ): Set<T> | Set<string> {
-  if (!allowedScopes?.length) return new Set<string>(foundScopes);
+  if (!allowedScopes?.size) return new Set<string>(foundScopes);
 
   const allowedScopesSet = new Set<string>(allowedScopes);
 

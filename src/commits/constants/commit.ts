@@ -10,4 +10,6 @@ export const DEFAULT_ALLOWED_TYPES = [
   'revert',
   'style',
   'test',
-];
+] as const;
+
+export const DEFAULT_ALLOWED_TYPES_SET = new Set(DEFAULT_ALLOWED_TYPES);

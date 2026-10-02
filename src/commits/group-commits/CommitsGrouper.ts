@@ -7,12 +7,12 @@ type CommitWithScope<
 export type CommitsByScopeMap<T extends string> = Map<T, CommitWithScope<T>[]>;
 
 export class CommitsGrouper<T extends string> {
-  readonly #allowedCommitScopes: readonly T[];
+  readonly #allowedCommitScopes: Set<T>;
   readonly #commitsByScopeMap: CommitsByScopeMap<T>;
 
   constructor(
     validatedCommits: Iterable<CommitWithScope<T>>,
-    allowedCommitScopes: readonly T[],
+    allowedCommitScopes: Set<T>,
   ) {
     this.#allowedCommitScopes = allowedCommitScopes;
     this.#commitsByScopeMap = this.#groupCommitsByScope(validatedCommits);
@@ -29,7 +29,7 @@ export class CommitsGrouper<T extends string> {
 
     for (const commit of validatedCommits) {
       const { scope } = commit;
-      if (!scope || !this.#allowedCommitScopes.includes(scope)) continue;
+      if (!scope || !this.#allowedCommitScopes.has(scope)) continue;
 
       const commitsByScope = commitsByScopeMap.get(scope);
       if (!commitsByScope) {

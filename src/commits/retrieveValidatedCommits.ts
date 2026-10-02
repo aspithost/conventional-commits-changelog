@@ -22,9 +22,9 @@ export interface RetrieveCommitsOptions<
   T extends string,
   U extends string,
 > {
-  commitsParserOptions?: CommitsParserOptions,
-  commitsRetrieverOptions?: CommitsRetrieverOptions,
-  commitsValidatorOptions?: CommitsValidatorOptions<T, U>,
+  commitsParserOptions?: CommitsParserOptions;
+  commitsRetrieverOptions?: CommitsRetrieverOptions;
+  commitsValidatorOptions?: CommitsValidatorOptions<T, U>;
 }
 
 type RetrieveCommitsOptionsWithOnError<

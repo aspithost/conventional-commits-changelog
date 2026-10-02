@@ -93,20 +93,20 @@ describe('releasePackages', () => {
     });
 
     it('should filter out commits with scopes that do not match the allowed commit scopes provided by the user', async () => {
-      const ALLOWED_SCOPES = [BUTTON_SCOPE, CARD_SCOPE] as const;
+      const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
 
-      await releasePackages({ commitsValidatorOptions: { allowedCommitScopes: ALLOWED_SCOPES } });
+      await releasePackages({ commitsValidatorOptions: { allowedCommitScopes } });
 
       expect(getAllowedCommitScopes).toHaveBeenCalledExactlyOnceWith(
         DIRECTORY_PATH_BY_SCOPE_MAP.keys(),
-        ALLOWED_SCOPES,
+        allowedCommitScopes,
       );
 
       expect(vi.mocked(retrieveValidatedCommits)).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           commitsValidatorOptions: expect.objectContaining({
-            allowedCommitScopes: ALLOWED_SCOPES,
+            allowedCommitScopes,
           }),
         }),
       );
@@ -114,7 +114,7 @@ describe('releasePackages', () => {
   });
 
   it('should group commits by scope', async () => {
-    const allowedCommitScopes = [BUTTON_SCOPE, CARD_SCOPE];
+    const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
     await releasePackages({ commitsValidatorOptions: { allowedCommitScopes } });
 
     expect(CommitsGrouper).toHaveBeenCalledExactlyOnceWith([], allowedCommitScopes);

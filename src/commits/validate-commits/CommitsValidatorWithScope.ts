@@ -9,7 +9,7 @@ type CommitsValidatorWithScopeOptions<
 > = BaseCommitsValidatorOptions & AllowedCommitScopes<T>;
 
 export class CommitsValidatorWithScope<T extends string> extends BaseCommitsValidator {
-  readonly #allowedCommitScopes: readonly T[];
+  readonly #allowedCommitScopes: Set<T>;
 
   constructor({
     allowedCommitScopes,
@@ -24,7 +24,7 @@ export class CommitsValidatorWithScope<T extends string> extends BaseCommitsVali
   ): Iterable<ValidatedCommitWithScope<T>> {
     yield* this.validateCommitsBySchema(
       parsedCommits,
-      createCommitSchemaWithScope(this.#allowedCommitScopes),
+      createCommitSchemaWithScope([...this.#allowedCommitScopes]),
     );
   }
 }

@@ -59,8 +59,8 @@ vi.mock('./validate-commits/CommitsValidatorWithScopeAndType.js', () => {
   return { CommitsValidatorWithScopeAndType };
 });
 
-const ALLOWED_SCOPES = ['ui', 'api'] as const;
-const ALLOWED_TYPES = ['feat', 'fix'] as const;
+const ALLOWED_SCOPES = new Set(['ui', 'api'] as const);
+const ALLOWED_TYPES = new Set(['feat', 'fix'] as const);
 
 describe('retrieveValidatedCommits', () => {
   const onError = vi.fn();

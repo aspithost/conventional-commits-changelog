@@ -9,7 +9,7 @@ type CommitsValidatorWithTypeOptions<
 > = BaseCommitsValidatorOptions & AllowedCommitTypes<T>;
 
 export class CommitsValidatorWithType<T extends string> extends BaseCommitsValidator {
-  readonly #allowedCommitTypes: readonly T[];
+  readonly #allowedCommitTypes: Set<T>;
 
   constructor({
     allowedCommitTypes,
@@ -24,7 +24,7 @@ export class CommitsValidatorWithType<T extends string> extends BaseCommitsValid
   ): Iterable<ValidatedCommitWithType<T>> {
     yield* this.validateCommitsBySchema(
       parsedCommits,
-      createCommitSchemaWithType(this.#allowedCommitTypes),
+      createCommitSchemaWithType([...this.#allowedCommitTypes]),
     );
   }
 }

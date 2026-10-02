@@ -26,7 +26,7 @@ export interface ChangelogWriterOptions {
   options?: {
     remoteRepositoryInformation?: RemoteRepositoryInformation;
     onError?: ErrorHandler;
-  }
+  };
 }
 
 export class ChangelogWriter {

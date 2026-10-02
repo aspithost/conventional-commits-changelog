@@ -5,7 +5,7 @@ describe('CommitsValidatorWithScope', () => {
   it('should validate commits with allowed scopes', () => {
     const onError = vi.fn();
     const ALLOWED_SCOPE = 'packageOne';
-    const ALLOWED_SCOPES = [ALLOWED_SCOPE];
+    const ALLOWED_SCOPES = new Set([ALLOWED_SCOPE]);
     const validCommit = { ...BASE_PARSED_COMMIT, scope: ALLOWED_SCOPE };
     const invalidCommit = { ...BASE_PARSED_COMMIT, scope: 'invalid' };
 

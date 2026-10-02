@@ -1,9 +1,9 @@
 export interface AllowedCommitScopes<T extends string> {
-  allowedCommitScopes: readonly T[];
+  allowedCommitScopes: Set<T>;
 }
 
 export interface AllowedCommitTypes<T extends string> {
-  allowedCommitTypes: readonly T[];
+  allowedCommitTypes: Set<T>;
 }
 
 export type CommitsValidatorOptions<

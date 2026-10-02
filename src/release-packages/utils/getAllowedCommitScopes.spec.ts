@@ -19,11 +19,10 @@ describe('getAllowedCommitScopes', () => {
   });
 
   it('should return only the allowed scopes when the user has specified allowed scopes', () => {
-    const allowedScopesSet = getAllowedCommitScopes(FOUND_SCOPES_MAP.keys(), [BUTTON_SCOPE, CARD_SCOPE]);
+    const allowedScopesSet = getAllowedCommitScopes(FOUND_SCOPES_MAP.keys(), new Set([BUTTON_SCOPE, CARD_SCOPE]));
 
     expect(allowedScopesSet.has(BUTTON_SCOPE)).toBe(true);
     expect(allowedScopesSet.has(CARD_SCOPE)).toBe(true);
-    // @ts-expect-error: Unit test check only
     expect(allowedScopesSet.has(ROOT_SCOPE)).toBe(false);
   });
 });
