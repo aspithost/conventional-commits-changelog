@@ -8,23 +8,26 @@ import { getAllowedCommitScopes } from './utils/getAllowedCommitScopes.js';
 import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
 
+// to-do: add option to filter out scope in package name
 export async function releasePackages<T extends string>({
   changelogWriterOptions,
   commitsParserOptions,
   commitsRetrieverOptions,
   commitsValidatorOptions,
-  directoryPath = process.cwd(),
+  directoriesReaderOptions = {
+    directoryPath: process.cwd(),
+  },
   isDryRun = false,
   isUpdateReadme = true,
-  rootScopeOptions,
   onError = logError,
 }: ReleasePackagesOptions<T> = {}): Promise<void> {
+  const { directoryPath, rootScopeOptions } = directoriesReaderOptions;
   const directoriesReader = new DirectoriesReader({
     directoryPath,
     rootScopeOptions,
     onError,
   });
-  const directoryPathByScopeMap = directoriesReader.directoryPathByScopeMap;
+  const { directoryPathByScopeMap } = directoriesReader;
   if (!directoryPathByScopeMap.size) throw new Error('No scopes found in the specified directory');
 
   const allowedCommitScopes = [...getAllowedCommitScopes(
@@ -44,8 +47,6 @@ export async function releasePackages<T extends string>({
 
   const commitsGrouper = new CommitsGrouper(resolvedCommits, allowedCommitScopes);
   const { commitsByScopeMap } = commitsGrouper;
-
-  // for each scope in commitsByScopeMap, add a key-value pair with key directoryPath and value the value of its corresponding value in directoryPathByScopeMap
 
   const releasePackagesResults = await releaseByScope(
     directoryPathByScopeMap,

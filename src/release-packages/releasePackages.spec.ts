@@ -61,7 +61,10 @@ describe('releasePackages', () => {
       const onError = vi.fn();
       const DIRECTORY_PATH = 'packages';
 
-      await releasePackages({ directoryPath: DIRECTORY_PATH, onError });
+      await releasePackages({
+        directoriesReaderOptions: { directoryPath: DIRECTORY_PATH },
+        onError,
+      });
 
       expect(DirectoriesReader).toHaveBeenCalledWith({
         directoryPath: DIRECTORY_PATH,
