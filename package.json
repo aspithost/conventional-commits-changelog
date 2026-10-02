@@ -18,8 +18,16 @@
     "type": "git",
     "url": "git+https://github.com/aspithost/conventional-commits-changelog.git"
   },
-  "main": "src/index.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=24"
   },
@@ -30,12 +38,12 @@
     "deps:update": "npx -y npm-check-updates -u --target minor --cooldown 2 && npm install",
     "deps:update:major": "npx -y npm-check-updates -u --cooldown 2 && npm install",
     "lint": "eslint . && npm run publint",
+    "prepare": "husky || true",
     "publint": "npx -y publint",
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
     "test:cov:ci": "vitest run --coverage",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.spec.json",
-    "prepare": "husky"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.spec.json"
   },
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^10.4.0",
