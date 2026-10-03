@@ -1,8 +1,11 @@
 import type { Mock } from 'vitest';
-import { ZodError, type ZodType, type z } from 'zod';
+import {
+  ZodError, type ZodType, type z,
+} from 'zod';
 
 import type { ParsedCommit, ParsedCommits } from '../../parse-commits/CommitsParser.js';
 import { commitSchema } from '../schemas/commit.js';
+
 import { BaseCommitsValidator, type BaseCommitsValidatorOptions } from './BaseCommitsValidator.js';
 
 // Note: exported for unit testing purposes in subclasses
@@ -55,7 +58,10 @@ describe('BaseCommitsValidator', () => {
 
   it('should handle errors when the validation of a commit fails', () => {
     const validCommit = BASE_PARSED_COMMIT;
-    const invalidCommit = { ...BASE_PARSED_COMMIT, hash: 1234 };
+    const invalidCommit = {
+      ...BASE_PARSED_COMMIT,
+      hash: 1234,
+    };
 
     const result = [...new TestableBaseCommitsValidator({ onError }).publicValidateCommitsBySchema(
       // @ts-expect-error -- Intentionally passing an invalid commit to test error handling
@@ -66,7 +72,7 @@ describe('BaseCommitsValidator', () => {
     expect(result).toHaveLength(1);
     expect(onError).toHaveBeenCalledExactlyOnceWith(expect.any(String), {
       commit: invalidCommit,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Expects a validation error
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Expects Zod err
       error: expect.any(ZodError),
     });
   });

@@ -1,5 +1,6 @@
-import type { DefaultAllowedTypes } from '@/commits/types/commit.js';
 import type { CommitSchema } from '../schemas/commit.js';
+
+import type { DefaultAllowedTypes } from '@/commits/types/commit.js';
 
 export type ValidatedCommitWithDefaultType = CommitSchema & { type: DefaultAllowedTypes };
 
@@ -14,7 +15,10 @@ export type ValidatedCommitWithType<
 export type ValidatedCommitWithScopeAndType<
   Scope extends string,
   Type extends string,
-> = CommitSchema & { scope: Scope; type: Type };
+> = CommitSchema & {
+  scope: Scope;
+  type: Type;
+};
 
 export type ValidatedCommit<
   Scope extends string,

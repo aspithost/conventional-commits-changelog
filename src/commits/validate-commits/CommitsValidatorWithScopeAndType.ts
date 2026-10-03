@@ -1,10 +1,14 @@
 import type { ParsedCommits } from '../parse-commits/CommitsParser.js';
-import { BaseCommitsValidator, type BaseCommitsValidatorOptions } from './base/BaseCommitsValidator.js';
+
+import {
+  BaseCommitsValidator,
+  type BaseCommitsValidatorOptions,
+} from './base/BaseCommitsValidator.js';
 import { createCommitSchemaWithScopeAndType } from './schemas/commit.js';
 import type { ValidatedCommitWithScopeAndType } from './types/commit.js';
 import type { AllowedCommitScopes, AllowedCommitTypes } from './types/options.js';
 
-type CommitsValidatorWithScopeAndTypeOptions<
+export type CommitsValidatorWithScopeAndTypeOptions<
   T extends string,
   U extends string,
 > = BaseCommitsValidatorOptions & AllowedCommitScopes<T> & AllowedCommitTypes<U>;

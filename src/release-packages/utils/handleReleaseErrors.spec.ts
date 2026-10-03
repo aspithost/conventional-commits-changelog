@@ -6,10 +6,22 @@ describe('handleReleaseErrors', () => {
     const ERROR_TWO = new Error('Another package release failed');
     const onError = vi.fn();
     const releasePackagesResults: PromiseSettledResult<void>[] = [
-      { status: 'fulfilled', value: undefined },
-      { status: 'rejected', reason: ERROR_ONE },
-      { status: 'fulfilled', value: undefined },
-      { status: 'rejected', reason: ERROR_TWO },
+      {
+        status: 'fulfilled',
+        value: undefined,
+      },
+      {
+        status: 'rejected',
+        reason: ERROR_ONE,
+      },
+      {
+        status: 'fulfilled',
+        value: undefined,
+      },
+      {
+        status: 'rejected',
+        reason: ERROR_TWO,
+      },
     ];
 
     handleReleasePackagesErrors(releasePackagesResults, onError);

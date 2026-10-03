@@ -1,12 +1,12 @@
-import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
-import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
-import { logError } from '@/utils/error/logError.js';
-
 import type { ReleasePackagesOptions } from './types/releasePackages.js';
 import { getAllowedCommitScopes } from './utils/getAllowedCommitScopes.js';
 import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
+
+import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
+import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
+import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
+import { logError } from '@/utils/error/logError.js';
 
 // to-do: add option to filter out scope in package name
 export async function releasePackages<T extends string>({

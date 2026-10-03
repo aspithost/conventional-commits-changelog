@@ -1,6 +1,7 @@
-import type { ReleaseType } from '@/release/types/release.js';
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { updateReadme } from './utils/updateReadme.js';
+
+import type { ReleaseType } from '@/release/types/release.js';
 
 export interface BumpVersionOptions {
   isUpdateReadme?: boolean;

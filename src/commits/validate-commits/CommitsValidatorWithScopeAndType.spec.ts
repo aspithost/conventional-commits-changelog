@@ -8,10 +8,26 @@ describe('CommitsValidatorWithScopeAndType', () => {
     const ALLOWED_SCOPES = new Set([ALLOWED_SCOPE]);
     const ALLOWED_TYPE = 'some-unusual-type';
     const ALLOWED_TYPES = new Set([ALLOWED_TYPE]);
-    const validCommit = { ...BASE_PARSED_COMMIT, scope: ALLOWED_SCOPE, type: ALLOWED_TYPE };
-    const invalidCommitOne = { ...BASE_PARSED_COMMIT, scope: 'invalid', type: ALLOWED_TYPE };
-    const invalidCommitTwo = { ...BASE_PARSED_COMMIT, scope: ALLOWED_SCOPE, type: 'invalid' };
-    const invalidCommitThree = { ...BASE_PARSED_COMMIT, scope: 'invalid', type: 'invalid' };
+    const validCommit = {
+      ...BASE_PARSED_COMMIT,
+      scope: ALLOWED_SCOPE,
+      type: ALLOWED_TYPE,
+    };
+    const invalidCommitOne = {
+      ...BASE_PARSED_COMMIT,
+      scope: 'invalid',
+      type: ALLOWED_TYPE,
+    };
+    const invalidCommitTwo = {
+      ...BASE_PARSED_COMMIT,
+      scope: ALLOWED_SCOPE,
+      type: 'invalid',
+    };
+    const invalidCommitThree = {
+      ...BASE_PARSED_COMMIT,
+      scope: 'invalid',
+      type: 'invalid',
+    };
 
     const commitsValidator = new CommitsValidatorWithScopeAndType({
       allowedCommitScopes: ALLOWED_SCOPES,

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { DirectoriesReader } from './DirectoriesReader.js';
@@ -39,7 +39,7 @@ describe('DirectoriesReader', () => {
       vi.mocked(readdirSync).mockReturnValue([]);
     });
 
-    it('should use process.cwd() as default directory when the user does not provide a path', () => {
+    it('should use process.cwd() as default when the user does not provide a path', () => {
       const _ = new DirectoriesReader();
 
       expect(readdirSync).toHaveBeenCalledWith(
@@ -79,7 +79,7 @@ describe('DirectoriesReader', () => {
         expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
       });
 
-      it('should add a createDirectoryPathByScopeMap entry for a root scope when the user opts in', () => {
+      it('should add a map entry for a root scope when the user opts in', () => {
         const ROOT_SCOPE_NAME = 'root';
         const ROOT_SCOPE_DIRECTORY_PATH = '/path/for/root/scope';
         const directoriesReader = new DirectoriesReader({
@@ -133,7 +133,8 @@ describe('DirectoriesReader', () => {
         ]);
         const directoriesReader = new DirectoriesReader();
 
-        expect([...directoriesReader.scopes]).toStrictEqual([PACKAGE_JSON_NAME, PACKAGE_JSON_NAME_TWO]);
+        expect([...directoriesReader.scopes])
+          .toStrictEqual([PACKAGE_JSON_NAME, PACKAGE_JSON_NAME_TWO]);
         expect(directoriesReader.directoryPathByScopeMap.size).toBe(2);
         expect(directoriesReader.directoryPathByScopeMap.get(PACKAGE_JSON_NAME)).toStrictEqual({
           directoryPath: join(process.cwd(), 'package-one'),
@@ -151,7 +152,10 @@ describe('DirectoriesReader', () => {
           throw error;
         });
 
-        expect(() => new DirectoriesReader({ directoryPath: '/nonexistent/path', onError }))
+        expect(() => new DirectoriesReader({
+          directoryPath: '/nonexistent/path',
+          onError,
+        }))
           .toThrow(error);
         expect(onError).toHaveBeenCalledExactlyOnceWith(
           expect.any(String),
@@ -187,30 +191,36 @@ describe('DirectoriesReader', () => {
         );
       });
 
-      it('should silently skip a directory when the directory does not contain a package.json file', () => {
-        vi.mocked(readFileSync).mockImplementation(() => {
-          throw createEnoentError();
-        });
+      it(
+        'should silently skip a directory when the directory does not contain a package.json file',
+        () => {
+          vi.mocked(readFileSync).mockImplementation(() => {
+            throw createEnoentError();
+          });
 
-        const directoriesReader = new DirectoriesReader();
+          const directoriesReader = new DirectoriesReader();
 
-        expect([...directoriesReader.scopes]).toHaveLength(0);
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
-      });
+          expect([...directoriesReader.scopes]).toHaveLength(0);
+          expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
+        },
+      );
 
-      it('should throw when reading package.json fails for a reason other than a missing file', () => {
-        const onError = vi.fn();
-        const someError = new Error('EACCES: permission denied');
-        vi.mocked(readFileSync).mockImplementation(() => {
-          throw someError;
-        });
+      it(
+        'should throw when reading package.json fails for a reason other than a missing file',
+        () => {
+          const onError = vi.fn();
+          const someError = new Error('EACCES: permission denied');
+          vi.mocked(readFileSync).mockImplementation(() => {
+            throw someError;
+          });
 
-        expect(() => new DirectoriesReader({ onError })).toThrow(someError);
-        expect(onError).toHaveBeenCalledExactlyOnceWith(
-          expect.any(String),
-          someError,
-        );
-      });
+          expect(() => new DirectoriesReader({ onError })).toThrow(someError);
+          expect(onError).toHaveBeenCalledExactlyOnceWith(
+            expect.any(String),
+            someError,
+          );
+        },
+      );
 
       it('should throw when package.json contains invalid JSON', () => {
         vi.mocked(readFileSync).mockReturnValue('{not valid json');
@@ -261,14 +271,16 @@ describe('DirectoriesReader', () => {
 
         const directoriesReader = new DirectoriesReader();
 
-        expect([...directoriesReader.scopes]).toStrictEqual(['app-one', 'app-two', 'app-three']);
+        expect([...directoriesReader.scopes]).toStrictEqual([
+          'app-one',
+          'app-two',
+          'app-three',
+        ]);
       });
 
       it('should skip directories without a package.json but keep the rest', () => {
-        vi.mocked(readdirSync).mockReturnValue([
-          createDirent(true, 'package-one'),
-          createDirent(true, 'no-package-json'),
-        ]);
+        vi.mocked(readdirSync).mockReturnValue([createDirent(true, 'package-one'),
+          createDirent(true, 'no-package-json')]);
 
         const directoriesReader = new DirectoriesReader();
 

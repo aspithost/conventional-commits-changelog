@@ -9,7 +9,11 @@ export const PARSER_STREAM_OPTIONS = {
     'subject',
   ],
   headerPattern: /^(\w*)(?:\((.*)\))?!?:\s(.*)$/,
-  issuePrefixes: ['#', 'gh-', 'GH-'],
+  issuePrefixes: [
+    '#',
+    'gh-',
+    'GH-',
+  ],
   noteKeywords: ['BREAKING CHANGE', 'BREAKING-CHANGE'],
   referenceActions: [
     'close',

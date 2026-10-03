@@ -41,23 +41,33 @@ describe('CommitsGrouper', () => {
 
     it('should add scope entries to the commits by scope map', () => {
       const commitsGrouper = new CommitsGrouper(
-        [FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT, CARD_COMMIT],
+        [
+          FIRST_BUTTON_COMMIT,
+          SECOND_BUTTON_COMMIT,
+          CARD_COMMIT,
+        ],
         new Set(['button', 'card']),
       );
 
       expect(commitsGrouper.commitsByScopeMap.size).toBe(2);
-      expect(commitsGrouper.commitsByScopeMap.get('button')).toStrictEqual([FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT]);
+      expect(commitsGrouper.commitsByScopeMap.get('button'))
+        .toStrictEqual([FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT]);
       expect(commitsGrouper.commitsByScopeMap.get('card')).toStrictEqual([CARD_COMMIT]);
     });
 
     it('should only add commits with scopes provided in the the allowed scopes list', () => {
       const commitsGrouper = new CommitsGrouper(
-        [FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT, CARD_COMMIT],
+        [
+          FIRST_BUTTON_COMMIT,
+          SECOND_BUTTON_COMMIT,
+          CARD_COMMIT,
+        ],
         new Set(['button']),
       );
 
       expect(commitsGrouper.commitsByScopeMap.size).toBe(1);
-      expect(commitsGrouper.commitsByScopeMap.get('button')).toStrictEqual([FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT]);
+      expect(commitsGrouper.commitsByScopeMap.get('button'))
+        .toStrictEqual([FIRST_BUTTON_COMMIT, SECOND_BUTTON_COMMIT]);
       expect(commitsGrouper.commitsByScopeMap.has('card')).toBe(false);
     });
   });

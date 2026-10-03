@@ -1,4 +1,3 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getFormattedDate } from './getFormattedDate.js';
 
 describe('getFormattedDate', () => {

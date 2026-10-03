@@ -1,9 +1,13 @@
-import type { OnError } from '@/utils/error/types/error.js';
 import { CommitsParser, type CommitsParserOptions } from './parse-commits/CommitsParser.js';
-import { CommitsRetriever, type CommitsRetrieverOptions } from './retrieve-commits/CommitsRetriever.js';
+import {
+  CommitsRetriever,
+  type CommitsRetrieverOptions,
+} from './retrieve-commits/CommitsRetriever.js';
 import { CommitsValidator } from './validate-commits/CommitsValidator.js';
 import { CommitsValidatorWithScope } from './validate-commits/CommitsValidatorWithScope.js';
-import { CommitsValidatorWithScopeAndType } from './validate-commits/CommitsValidatorWithScopeAndType.js';
+import {
+  CommitsValidatorWithScopeAndType,
+} from './validate-commits/CommitsValidatorWithScopeAndType.js';
 import { CommitsValidatorWithType } from './validate-commits/CommitsValidatorWithType.js';
 import type {
   ValidatedCommit,
@@ -17,6 +21,8 @@ import type {
   AllowedCommitTypes,
   CommitsValidatorOptions,
 } from './validate-commits/types/options.js';
+
+import type { OnError } from '@/utils/error/types/error.js';
 
 export interface RetrieveCommitsOptions<
   T extends string,
@@ -32,7 +38,9 @@ type RetrieveCommitsOptionsWithOnError<
   U extends string,
 > = RetrieveCommitsOptions<T, U> & OnError;
 
-type OptionsWithoutValidatorOptions = Omit<RetrieveCommitsOptionsWithOnError<string, string>, 'commitsValidatorOptions'>;
+type OptionsWithoutValidatorOptions = Omit<
+  RetrieveCommitsOptionsWithOnError<string, string>, 'commitsValidatorOptions'
+>;
 type OptionsWithoutValidatorOptionsWithScope<
   T extends string,
 > = OptionsWithoutValidatorOptions & {

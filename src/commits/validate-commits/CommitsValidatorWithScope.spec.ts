@@ -6,8 +6,14 @@ describe('CommitsValidatorWithScope', () => {
     const onError = vi.fn();
     const ALLOWED_SCOPE = 'packageOne';
     const ALLOWED_SCOPES = new Set([ALLOWED_SCOPE]);
-    const validCommit = { ...BASE_PARSED_COMMIT, scope: ALLOWED_SCOPE };
-    const invalidCommit = { ...BASE_PARSED_COMMIT, scope: 'invalid' };
+    const validCommit = {
+      ...BASE_PARSED_COMMIT,
+      scope: ALLOWED_SCOPE,
+    };
+    const invalidCommit = {
+      ...BASE_PARSED_COMMIT,
+      scope: 'invalid',
+    };
 
     const commitsValidator = new CommitsValidatorWithScope({
       allowedCommitScopes: ALLOWED_SCOPES,

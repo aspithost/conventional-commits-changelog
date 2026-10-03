@@ -1,4 +1,7 @@
-import type { ValidatedCommitWithScope, ValidatedCommitWithScopeAndType } from '../validate-commits/types/commit.js';
+import type {
+  ValidatedCommitWithScope,
+  ValidatedCommitWithScopeAndType,
+} from '../validate-commits/types/commit.js';
 
 type CommitWithScope<
   T extends string,

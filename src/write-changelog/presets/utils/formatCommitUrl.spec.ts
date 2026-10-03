@@ -8,7 +8,11 @@ describe('formatCommitUrl', () => {
     const COMMIT_HASH = 'abc123';
 
     const commitUrl = formatCommitUrl(
-      { host: HOST, owner: OWNER, repository: REPOSITORY },
+      {
+        host: HOST,
+        owner: OWNER,
+        repository: REPOSITORY,
+      },
       { hash: COMMIT_HASH },
     );
 

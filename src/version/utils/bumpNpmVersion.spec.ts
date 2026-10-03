@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+
 import { bumpNpmVersion } from './bumpNpmVersion.js';
 
 vi.mock('node:child_process', () => ({
@@ -19,7 +20,10 @@ describe('bumpNpmVersion', () => {
 
     expect(execSync).toHaveBeenCalledWith(
       `npm version ${RELEASE_TYPE} --no-git-tag-version`,
-      { cwd: '/path/to/package', encoding: 'utf-8' },
+      {
+        cwd: '/path/to/package',
+        encoding: 'utf-8',
+      },
     );
   });
 

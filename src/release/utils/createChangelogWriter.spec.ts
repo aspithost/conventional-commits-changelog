@@ -1,11 +1,11 @@
+import { createChangelogWriter } from './createChangelogWriter.js';
+
 import {
   ChangelogWriter,
   type ChangelogWriterPreset,
-  type RemoteRepositoryInformation,
 } from '@/write-changelog/ChangelogWriter.js';
-import { createChangelogWriter } from './createChangelogWriter.js';
 
-const REMOTE_REPOSITORY_INFORMATION: RemoteRepositoryInformation = {
+const REMOTE_REPOSITORY_INFORMATION = {
   host: 'somesite.com',
   owner: 'someguy',
   repository: 'somrepo',

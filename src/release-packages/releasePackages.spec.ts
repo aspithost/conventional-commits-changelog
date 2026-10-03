@@ -1,10 +1,11 @@
-import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
-import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
 import { releasePackages } from './releasePackages.js';
 import { getAllowedCommitScopes } from './utils/getAllowedCommitScopes.js';
 import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
+
+import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
+import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
+import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
 
 const BUTTON_SCOPE = vi.hoisted(() => 'button');
 const CARD_SCOPE = vi.hoisted(() => 'card');
@@ -13,10 +14,8 @@ const BUTTON_DIRECTORY_PATH = vi.hoisted(() => 'button-directory-path');
 const CARD_DIRECTORY_PATH = vi.hoisted(() => 'card-directory-path');
 const DRAWER_DIRECTORY_PATH = vi.hoisted(() => 'drawer-directory-path');
 
-const COMMIT_BY_SCOPE_MAP = vi.hoisted(() => new Map([
-  [BUTTON_SCOPE, []],
-  [CARD_SCOPE, []],
-]));
+const COMMIT_BY_SCOPE_MAP = vi.hoisted(() => new Map([[BUTTON_SCOPE, []],
+  [CARD_SCOPE, []]]));
 
 const DIRECTORY_PATH_BY_SCOPE_MAP = vi.hoisted(() => new Map([
   [BUTTON_SCOPE, { directoryPath: BUTTON_DIRECTORY_PATH }],
@@ -72,14 +71,18 @@ describe('releasePackages', () => {
       });
     });
 
-    it('should throw an error if the user does not have any folders with a package.json file in the provided scope', async () => {
-      // @ts-expect-error: Simplified mock of DirectoriesReader class
-      vi.mocked(DirectoriesReader).mockImplementationOnce(class DirectoriesReader {
-        directoryPathByScopeMap = new Map();
-      });
+    it('should throw an error if the user does not have any folders with a package.json file',
+      async () => {
+        // @ts-expect-error: Simplified mock of DirectoriesReader class
+        vi.mocked(DirectoriesReader).mockImplementationOnce(class DirectoriesReader {
+          directoryPathByScopeMap = new Map();
+        });
 
-      await expect(releasePackages()).rejects.toThrow(new Error('No scopes found in the specified directory'));
-    });
+        await expect(releasePackages())
+          .rejects
+          .toThrow(new Error('No scopes found in the specified directory'));
+      },
+    );
   });
 
   describe('retrieving and validating commits', () => {
@@ -92,25 +95,27 @@ describe('releasePackages', () => {
       );
     });
 
-    it('should filter out commits with scopes that do not match the allowed commit scopes provided by the user', async () => {
-      const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
+    it('should filter out commits with scopes that do not match the allowed commit scopes',
+      async () => {
+        const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
 
-      await releasePackages({ commitsValidatorOptions: { allowedCommitScopes } });
+        await releasePackages({ commitsValidatorOptions: { allowedCommitScopes } });
 
-      expect(getAllowedCommitScopes).toHaveBeenCalledExactlyOnceWith(
-        DIRECTORY_PATH_BY_SCOPE_MAP.keys(),
-        allowedCommitScopes,
-      );
+        expect(getAllowedCommitScopes).toHaveBeenCalledExactlyOnceWith(
+          DIRECTORY_PATH_BY_SCOPE_MAP.keys(),
+          allowedCommitScopes,
+        );
 
-      expect(vi.mocked(retrieveValidatedCommits)).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          commitsValidatorOptions: expect.objectContaining({
-            allowedCommitScopes,
+        expect(vi.mocked(retrieveValidatedCommits)).toHaveBeenCalledExactlyOnceWith(
+          expect.objectContaining({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            commitsValidatorOptions: expect.objectContaining({
+              allowedCommitScopes,
+            }),
           }),
-        }),
-      );
-    });
+        );
+      },
+    );
   });
 
   it('should group commits by scope', async () => {
@@ -137,15 +142,20 @@ describe('releasePackages', () => {
   });
 
   it('should handle errors thrown by individual package releases', async () => {
-    const releasePackagesResult: PromiseSettledResult<void>[] = [
-      { status: 'fulfilled', value: undefined },
-      { status: 'rejected', reason: new Error('Failed to release package') },
-    ];
+    const releasePackagesResult: PromiseSettledResult<void>[] = [{
+      status: 'fulfilled',
+      value: undefined,
+    },
+    {
+      status: 'rejected',
+      reason: new Error('Failed to release package'),
+    }];
     vi.mocked(releaseByScope).mockResolvedValueOnce(releasePackagesResult);
     const onError = vi.fn();
 
     await releasePackages({ onError });
 
-    expect(vi.mocked(handleReleasePackagesErrors)).toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
+    expect(vi.mocked(handleReleasePackagesErrors))
+      .toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
   });
 });

@@ -1,8 +1,11 @@
-import { readdirSync, readFileSync, type Dirent } from 'node:fs';
+import {
+  type Dirent, readFileSync, readdirSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
-import { logError, type ErrorHandler } from '@/utils/error/logError.js';
-import { packageJsonSchema, type PackageJsonSchema } from './schemas/package.js';
+import { type PackageJsonSchema, packageJsonSchema } from './schemas/package.js';
+
+import { type ErrorHandler, logError } from '@/utils/error/logError.js';
 
 type RootScopeOptions<T extends string> = {
   addRootScope: true;
@@ -22,7 +25,7 @@ export interface DirectoriesReaderOptions<T extends string> {
 
 // Note: TS workaround so that consumer can see provided root scope key in ScopesMap.
 // See: https://stackoverflow.com/questions/61047551/typescript-union-of-string-and-string-literals
-type ScopeName<T extends string> = T | (string & {});
+export type ScopeName<T extends string> = T | (string & {});
 export type DirectoryPathByScopeMap<
   T extends string,
 > = Map<ScopeName<T>, { directoryPath: string }>;
@@ -148,7 +151,9 @@ export class DirectoriesReader<T extends string> {
     rootScopeDirectoryPath: string,
   ): DirectoryPathByScopeMap<T> {
     if (scopesMap.get(rootScopeName)) {
-      const errorMessage = `ScopesMap already contains an entry for ${rootScopeName}. Provide a unique rootScopeName to avoid conflicts.`;
+      const errorMessage =
+        `ScopesMap already contains an entry for ${rootScopeName}. ` +
+        'Provide a unique rootScopeName to avoid conflicts.';
       const error = new Error(errorMessage);
       this.#onError(errorMessage, error);
       throw error;

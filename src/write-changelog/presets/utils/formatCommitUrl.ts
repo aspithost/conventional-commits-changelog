@@ -11,7 +11,9 @@ export function formatCommitUrl(
   context: Context,
   commit: Commit,
 ): string | undefined {
-  const { host, owner, repository } = context;
+  const {
+    host, owner, repository,
+  } = context;
   if (host && owner && repository && commit.hash) {
     return `${host}/${owner}/${repository}/commit/${commit.hash}`;
   }

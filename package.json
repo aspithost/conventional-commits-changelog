@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@abelspithost/commitlint": "^0.1.7",
-    "@abelspithost/eslint-config-ts": "^2.0.0",
+    "@abelspithost/eslint-config-ts": "^2.4.0",
     "@abelspithost/tsconfig-node": "^0.1.1",
     "@abelspithost/vitest-config": "^0.0.1",
     "@commitlint/cli": "^21.2.3",

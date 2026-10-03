@@ -1,7 +1,9 @@
-import { logError, type ErrorHandler } from '@/utils/error/logError.js';
-import type { OnError } from '@/utils/error/types/error.js';
 import type z from 'zod';
+
 import type { ParsedCommits } from '../../parse-commits/CommitsParser.js';
+
+import { type ErrorHandler, logError } from '@/utils/error/logError.js';
+import type { OnError } from '@/utils/error/types/error.js';
 
 export type BaseCommitsValidatorOptions = OnError;
 

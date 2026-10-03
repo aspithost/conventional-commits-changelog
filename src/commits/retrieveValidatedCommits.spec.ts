@@ -1,10 +1,11 @@
 import { retrieveValidatedCommits } from './retrieveValidatedCommits.js';
-
 import { CommitsParser } from './parse-commits/CommitsParser.js';
 import { CommitsRetriever } from './retrieve-commits/CommitsRetriever.js';
 import { CommitsValidator } from './validate-commits/CommitsValidator.js';
 import { CommitsValidatorWithScope } from './validate-commits/CommitsValidatorWithScope.js';
-import { CommitsValidatorWithScopeAndType } from './validate-commits/CommitsValidatorWithScopeAndType.js';
+import {
+  CommitsValidatorWithScopeAndType,
+} from './validate-commits/CommitsValidatorWithScopeAndType.js';
 import { CommitsValidatorWithType } from './validate-commits/CommitsValidatorWithType.js';
 
 const RAW_COMMITS = ['raw-commit-one', 'raw-commit-two'];

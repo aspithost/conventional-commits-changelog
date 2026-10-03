@@ -1,13 +1,14 @@
-import {
-  writeChangelog as _writeChangelog,
-  type Options as ChangelogWriterPreset,
-} from 'conventional-changelog-writer';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  type Options as ChangelogWriterPreset,
+  writeChangelog as _writeChangelog,
+} from 'conventional-changelog-writer';
+
 import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
 import type { ReleaseType } from '@/release/types/release.js';
-import { logError, type ErrorHandler } from '@/utils/error/logError.js';
+import { type ErrorHandler, logError } from '@/utils/error/logError.js';
 import { createWriterPreset } from '@/write-changelog/presets/createWriterPreset.js';
 import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 
@@ -15,7 +16,7 @@ export type { Options as ChangelogWriterPreset } from 'conventional-changelog-wr
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
 
-export interface RemoteRepositoryInformation {
+interface RemoteRepositoryInformation {
   host: string;
   owner: string;
   repository: string;
@@ -51,7 +52,10 @@ export class ChangelogWriter {
     onError: ErrorHandler = logError,
   ): ChangelogWriter {
     const changelogWriterPreset = createWriterPreset();
-    return new ChangelogWriter(changelogWriterPreset, { remoteRepositoryInformation, onError });
+    return new ChangelogWriter(changelogWriterPreset, {
+      remoteRepositoryInformation,
+      onError,
+    });
   }
 
   async writeChangelog(
@@ -83,7 +87,9 @@ export class ChangelogWriter {
     commits: Iterable<ValidatedCommit<string, string>>,
   ): Promise<string> {
     let changelogString = '';
-    for await (const changelogChunk of this.#createChangelogEntry(newVersion, releaseType, commits)) {
+    for await (
+      const changelogChunk of this.#createChangelogEntry(newVersion, releaseType, commits)
+    ) {
       changelogString += changelogChunk;
     }
     return changelogString;

@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 
-import { logError, type ErrorHandler } from '@/utils/error/logError.js';
+import { type ErrorHandler, logError } from '@/utils/error/logError.js';
 import type { OnError } from '@/utils/error/types/error.js';
 
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
@@ -34,7 +34,11 @@ export class CommitsRetriever {
     releaseBranch = 'refs/remotes/origin/HEAD',
     onError = logError,
   }: CommitsRetrieverOptions & OnError = {}) {
-    for (const [name, value] of Object.entries({ from, to, releaseBranch })) {
+    for (const [name, value] of Object.entries({
+      from,
+      to,
+      releaseBranch,
+    })) {
       this.#validateInput(name, value);
     }
 
@@ -53,7 +57,10 @@ export class CommitsRetriever {
         const rawCommitTrimmed = rawCommit.trim();
         if (!rawCommitTrimmed) continue;
         const [hash, ...rest] = rawCommitTrimmed.split('||');
-        yield { hash, commit: rest.join('||').trim() };
+        yield {
+          hash,
+          commit: rest.join('||').trim(),
+        };
       }
     } catch (err) {
       this.#onError('Could not retrieve commits.', err);

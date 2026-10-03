@@ -1,5 +1,11 @@
-import { CommitParser, type CommitBase, type ParserStreamOptions } from 'conventional-commits-parser';
+import {
+  type CommitBase,
+  CommitParser,
+  type ParserStreamOptions,
+} from 'conventional-commits-parser';
+
 import type { RawCommits } from '../retrieve-commits/CommitsRetriever.js';
+
 import { PARSER_STREAM_OPTIONS } from './constants/parser.js';
 
 export interface ParsedCommit extends CommitBase {
@@ -25,7 +31,7 @@ export class CommitsParser{
         ...parsedCommit,
         hash,
         // Note: scope, subject, type should be properly handled by conventional-commits-parser.
-        // Not included on interface in CommitBase or Commit, so adding them here with fallback of null.
+        // Not included on interface in CommitBase/Commit, adding them here with fallback of null.
         scope: parsedCommit.scope ?? null,
         subject: parsedCommit.subject ?? null,
         type: parsedCommit.type ?? null,

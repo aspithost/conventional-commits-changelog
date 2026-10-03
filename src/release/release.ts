@@ -1,10 +1,16 @@
-import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
-import { bumpVersion } from '@/version/bumpVersion.js';
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import type { DefaultAllowedTypes } from '../commits/types/commit.js';
 import { logError } from '../utils/error/logError.js';
-import type { ReleaseOptions, ReleaseOptionsWithCommits, ReleaseOptionsWithoutCommits } from './types/release.js';
+
+import type {
+  ReleaseOptions,
+  ReleaseOptionsWithCommits,
+  ReleaseOptionsWithoutCommits,
+} from './types/release.js';
 import { createChangelogWriter } from './utils/createChangelogWriter.js';
+
+import { bumpVersion } from '@/version/bumpVersion.js';
+import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
 
 export async function release<
   T extends string,

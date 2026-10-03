@@ -25,7 +25,11 @@ function setupMocks({
   latestTag?: MockValue;
   rawCommitsString?: MockValue;
 } = {}) {
-  for (const value of [releaseBranch, latestTag, rawCommitsString]) {
+  for (const value of [
+    releaseBranch,
+    latestTag,
+    rawCommitsString,
+  ]) {
     if (value instanceof Error) {
       mockExecFileSync.mockImplementationOnce(() => {
         throw value;
@@ -41,15 +45,37 @@ const mockOnError = vi.fn();
 describe('CommitsRetriever', () => {
   describe('constructor', () => {
     it('should validate the input of "from", "to" and "releaseBranch"', () => {
-      expect(() => new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0', releaseBranch: 'refs/remotes/origin/main' })).not.toThrow();
-      expect(() => new CommitsRetriever({ from: '--some-flag', to: 'v2.0.0', releaseBranch: 'refs/remotes/origin/main' })).toThrow();
-      expect(() => new CommitsRetriever({ from: 'v1.0.0', to: '--some-flag', releaseBranch: 'refs/remotes/origin/main' })).toThrow();
-      expect(() => new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0', releaseBranch: '--some-flag' })).toThrow();
+      expect(() => new CommitsRetriever({
+        from: 'v1.0.0',
+        to: 'v2.0.0',
+        releaseBranch: 'refs/remotes/origin/main',
+      })).not.toThrow();
+      expect(() => new CommitsRetriever({
+        from: '--some-flag',
+        to: 'v2.0.0',
+        releaseBranch: 'refs/remotes/origin/main',
+      })).toThrow();
+      expect(() => new CommitsRetriever({
+        from: 'v1.0.0',
+        to: '--some-flag',
+        releaseBranch: 'refs/remotes/origin/main',
+      })).toThrow();
+      expect(() => new CommitsRetriever({
+        from: 'v1.0.0',
+        to: 'v2.0.0',
+        releaseBranch: '--some-flag',
+      })).toThrow();
     });
 
     it('should allow values that merely contain a dash, or are empty', () => {
-      expect(() => new CommitsRetriever({ from: 'feature-branch', to: 'v2.0.0' })).not.toThrow();
-      expect(() => new CommitsRetriever({ from: '', to: 'v2.0.0' })).not.toThrow();
+      expect(() => new CommitsRetriever({
+        from: 'feature-branch',
+        to: 'v2.0.0',
+      })).not.toThrow();
+      expect(() => new CommitsRetriever({
+        from: '',
+        to: 'v2.0.0',
+      })).not.toThrow();
     });
   });
 
@@ -60,7 +86,10 @@ describe('CommitsRetriever', () => {
       const rawCommits = [...new CommitsRetriever({ onError: mockOnError }).getRawCommits()];
 
       expect(rawCommits[0]).toStrictEqual(
-        { hash: 'abc123', commit: 'feat: add feature' },
+        {
+          hash: 'abc123',
+          commit: 'feat: add feature',
+        },
       );
       expect(mockOnError).not.toHaveBeenCalled();
     });
@@ -72,10 +101,16 @@ describe('CommitsRetriever', () => {
 
       expect(rawCommits).toHaveLength(2);
       expect(rawCommits[0]).toStrictEqual(
-        { hash: 'abc123', commit: 'feat: add feature' },
+        {
+          hash: 'abc123',
+          commit: 'feat: add feature',
+        },
       );
       expect(rawCommits[1]).toStrictEqual(
-        { hash: 'def456', commit: 'fix: bug fix' },
+        {
+          hash: 'def456',
+          commit: 'fix: bug fix',
+        },
       );
     });
 
@@ -85,7 +120,10 @@ describe('CommitsRetriever', () => {
       const rawCommits = [...new CommitsRetriever().getRawCommits()];
 
       expect(rawCommits[0]).toStrictEqual(
-        { hash: 'abc123', commit: 'feat: something || with pipes' },
+        {
+          hash: 'abc123',
+          commit: 'feat: something || with pipes',
+        },
       );
     });
 
@@ -95,7 +133,10 @@ describe('CommitsRetriever', () => {
       const rawCommits = [...new CommitsRetriever().getRawCommits()];
 
       expect(rawCommits[0]).toStrictEqual(
-        { hash: 'abc123', commit: 'feat: add feature\n\nThis is the commit.' },
+        {
+          hash: 'abc123',
+          commit: 'feat: add feature\n\nThis is the commit.',
+        },
       );
     });
 
@@ -106,10 +147,16 @@ describe('CommitsRetriever', () => {
 
       expect(rawCommits).toHaveLength(2);
       expect(rawCommits[0]).toStrictEqual(
-        { hash: 'abc123', commit: 'feat: one' },
+        {
+          hash: 'abc123',
+          commit: 'feat: one',
+        },
       );
       expect(rawCommits[1]).toStrictEqual(
-        { hash: 'def456', commit: 'feat: two' },
+        {
+          hash: 'def456',
+          commit: 'feat: two',
+        },
       );
       expect(mockOnError).not.toHaveBeenCalled();
     });
@@ -147,7 +194,11 @@ describe('CommitsRetriever', () => {
     it('use the from..to range when from provided', () => {
       mockExecFileSync.mockReturnValue('');
 
-      const _ = [...new CommitsRetriever({ from: 'v1.0.0', to: 'v2.0.0', onError: mockOnError }).getRawCommits()];
+      const _ = [...new CommitsRetriever({
+        from: 'v1.0.0',
+        to: 'v2.0.0',
+        onError: mockOnError,
+      }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
@@ -201,7 +252,10 @@ describe('CommitsRetriever', () => {
         1,
         'git',
         ['symbolic-ref', FEATURE_BRANCH],
-        { ...DEFAULT_EXEC_FILE_SYNC_OPTIONS, cwd: CWD_PATH },
+        {
+          ...DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+          cwd: CWD_PATH,
+        },
       );
       expect(mockOnError).not.toHaveBeenCalled();
     });
@@ -219,7 +273,12 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         2,
         'git',
-        ['describe', '--tags', '--abbrev=0', 'origin/main'],
+        [
+          'describe',
+          '--tags',
+          '--abbrev=0',
+          'origin/main',
+        ],
         DEFAULT_EXEC_FILE_SYNC_OPTIONS,
       );
       expect(mockOnError).toHaveBeenNthCalledWith(

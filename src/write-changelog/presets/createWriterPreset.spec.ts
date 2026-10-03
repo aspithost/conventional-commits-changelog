@@ -1,11 +1,11 @@
 import createPreset from 'conventional-changelog-conventionalcommits';
+
 import { COMMIT_TYPES } from './constants/writer.js';
 import { createWriterPreset } from './createWriterPreset.js';
 import { formatCommitUrl } from './utils/formatCommitUrl.js';
 
 vi.mock('conventional-changelog-conventionalcommits', () => ({
-  default: vi.fn((config) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  default: vi.fn((config: { formatCommitUrl: (...args: unknown[]) => void }) => {
     config.formatCommitUrl({ some: 'context' }, { some: 'commit' });
     return { writer: {} };
   }),

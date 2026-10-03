@@ -20,7 +20,7 @@ export async function releaseByScope<T extends string>(
     // For each scope, find entry with directory path in directoryPathByScopeMap
     const directoryPathByScopeEntry = directoryPathByScopeMap.get(scopeName);
 
-    // Note: edge case, should not happen as validated commits are filtered by found and allowed scopes
+    // Note: edge case, validated commits are filtered by found and allowed scopes
     if (!directoryPathByScopeEntry) continue;
 
     // Call release for each scope with its corresponding directory path and commits
