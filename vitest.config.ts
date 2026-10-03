@@ -6,9 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       coverage: {
-        exclude: [
-          '**/schemas/**',
-        ],
+        exclude: ['**/schemas/**'],
       },
     },
   }),
