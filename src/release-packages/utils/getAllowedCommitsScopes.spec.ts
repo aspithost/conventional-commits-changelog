@@ -1,17 +1,17 @@
-import { getAllowedCommitScopes } from './getAllowedCommitScopes.js';
+import { getAllowedCommitsScopes } from './getAllowedCommitsScopes.js';
 
 const ROOT_SCOPE = 'root';
 const BUTTON_SCOPE = 'button';
 const CARD_SCOPE = 'card';
-const FOUND_SCOPES_MAP = new Map([
-  [ROOT_SCOPE, undefined],
-  [BUTTON_SCOPE, undefined],
-  [CARD_SCOPE, undefined],
+const FOUND_SCOPES_MAP = new Set([
+  ROOT_SCOPE,
+  BUTTON_SCOPE,
+  CARD_SCOPE,
 ]);
 
-describe('getAllowedCommitScopes', () => {
+describe('getAllowedCommitsScopes', () => {
   it('should return all found scopes when the user has not specified allowed scopes', () => {
-    const allowedScopesSet = getAllowedCommitScopes(FOUND_SCOPES_MAP.keys(), undefined);
+    const allowedScopesSet = getAllowedCommitsScopes(FOUND_SCOPES_MAP, undefined);
 
     expect(allowedScopesSet.has(ROOT_SCOPE)).toBe(true);
     expect(allowedScopesSet.has(BUTTON_SCOPE)).toBe(true);
@@ -19,8 +19,8 @@ describe('getAllowedCommitScopes', () => {
   });
 
   it('should return only the allowed scopes when the user has specified allowed scopes', () => {
-    const allowedScopesSet = getAllowedCommitScopes(
-      FOUND_SCOPES_MAP.keys(),
+    const allowedScopesSet = getAllowedCommitsScopes(
+      FOUND_SCOPES_MAP,
       new Set([BUTTON_SCOPE, CARD_SCOPE]),
     );
 
