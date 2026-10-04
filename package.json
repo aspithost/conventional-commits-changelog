@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.spec.json && tsc -p tsconfig.build.json && npm run deps:check",
-    "clean": "rimraf dist",
+    "clean": "rimraf coverage && rimraf dist",
     "deps:check": "npx -y npm-check-updates --cooldown 2",
     "deps:update": "npx -y npm-check-updates -u --target minor --cooldown 2 && npm install",
     "deps:update:major": "npx -y npm-check-updates -u --cooldown 2 && npm install",
@@ -54,7 +54,7 @@
     "@abelspithost/commitlint": "^0.1.7",
     "@abelspithost/eslint-config-ts": "^2.4.0",
     "@abelspithost/tsconfig-node": "^0.1.1",
-    "@abelspithost/vitest-config": "^0.0.1",
+    "@abelspithost/vitest-config": "^0.1.0",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@types/node": "^24.19.0",

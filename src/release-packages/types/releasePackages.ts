@@ -2,10 +2,14 @@ import type { RetrieveCommitsOptions } from '@/commits/retrieveValidatedCommits.
 import type { DirectoriesReaderOptions } from '@/read-directories/DirectoriesReader.js';
 import type { BaseReleaseOptions } from '@/release/types/release.js';
 
+interface DirectoriesReaderOptionsExtended<T extends string> extends DirectoriesReaderOptions<T> {
+  isFilterScope?: boolean;
+}
+
 interface BaseReleasePackageOptions<
   T extends string,
 > extends Omit<BaseReleaseOptions, 'directoryPath' | 'releaseType'> {
-  directoriesReaderOptions?: DirectoriesReaderOptions<T>;
+  directoriesReaderOptions?: DirectoriesReaderOptionsExtended<T>;
 }
 
 export type ReleasePackagesOptions<

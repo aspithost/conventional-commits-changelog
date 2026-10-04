@@ -48,12 +48,10 @@ export class DirectoriesReader<T extends string> {
     );
   }
 
-  // To-do: add documentation
   get scopes(): MapIterator<ScopeName<T>> {
     return this.#directoryPathByScopeMap.keys();
   }
 
-  // To-do: add documentation
   get directoryPathByScopeMap(): DirectoryPathByScopeMap<T> {
     return this.#directoryPathByScopeMap;
   }

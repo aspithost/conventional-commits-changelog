@@ -1,21 +1,23 @@
 import { releasePackages } from './releasePackages.js';
-import { getAllowedCommitScopes } from './utils/getAllowedCommitScopes.js';
+import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
 import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
+import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
 
 import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
 import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
 import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
 
-const BUTTON_SCOPE = vi.hoisted(() => 'button');
-const CARD_SCOPE = vi.hoisted(() => 'card');
+const BUTTON_SCOPE = vi.hoisted(() => '@some-scope/button');
+const CARD_SCOPE = vi.hoisted(() => '@some-other-scope/card');
 const DRAWER_SCOPE = vi.hoisted(() => 'drawer');
 const BUTTON_DIRECTORY_PATH = vi.hoisted(() => 'button-directory-path');
 const CARD_DIRECTORY_PATH = vi.hoisted(() => 'card-directory-path');
 const DRAWER_DIRECTORY_PATH = vi.hoisted(() => 'drawer-directory-path');
 
-const COMMIT_BY_SCOPE_MAP = vi.hoisted(() => new Map([[BUTTON_SCOPE, []],
-  [CARD_SCOPE, []]]));
+const COMMIT_BY_SCOPE_MAP = vi.hoisted(() => new Map([[BUTTON_SCOPE,
+  []],
+[CARD_SCOPE, []]]));
 
 const DIRECTORY_PATH_BY_SCOPE_MAP = vi.hoisted(() => new Map([
   [BUTTON_SCOPE, { directoryPath: BUTTON_DIRECTORY_PATH }],
@@ -42,8 +44,12 @@ vi.mock('@/read-directories/DirectoriesReader.js', () => {
   return { DirectoriesReader };
 });
 
-vi.mock('./utils/getAllowedCommitScopes.js', () => ({
-  getAllowedCommitScopes: vi.fn(() => new Set(['button', 'card'])),
+vi.mock('./utils/getAllowedCommitsScopes.js', () => ({
+  getAllowedCommitsScopes: vi.fn(() => new Set([BUTTON_SCOPE, CARD_SCOPE])),
+}));
+
+vi.mock('./utils/getFilteredCommitsScopes.js', () => ({
+  getFilteredCommitsScopes: vi.fn((scopes: Iterable<string>) => new Set(scopes)),
 }));
 
 vi.mock('./utils/releaseByScope.js', () => ({
@@ -85,12 +91,27 @@ describe('releasePackages', () => {
     );
   });
 
+  describe('filtering out scope name from package names', () => {
+    it('should filter out the scope name from package names if the user opts in', async () => {
+      await releasePackages({
+        directoriesReaderOptions: {
+          isFilterScope: true,
+        },
+      });
+
+      expect(vi.mocked(getFilteredCommitsScopes)).toHaveBeenCalledExactlyOnceWith(
+        vi.mocked(DirectoriesReader).mock.instances[0].scopes,
+        true,
+      );
+    });
+  });
+
   describe('retrieving and validating commits', () => {
     it('should allow commits with scopes found in the provided directory path', async () => {
       await releasePackages();
 
-      expect(getAllowedCommitScopes).toHaveBeenCalledExactlyOnceWith(
-        DIRECTORY_PATH_BY_SCOPE_MAP.keys(),
+      expect(getAllowedCommitsScopes).toHaveBeenCalledExactlyOnceWith(
+        new Set(DIRECTORY_PATH_BY_SCOPE_MAP.keys()),
         undefined,
       );
     });
@@ -101,8 +122,8 @@ describe('releasePackages', () => {
 
         await releasePackages({ commitsValidatorOptions: { allowedCommitScopes } });
 
-        expect(getAllowedCommitScopes).toHaveBeenCalledExactlyOnceWith(
-          DIRECTORY_PATH_BY_SCOPE_MAP.keys(),
+        expect(getAllowedCommitsScopes).toHaveBeenCalledExactlyOnceWith(
+          new Set(DIRECTORY_PATH_BY_SCOPE_MAP.keys()),
           allowedCommitScopes,
         );
 
