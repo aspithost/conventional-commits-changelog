@@ -1,6 +1,6 @@
-import { retrieveValidatedCommits } from './retrieveValidatedCommits.js';
 import { CommitsParser } from './parse-commits/CommitsParser.js';
 import { CommitsRetriever } from './retrieve-commits/CommitsRetriever.js';
+import { retrieveValidatedCommits } from './retrieveValidatedCommits.js';
 import { CommitsValidator } from './validate-commits/CommitsValidator.js';
 import { CommitsValidatorWithScope } from './validate-commits/CommitsValidatorWithScope.js';
 import {
@@ -86,10 +86,12 @@ describe('retrieveValidatedCommits', () => {
 
   describe('validate commits', () => {
     it('should validate commits with allowed scopes only', () => {
-      const result = [...retrieveValidatedCommits({
-        commitsValidatorOptions: { allowedCommitScopes: ALLOWED_SCOPES },
-        onError,
-      })];
+      const result = [
+        ...retrieveValidatedCommits({
+          commitsValidatorOptions: { allowedCommitScopes: ALLOWED_SCOPES },
+          onError,
+        }),
+      ];
 
       expect(CommitsValidatorWithScope).toHaveBeenCalledWith({
         allowedCommitScopes: ALLOWED_SCOPES,
@@ -104,10 +106,12 @@ describe('retrieveValidatedCommits', () => {
     });
 
     it('should validate commits with allowed types only', () => {
-      const result = [...retrieveValidatedCommits({
-        commitsValidatorOptions: { allowedCommitTypes: ALLOWED_TYPES },
-        onError,
-      })];
+      const result = [
+        ...retrieveValidatedCommits({
+          commitsValidatorOptions: { allowedCommitTypes: ALLOWED_TYPES },
+          onError,
+        }),
+      ];
 
       expect(CommitsValidatorWithType).toHaveBeenCalledWith({
         allowedCommitTypes: ALLOWED_TYPES,
@@ -122,13 +126,15 @@ describe('retrieveValidatedCommits', () => {
     });
 
     it('should validate commits with allowed scopes and types', () => {
-      const result = [...retrieveValidatedCommits({
-        commitsValidatorOptions: {
-          allowedCommitScopes: ALLOWED_SCOPES,
-          allowedCommitTypes: ALLOWED_TYPES,
-        },
-        onError,
-      })];
+      const result = [
+        ...retrieveValidatedCommits({
+          commitsValidatorOptions: {
+            allowedCommitScopes: ALLOWED_SCOPES,
+            allowedCommitTypes: ALLOWED_TYPES,
+          },
+          onError,
+        }),
+      ];
 
       expect(CommitsValidatorWithScopeAndType).toHaveBeenCalledWith({
         allowedCommitScopes: ALLOWED_SCOPES,

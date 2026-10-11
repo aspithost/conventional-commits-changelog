@@ -34,12 +34,14 @@ describe('CommitsValidatorWithScopeAndType', () => {
       allowedCommitTypes: ALLOWED_TYPES,
       onError,
     });
-    const result = [...commitsValidator.validateCommits([
-      validCommit,
-      invalidCommitOne,
-      invalidCommitTwo,
-      invalidCommitThree,
-    ])];
+    const result = [
+      ...commitsValidator.validateCommits([
+        validCommit,
+        invalidCommitOne,
+        invalidCommitTwo,
+        invalidCommitThree,
+      ]),
+    ];
 
     expect(result).toHaveLength(1);
     expect(result[0]).toStrictEqual(validCommit);

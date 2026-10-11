@@ -9,22 +9,39 @@ vi.mock('@/release/release.js');
 
 const PATH_TO_BUTTON = '/path/to/button';
 const PATH_TO_CARD = '/path/to/card';
-const DIRECTORY_PATH_BY_SCOPE_MAP = new Map([['button', { directoryPath: PATH_TO_BUTTON }],
-  ['card', { directoryPath: PATH_TO_CARD }]]) as unknown as DirectoryPathByScopeMap<string>;
+const DIRECTORY_PATH_BY_SCOPE_MAP = new Map([
+  ['button', { directoryPath: PATH_TO_BUTTON }],
+  ['card', { directoryPath: PATH_TO_CARD }],
+]) as unknown as DirectoryPathByScopeMap<string>;
 
 const COMMITS_BY_SCOPE_MAP = new Map([
-  ['button', [{
-    scope: 'button',
-    message: 'feat: add button',
-  }]],
-  ['card', [{
-    scope: 'card',
-    message: 'feat: add card',
-  }]],
-  ['root', [{
-    scope: 'root',
-    message: 'feat: add something',
-  }]],
+  [
+    'button',
+    [
+      {
+        scope: 'button',
+        message: 'feat: add button',
+      },
+    ],
+  ],
+  [
+    'card',
+    [
+      {
+        scope: 'card',
+        message: 'feat: add card',
+      },
+    ],
+  ],
+  [
+    'root',
+    [
+      {
+        scope: 'root',
+        message: 'feat: add something',
+      },
+    ],
+  ],
 ]) as unknown as CommitsByScopeMap<string>;
 
 const onError = vi.fn();
@@ -67,14 +84,16 @@ describe('releaseByScope', () => {
       );
 
       expect(result).toHaveLength(2);
-      expect(result).toStrictEqual([{
-        status: 'fulfilled',
-        value: undefined,
-      },
-      {
-        status: 'fulfilled',
-        value: undefined,
-      }]);
+      expect(result).toStrictEqual([
+        {
+          status: 'fulfilled',
+          value: undefined,
+        },
+        {
+          status: 'fulfilled',
+          value: undefined,
+        },
+      ]);
     },
   );
 });

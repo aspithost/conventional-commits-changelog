@@ -24,12 +24,21 @@ import type {
 
 import type { OnError } from '@/utils/error/types/error.js';
 
+/**
+ * Options for retrieving, parsing, and validating commits.
+ *
+ * @typeParam T - Allowed commit scopes.
+ * @typeParam U - Allowed commit types.
+ */
 export interface RetrieveCommitsOptions<
   T extends string,
   U extends string,
 > {
+  /** Options that control how the library parses raw commits. */
   commitsParserOptions?: CommitsParserOptions;
+  /** Options that control how the library retrieves raw commits from git. */
   commitsRetrieverOptions?: CommitsRetrieverOptions;
+  /** Options that control which scopes and types the library accepts as valid. */
   commitsValidatorOptions?: CommitsValidatorOptions<T, U>;
 }
 

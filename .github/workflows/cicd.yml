@@ -12,6 +12,7 @@ jobs:
       id-token: write
       pull-requests: write
     with:
+      run-dependency-review: false
       run-sonar: true
       test-command: npm run test:cov:ci
       upload-vitest-coverage-report: true

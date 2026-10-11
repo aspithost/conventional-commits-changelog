@@ -47,10 +47,12 @@ describe('BaseCommitsValidator', () => {
   it('should validate commits and yield valid commits', () => {
     const testableBaseCommitsValidator = new TestableBaseCommitsValidator({ onError });
 
-    const result = [...testableBaseCommitsValidator.publicValidateCommitsBySchema(
-      [BASE_PARSED_COMMIT],
-      commitSchema,
-    )];
+    const result = [
+      ...testableBaseCommitsValidator.publicValidateCommitsBySchema(
+        [BASE_PARSED_COMMIT],
+        commitSchema,
+      ),
+    ];
 
     expect(result).toHaveLength(1);
     expect(result[0]).toStrictEqual(BASE_PARSED_COMMIT);
@@ -63,11 +65,13 @@ describe('BaseCommitsValidator', () => {
       hash: 1234,
     };
 
-    const result = [...new TestableBaseCommitsValidator({ onError }).publicValidateCommitsBySchema(
+    const result = [
+      ...new TestableBaseCommitsValidator({ onError }).publicValidateCommitsBySchema(
       // @ts-expect-error -- Intentionally passing an invalid commit to test error handling
-      [validCommit, invalidCommit],
-      commitSchema,
-    )];
+        [validCommit, invalidCommit],
+        commitSchema,
+      ),
+    ];
 
     expect(result).toHaveLength(1);
     expect(onError).toHaveBeenCalledExactlyOnceWith(expect.any(String), {

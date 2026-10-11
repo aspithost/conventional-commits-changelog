@@ -3,7 +3,11 @@ import { updateReadme } from './utils/updateReadme.js';
 
 import type { ReleaseType } from '@/release/types/release.js';
 
+/**
+ * Options for bumping a package version.
+ */
 export interface BumpVersionOptions {
+  /** Whether to update the version references in the README after the bump. */
   isUpdateReadme?: boolean;
 }
 

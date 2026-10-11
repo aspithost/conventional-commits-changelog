@@ -8,13 +8,22 @@ import type { RawCommits } from '../retrieve-commits/CommitsRetriever.js';
 
 import { PARSER_STREAM_OPTIONS } from './constants/parser.js';
 
+/** A commit message parsed into conventional-commit fields with its source hash. */
 export interface ParsedCommit extends CommitBase {
+  /** The full hash of the source commit, or `null` when unavailable. */
   hash: string | null;
+  /** The parsed commit scope, or `null` when the message has no scope. */
   scope: string | null;
+  /** The parsed commit subject, or `null` when the message has no subject. */
   subject: string | null;
+  /** The parsed commit type, or `null` when the message has no type. */
   type: string | null;
 }
+
+/** An iterable collection of parsed commits. */
 export type ParsedCommits = Iterable<ParsedCommit>;
+
+/** Stream configuration options accepted by {@link CommitsParser}. */
 export type CommitsParserOptions = ParserStreamOptions;
 
 export class CommitsParser{
