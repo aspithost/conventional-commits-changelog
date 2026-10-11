@@ -17,9 +17,20 @@ type RootScopeOptions<T extends string> = {
   rootScopeName?: undefined;
 };
 
+/**
+ * Options for reading package directories and mapping them to commit scopes.
+ *
+ * @typeParam T - Name of the optional root scope.
+ */
 export interface DirectoriesReaderOptions<T extends string> {
+  /** Directory that contains the packages. */
   directoryPath?: string;
+  /**
+   * Adds the repository root as an extra scope. Set `addRootScope` to `true`
+   * and provide `rootScopeDirectoryPath` and `rootScopeName`.
+   */
   rootScopeOptions?: RootScopeOptions<T>;
+  /** Called when reading a directory fails. */
   onError?: ErrorHandler;
 }
 

@@ -279,8 +279,10 @@ describe('DirectoriesReader', () => {
       });
 
       it('should skip directories without a package.json but keep the rest', () => {
-        vi.mocked(readdirSync).mockReturnValue([createDirent(true, 'package-one'),
-          createDirent(true, 'no-package-json')]);
+        vi.mocked(readdirSync).mockReturnValue([
+          createDirent(true, 'package-one'),
+          createDirent(true, 'no-package-json'),
+        ]);
 
         const directoriesReader = new DirectoriesReader();
 
@@ -292,11 +294,13 @@ describe('DirectoriesReader', () => {
       it('should return a readonly array of ScopeInformation', () => {
         const DIRECTORY_PATH = '/path/to/packages';
         const NESTED_DIRECTORY = join('package-one');
-        vi.mocked(readdirSync).mockReturnValue([createDirent(
-          true,
-          NESTED_DIRECTORY,
-          DIRECTORY_PATH,
-        )]);
+        vi.mocked(readdirSync).mockReturnValue([
+          createDirent(
+            true,
+            NESTED_DIRECTORY,
+            DIRECTORY_PATH,
+          ),
+        ]);
         vi.mocked(readFileSync).mockReturnValue(PACKAGE_JSON);
 
         const directoriesReader = new DirectoriesReader({ directoryPath: DIRECTORY_PATH });

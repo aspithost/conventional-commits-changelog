@@ -16,16 +16,28 @@ export type { Options as ChangelogWriterPreset } from 'conventional-changelog-wr
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
 
+/**
+ * Identifies the remote repository used to generate links in changelog entries.
+ */
 interface RemoteRepositoryInformation {
+  /** The remote host URL, such as `https://github.com`. */
   host: string;
+  /** The repository owner's account or organization name. */
   owner: string;
+  /** The repository name. */
   repository: string;
 }
 
+/**
+ * Options for writing the changelog.
+ */
 export interface ChangelogWriterOptions {
+  /** The `conventional-changelog-writer` preset that formats the changelog. */
   changelogWriterPreset: ChangelogWriterPreset;
   options?: {
+    /** Repository details that the writer uses to build links to commits and compares. */
     remoteRepositoryInformation?: RemoteRepositoryInformation;
+    /** Called when writing the changelog fails. */
     onError?: ErrorHandler;
   };
 }

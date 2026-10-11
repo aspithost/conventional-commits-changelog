@@ -3,8 +3,8 @@ import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commit
 
 import { release } from './release.js';
 
-import { bumpVersion } from '@/version/bumpVersion.js';
 import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
+import { bumpVersion } from '@/version/bumpVersion.js';
 
 vi.mock('@/commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(),

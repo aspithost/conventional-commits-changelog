@@ -194,11 +194,13 @@ describe('CommitsRetriever', () => {
     it('use the from..to range when from provided', () => {
       mockExecFileSync.mockReturnValue('');
 
-      const _ = [...new CommitsRetriever({
-        from: 'v1.0.0',
-        to: 'v2.0.0',
-        onError: mockOnError,
-      }).getRawCommits()];
+      const _ = [
+        ...new CommitsRetriever({
+          from: 'v1.0.0',
+          to: 'v2.0.0',
+          onError: mockOnError,
+        }).getRawCommits(),
+      ];
 
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
@@ -242,11 +244,13 @@ describe('CommitsRetriever', () => {
       const CWD_PATH = '/some/path';
       setupMocks({ releaseBranch: FEATURE_BRANCH });
 
-      const _ =[...new CommitsRetriever({
-        cwd: CWD_PATH,
-        releaseBranch: FEATURE_BRANCH,
-        onError: mockOnError,
-      }).getRawCommits()];
+      const _ =[
+        ...new CommitsRetriever({
+          cwd: CWD_PATH,
+          releaseBranch: FEATURE_BRANCH,
+          onError: mockOnError,
+        }).getRawCommits(),
+      ];
 
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         1,

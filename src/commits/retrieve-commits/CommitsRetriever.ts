@@ -5,16 +5,29 @@ import type { OnError } from '@/utils/error/types/error.js';
 
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
 
+/** A commit record parsed from `git log` output. */
 interface RawCommit {
+  /** The commit message body. */
   commit: string;
+  /** The full hash of the commit. */
   hash: string;
 }
+
+/** An iterable collection of raw commit records. */
 export type RawCommits = Iterable<RawCommit>;
+
+/** Configuration options for {@link CommitsRetriever}. */
 export interface CommitsRetrieverOptions {
+  /** The pretty-format string passed to `git log`. */
   commitFormat?: string;
+  /** The working directory in which to run Git commands. */
   cwd?: string;
+  /** The starting ref; when omitted,
+   * retrieval starts after the latest tag on the default branch. */
   from?: string;
+  /** The ending ref for commit retrieval. */
   to?: string;
+  /** The ref used to determine the default branch when `from` is omitted. */
   releaseBranch?: string;
 }
 
