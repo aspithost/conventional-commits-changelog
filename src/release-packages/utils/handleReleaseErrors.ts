@@ -1,4 +1,4 @@
-import type { BaseReleaseOptions } from '@/release/types/release.js';
+import type { BaseReleaseOptions } from '../../release/types/release.js';
 
 export function handleReleasePackagesErrors(
   releasePackagesResults: PromiseSettledResult<void>[],

@@ -53,7 +53,8 @@ const OPTIONS = {
 };
 
 describe('releaseByScope', () => {
-  it('should call release once for each scope that has a commits and directory path entry',
+  it(
+    'should call release once for each scope that has a commits and directory path entry',
     async () => {
       await releaseByScope(
         DIRECTORY_PATH_BY_SCOPE_MAP,
@@ -75,7 +76,8 @@ describe('releaseByScope', () => {
     },
   );
 
-  it('should return a PromiseSettledResult array with the results of each release call',
+  it(
+    'should return a PromiseSettledResult array with the results of each release call',
     async () => {
       const result = await releaseByScope(
         DIRECTORY_PATH_BY_SCOPE_MAP,

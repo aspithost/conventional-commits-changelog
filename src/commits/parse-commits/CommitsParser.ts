@@ -23,13 +23,20 @@ export interface ParsedCommit extends CommitBase {
 /** An iterable collection of parsed commits. */
 export type ParsedCommits = Iterable<ParsedCommit>;
 
-/** Stream configuration options accepted by {@link CommitsParser}. */
-export type CommitsParserOptions = ParserStreamOptions;
+/** Options for configuring {@link CommitsParser}. */
+export interface CommitsParserOptions {
+  /**
+   * Configuration for parsing commit messages.
+   *
+   * @defaultValue {@link PARSER_STREAM_OPTIONS}
+   */
+  parserStreamOptions?: ParserStreamOptions;
+}
 
-export class CommitsParser{
+export class CommitsParser {
   readonly #commitParser: CommitParser;
 
-  constructor(parserStreamOptions: CommitsParserOptions = PARSER_STREAM_OPTIONS) {
+  constructor({ parserStreamOptions = PARSER_STREAM_OPTIONS }: CommitsParserOptions = {}) {
     this.#commitParser = new CommitParser(parserStreamOptions);
   }
 

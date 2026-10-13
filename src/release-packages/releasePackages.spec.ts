@@ -64,21 +64,19 @@ vi.mock('./utils/handleReleaseErrors.js', () => ({
 describe('releasePackages', () => {
   describe('reading directories', () => {
     it('should read the directories in the provided directory path', async () => {
-      const onError = vi.fn();
       const DIRECTORY_PATH = 'packages';
 
       await releasePackages({
         directoriesReaderOptions: { directoryPath: DIRECTORY_PATH },
-        onError,
       });
 
       expect(DirectoriesReader).toHaveBeenCalledWith({
         directoryPath: DIRECTORY_PATH,
-        onError,
       });
     });
 
-    it('should throw an error if the user does not have any folders with a package.json file',
+    it(
+      'should throw an error if the user does not have any folders with a package.json file',
       async () => {
         // @ts-expect-error: Simplified mock of DirectoriesReader class
         vi.mocked(DirectoriesReader).mockImplementationOnce(class DirectoriesReader {
@@ -117,7 +115,8 @@ describe('releasePackages', () => {
       );
     });
 
-    it('should filter out commits with scopes that do not match the allowed commit scopes',
+    it(
+      'should filter out commits with scopes that do not match the allowed commit scopes',
       async () => {
         const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
 
@@ -181,5 +180,19 @@ describe('releasePackages', () => {
 
     expect(vi.mocked(handleReleasePackagesErrors))
       .toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
+  });
+
+  it('should not handle errors if the user opted out of error handling', async () => {
+    const releasePackagesResult: PromiseSettledResult<void>[] = [
+      {
+        status: 'rejected',
+        reason: new Error('Failed to release package'),
+      },
+    ];
+    vi.mocked(releaseByScope).mockResolvedValueOnce(releasePackagesResult);
+
+    await releasePackages({ onError: null });
+
+    expect(vi.mocked(handleReleasePackagesErrors)).not.toHaveBeenCalled();
   });
 });

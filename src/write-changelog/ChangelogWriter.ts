@@ -6,11 +6,11 @@ import {
   writeChangelog as _writeChangelog,
 } from 'conventional-changelog-writer';
 
-import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '@/release/types/release.js';
-import { type ErrorHandler, logError } from '@/utils/error/logError.js';
-import { createWriterPreset } from '@/write-changelog/presets/createWriterPreset.js';
-import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
+import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
+import type { ReleaseType } from '../release/types/release.js';
+
+import { createWriterPreset } from './presets/createWriterPreset.js';
+import { getFormattedDate } from './utils/getFormattedDate.js';
 
 export type { Options as ChangelogWriterPreset } from 'conventional-changelog-writer';
 
@@ -34,39 +34,45 @@ interface RemoteRepositoryInformation {
 export interface ChangelogWriterOptions {
   /** The `conventional-changelog-writer` preset that formats the changelog. */
   changelogWriterPreset: ChangelogWriterPreset;
-  options?: {
-    /** Repository details that the writer uses to build links to commits and compares. */
-    remoteRepositoryInformation?: RemoteRepositoryInformation;
-    /** Called when writing the changelog fails. */
-    onError?: ErrorHandler;
-  };
+  /** Repository details that the writer uses to build links to commits and compares. */
+  remoteRepositoryInformation?: RemoteRepositoryInformation;
+}
+
+/**
+ * Options for a single `writeChangelog` call.
+ */
+export interface WriteChangelogOptions {
+  /**
+   * The date shown in the entry header, formatted as `YYYY-MM-DD`.
+   * @defaultValue today's date
+   */
+  date?: string;
+  /**
+   * The changelog filename inside the directory.
+   * @defaultValue `'CHANGELOG.md'`
+   */
+  filename?: string;
 }
 
 export class ChangelogWriter {
   readonly #changelogWriterPreset: ChangelogWriterPreset;
   readonly #remoteRepositoryInformation: RemoteRepositoryInformation | undefined;
-  readonly #onError: ErrorHandler;
 
-  constructor(changelogWriterPreset: ChangelogWriterPreset, {
+  constructor({
+    changelogWriterPreset,
     remoteRepositoryInformation,
-    onError = logError,
-  }: {
-    remoteRepositoryInformation?: RemoteRepositoryInformation;
-    onError?: ErrorHandler;
-  } = {}) {
+  }: ChangelogWriterOptions) {
     this.#changelogWriterPreset = changelogWriterPreset;
     this.#remoteRepositoryInformation = remoteRepositoryInformation;
-    this.#onError = onError;
   }
 
-  static withDefaultPreset(
-    remoteRepositoryInformation?: RemoteRepositoryInformation,
-    onError: ErrorHandler = logError,
-  ): ChangelogWriter {
+  static withDefaultPreset({
+    remoteRepositoryInformation,
+  }: Omit<ChangelogWriterOptions, 'changelogWriterPreset'> = {}): ChangelogWriter {
     const changelogWriterPreset = createWriterPreset();
-    return new ChangelogWriter(changelogWriterPreset, {
+    return new ChangelogWriter({
+      changelogWriterPreset,
       remoteRepositoryInformation,
-      onError,
     });
   }
 
@@ -75,11 +81,11 @@ export class ChangelogWriter {
     newVersion: string,
     releaseType: ReleaseType,
     commits: Iterable<ValidatedCommit<string, string>>,
-    filename = 'CHANGELOG.md',
+    { date = getFormattedDate(), filename = 'CHANGELOG.md' }: WriteChangelogOptions = {},
   ): Promise<void> {
     const changelogPath = join(directoryPath, filename);
     const currentContent = this.#readChangelog(changelogPath);
-    const newEntry = await this.#createChangelogString(newVersion, releaseType, commits);
+    const newEntry = await this.#createChangelogString(newVersion, releaseType, commits, date);
     const updatedContent = this.#insertChangelogEntry(currentContent, newEntry);
     this.#writeChangelogEntries(changelogPath, updatedContent);
   }
@@ -88,8 +94,7 @@ export class ChangelogWriter {
     try {
       return readFileSync(changelogPath, 'utf-8');
     } catch (err) {
-      this.#onError(`Error reading changelog at ${changelogPath}:`, err);
-      throw err;
+      throw new Error(`Error reading changelog at ${changelogPath}`, { cause: err });
     }
   }
 
@@ -97,10 +102,11 @@ export class ChangelogWriter {
     newVersion: string,
     releaseType: ReleaseType,
     commits: Iterable<ValidatedCommit<string, string>>,
+    date: string,
   ): Promise<string> {
     let changelogString = '';
     for await (
-      const changelogChunk of this.#createChangelogEntry(newVersion, releaseType, commits)
+      const changelogChunk of this.#createChangelogEntry(newVersion, releaseType, commits, date)
     ) {
       changelogString += changelogChunk;
     }
@@ -111,9 +117,10 @@ export class ChangelogWriter {
     newVersion: string,
     releaseType: ReleaseType,
     commits: Iterable<ValidatedCommit<string, string>>,
+    date: string,
   ): AsyncGenerator<string, void, unknown> {
     const context = {
-      date: getFormattedDate(),
+      date,
       isPatch: releaseType === 'patch',
       linkReferences: true,
       version: newVersion,
@@ -123,8 +130,7 @@ export class ChangelogWriter {
     try {
       return _writeChangelog(context, this.#changelogWriterPreset)(commits);
     } catch (err) {
-      this.#onError('Error creating changelog entry:', err);
-      throw err;
+      throw new Error('Error when creating a changelog entry', { cause: err });
     }
   }
 
@@ -143,8 +149,7 @@ export class ChangelogWriter {
     try {
       writeFileSync(changelogPath, updatedContent, 'utf-8');
     } catch (err) {
-      this.#onError(`Error writing changelog to ${changelogPath}:`, err);
-      throw err;
+      throw new Error(`Error writing changelog to ${changelogPath}`, { cause: err });
     }
   }
 

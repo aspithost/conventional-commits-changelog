@@ -1,13 +1,13 @@
+import { CommitsGrouper } from '../commits/group-commits/CommitsGrouper.js';
+import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
+import { DirectoriesReader } from '../read-directories/DirectoriesReader.js';
+import { logError } from '../utils/error/logError.js';
+
 import type { ReleasePackagesOptions } from './types/releasePackages.js';
 import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
 import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
 import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
-
-import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
-import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
-import { logError } from '@/utils/error/logError.js';
 
 /**
  * Releases every package in a monorepo. The function reads the package directories,
@@ -15,9 +15,7 @@ import { logError } from '@/utils/error/logError.js';
  * commits: version bump plus changelog.
  *
  * @typeParam T - Allowed commit scopes.
- * @param options - {@link ReleasePackagesOptions | Release options}. By default, the function
- * reads packages from
- * the current working directory and does not filter scopes.
+ * @param options - {@link ReleasePackagesOptions | Release options}.
  * @returns A promise that resolves when all packages finish releasing.
  * @throws Error when the specified directory contains no scopes.
  *
@@ -26,12 +24,6 @@ import { logError } from '@/utils/error/logError.js';
  * {@link ReleasePackagesOptions.onError | onError} once all packages finish.
  * With {@link ReleasePackagesOptions.isDryRun | isDryRun}, the function skips version bumps
  * and changelog writes.
- *
- * Option defaults:
- * - `directoriesReaderOptions`: `{ directoryPath: process.cwd(), isFilterScope: false }`
- * - `isDryRun`: `false`
- * - `isUpdateReadme`: `true`
- * - `onError`: `logError`, which writes to `console.error`
  *
  * @example
  * ```ts
@@ -55,7 +47,6 @@ export async function releasePackages<T extends string>({
   const directoriesReader = new DirectoriesReader({
     directoryPath,
     rootScopeOptions,
-    onError,
   });
   const { directoryPathByScopeMap } = directoriesReader;
   if (!directoryPathByScopeMap.size) throw new Error('No scopes found in the specified directory');
@@ -96,5 +87,7 @@ export async function releasePackages<T extends string>({
     },
   );
 
-  handleReleasePackagesErrors(releasePackagesResults, onError);
+  if (onError) {
+    handleReleasePackagesErrors(releasePackagesResults, onError);
+  }
 }

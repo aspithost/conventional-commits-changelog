@@ -41,15 +41,9 @@ describe('bumpNpmVersion', () => {
     vi.mocked(execSync).mockImplementation(() => {
       throw ERROR;
     });
-    const mockOnError = vi.fn();
 
-    expect(() => bumpNpmVersion('/path/to/package', 'minor', {
-      onError: mockOnError,
-    })).toThrow(ERROR);
+    expect(() => bumpNpmVersion('/path/to/package', 'minor'))
+      .toThrow(expect.objectContaining({ cause: ERROR }));
     expect(execSync).toHaveBeenCalledTimes(1);
-    expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
-      expect.any(String),
-      { error: ERROR },
-    );
   });
 });

@@ -1,32 +1,27 @@
-import { execFileSync } from 'node:child_process';
-
 import { COMMIT_FORMAT, CommitsRetriever } from './CommitsRetriever.js';
 
-vi.mock('node:child_process', () => ({
-  execFileSync: vi.fn(),
+import { _execFileSync } from '@/utils/node/execFileSync.js';
+
+vi.mock('@/utils/node/execFileSync.js', () => ({
+  _execFileSync: vi.fn(),
 }));
 
-const mockExecFileSync = vi.mocked(execFileSync);
-const DEFAULT_EXEC_FILE_SYNC_OPTIONS = {
-  encoding: 'utf-8',
-  cwd: process.cwd(),
-  maxBuffer: 1024 * 1024 * 10, // 10 MB
-} as const;
+const mockExecFileSync = vi.mocked(_execFileSync);
 
 vi.mock('@/shared/error/logError.js');
 
 type MockValue = string | Error;
 function setupMocks({
-  releaseBranch = 'origin/main',
+  remoteSymbolicRef = 'refs/remotes/origin/main',
   latestTag = 'v1.0.0',
   rawCommitsString = '',
 }: {
-  releaseBranch?: MockValue;
+  remoteSymbolicRef?: MockValue;
   latestTag?: MockValue;
   rawCommitsString?: MockValue;
 } = {}) {
   for (const value of [
-    releaseBranch,
+    remoteSymbolicRef,
     latestTag,
     rawCommitsString,
   ]) {
@@ -44,26 +39,26 @@ const mockOnError = vi.fn();
 
 describe('CommitsRetriever', () => {
   describe('constructor', () => {
-    it('should validate the input of "from", "to" and "releaseBranch"', () => {
+    it('should validate the input of "from", "to" and "remoteSymbolicRef"', () => {
       expect(() => new CommitsRetriever({
         from: 'v1.0.0',
         to: 'v2.0.0',
-        releaseBranch: 'refs/remotes/origin/main',
+        remoteSymbolicRef: 'refs/remotes/origin/main',
       })).not.toThrow();
       expect(() => new CommitsRetriever({
         from: '--some-flag',
         to: 'v2.0.0',
-        releaseBranch: 'refs/remotes/origin/main',
+        remoteSymbolicRef: 'refs/remotes/origin/main',
       })).toThrow();
       expect(() => new CommitsRetriever({
         from: 'v1.0.0',
         to: '--some-flag',
-        releaseBranch: 'refs/remotes/origin/main',
+        remoteSymbolicRef: 'refs/remotes/origin/main',
       })).toThrow();
       expect(() => new CommitsRetriever({
         from: 'v1.0.0',
         to: 'v2.0.0',
-        releaseBranch: '--some-flag',
+        remoteSymbolicRef: '--some-flag',
       })).toThrow();
     });
 
@@ -165,13 +160,7 @@ describe('CommitsRetriever', () => {
       const GIT_ERROR = new Error('git error');
       setupMocks({ rawCommitsString: GIT_ERROR });
 
-      const rawCommits = [...new CommitsRetriever({ onError: mockOnError }).getRawCommits()];
-
-      expect(rawCommits).toHaveLength(0);
-      expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
-        expect.any(String),
-        GIT_ERROR,
-      );
+      expect(() => Array.from(new CommitsRetriever().getRawCommits())).toThrow();
     });
   });
 
@@ -184,14 +173,14 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
         expect.arrayContaining([`--pretty=format:${COMMIT_FORMAT}`]),
-        DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+        process.cwd(),
       );
       expect(mockOnError).not.toHaveBeenCalled();
     });
   });
 
   describe('commitRange', () => {
-    it('use the from..to range when from provided', () => {
+    it('use the from..to range when the user provides the form param', () => {
       mockExecFileSync.mockReturnValue('');
 
       const _ = [
@@ -205,9 +194,28 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenCalledWith(
         'git',
         expect.arrayContaining(['v1.0.0..v2.0.0']),
-        DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+        process.cwd(),
       );
       expect(mockOnError).not.toHaveBeenCalled();
+    });
+
+    it('should return the full history if the user specifies from as null', () => {
+      mockExecFileSync.mockReturnValue('');
+
+      const _ = [
+        ...new CommitsRetriever({
+          from: null,
+          to: 'v1.0.0',
+          onError: mockOnError,
+        }).getRawCommits(),
+      ];
+
+      expect(mockExecFileSync).toHaveBeenCalledTimes(1);
+      expect(mockExecFileSync).toHaveBeenCalledWith(
+        'git',
+        expect.arrayContaining(['v1.0.0']),
+        process.cwd(),
+      );
     });
 
     it('should return all commits when no tags exist', () => {
@@ -219,7 +227,7 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
         expect.arrayContaining(['HEAD']),
-        DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+        process.cwd(),
       );
     });
   });
@@ -233,21 +241,33 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
         expect.arrayContaining(['v1.0.0..HEAD']),
-        DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+        process.cwd(),
+      );
+    });
+
+    it('should return null when no tags exist', () => {
+      setupMocks({ latestTag: new Error('no tags found') });
+
+      const _ =[...new CommitsRetriever().getRawCommits()];
+
+      expect(mockExecFileSync).toHaveBeenLastCalledWith(
+        'git',
+        expect.arrayContaining(['HEAD']),
+        process.cwd(),
       );
     });
   });
 
   describe('getDefaultBranch', () => {
     it('should use the the custom releaseBranch and cwd if provided', () => {
-      const FEATURE_BRANCH = 'refs/remotes/origin/some-feature';
+      const REMOTE_FEATURE_BRANCH = 'refs/remotes/origin/some-feature';
       const CWD_PATH = '/some/path';
-      setupMocks({ releaseBranch: FEATURE_BRANCH });
+      setupMocks({ remoteSymbolicRef: REMOTE_FEATURE_BRANCH });
 
       const _ =[
         ...new CommitsRetriever({
           cwd: CWD_PATH,
-          releaseBranch: FEATURE_BRANCH,
+          remoteSymbolicRef: REMOTE_FEATURE_BRANCH,
           onError: mockOnError,
         }).getRawCommits(),
       ];
@@ -255,11 +275,8 @@ describe('CommitsRetriever', () => {
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         1,
         'git',
-        ['symbolic-ref', FEATURE_BRANCH],
-        {
-          ...DEFAULT_EXEC_FILE_SYNC_OPTIONS,
-          cwd: CWD_PATH,
-        },
+        ['symbolic-ref', REMOTE_FEATURE_BRANCH],
+        CWD_PATH,
       );
       expect(mockOnError).not.toHaveBeenCalled();
     });
@@ -268,7 +285,7 @@ describe('CommitsRetriever', () => {
       const BRANCH_ERROR = new Error('no remote');
       const TAG_ERROR = new Error('no tags');
       setupMocks({
-        releaseBranch: BRANCH_ERROR,
+        remoteSymbolicRef: BRANCH_ERROR,
         latestTag: TAG_ERROR,
       });
 
@@ -283,16 +300,16 @@ describe('CommitsRetriever', () => {
           '--abbrev=0',
           'origin/main',
         ],
-        DEFAULT_EXEC_FILE_SYNC_OPTIONS,
+        process.cwd(),
       );
       expect(mockOnError).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining('No remote HEAD reference found'),
+        expect.stringContaining('WARN: No remote symbolic reference found'),
         BRANCH_ERROR,
       );
       expect(mockOnError).toHaveBeenNthCalledWith(
         2,
-        expect.stringContaining('No tags found'),
+        expect.stringContaining('WARN: no tags found on remote branch.'),
         TAG_ERROR,
       );
     });

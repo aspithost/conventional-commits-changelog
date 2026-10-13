@@ -1,16 +1,15 @@
-import type z from 'zod';
+import type { z } from 'zod';
 
+import type { ErrorHandler } from '../../../utils/error/logError.js';
+import type { OnError } from '../../../utils/error/types/error.js';
 import type { ParsedCommits } from '../../parse-commits/CommitsParser.js';
-
-import { type ErrorHandler, logError } from '@/utils/error/logError.js';
-import type { OnError } from '@/utils/error/types/error.js';
 
 export type BaseCommitsValidatorOptions = OnError;
 
 export class BaseCommitsValidator {
-  readonly #onError: ErrorHandler;
+  readonly #onError?: ErrorHandler | null;
 
-  constructor({ onError = logError }: BaseCommitsValidatorOptions = {}) {
+  constructor({ onError }: BaseCommitsValidatorOptions = {}) {
     this.#onError = onError;
   }
 
@@ -22,7 +21,7 @@ export class BaseCommitsValidator {
       const result = schema.safeParse(commit);
 
       if (!result.success) {
-        this.#onError('Validation error, did not yield commit', {
+        this.#onError?.('Validation error, did not yield commit', {
           commit,
           error: result.error,
         });

@@ -103,12 +103,36 @@ describe('ChangelogWriter', () => {
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
-      await writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits, 'HISTORY.md');
+      await writer.writeChangelog(
+        DIRECTORY_PATH,
+        '1.0.0',
+        'minor',
+        commits,
+        { filename: 'HISTORY.md' },
+      );
 
       expect(writeFileSync).toHaveBeenCalledWith(
         join(DIRECTORY_PATH, 'HISTORY.md'),
         expect.any(String),
         'utf-8',
+      );
+    });
+
+    it('should use a custom date when provided', async () => {
+      const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
+      const writer = ChangelogWriter.withDefaultPreset();
+
+      await writer.writeChangelog(
+        DIRECTORY_PATH,
+        '1.0.0',
+        'minor',
+        commits,
+        { date: '2020-02-02' },
+      );
+
+      expect(writeChangelog).toHaveBeenCalledWith(
+        expect.objectContaining({ date: '2020-02-02' }),
+        expect.anything(),
       );
     });
 
@@ -141,7 +165,8 @@ describe('ChangelogWriter', () => {
       );
     });
 
-    it('should re-throw errors if the writeChangelog operation from fails',
+    it(
+      'should re-throw errors if the writeChangelog operation from fails',
       async () => {
         const someError = new Error('Some error');
         vi.mocked(writeChangelog).mockImplementation(() => {
@@ -156,7 +181,7 @@ describe('ChangelogWriter', () => {
           [BASE_VALIDATED_COMMIT],
         ))
           .rejects
-          .toThrow(someError);
+          .toThrow(expect.objectContaining({ cause: someError }));
       },
     );
   });
@@ -245,25 +270,27 @@ describe('ChangelogWriter', () => {
 
   describe('error handling', () => {
     it('should throw when the changelog file cannot be read', async () => {
+      const err = new Error('ENOENT: no such file or directory');
       vi.mocked(readFileSync).mockImplementation(() => {
-        throw new Error('ENOENT: no such file or directory');
+        throw err;
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
       await expect(writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits))
-        .rejects.toThrow('ENOENT: no such file or directory');
+        .rejects.toThrow(expect.objectContaining({ cause: err }));
     });
 
     it('should throw when changelog file cannot be written', async () => {
+      const err = new Error('EACCES: permission denied');
       vi.mocked(writeFileSync).mockImplementation(() => {
-        throw new Error('EACCES: permission denied');
+        throw err;
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
       await expect(writer.writeChangelog(DIRECTORY_PATH, '1.0.0', 'minor', commits))
-        .rejects.toThrow('EACCES: permission denied');
+        .rejects.toThrow(expect.objectContaining({ cause: err }));
     });
   });
 });

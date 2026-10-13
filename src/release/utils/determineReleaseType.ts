@@ -1,5 +1,5 @@
-import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '@/release/types/release.js';
+import type { ValidatedCommit } from '../../commits/validate-commits/types/commit.js';
+import type { ReleaseType } from '../types/release.js';
 
 export function determineReleaseType(
   commits: Iterable<ValidatedCommit<string, string>>,
@@ -9,8 +9,7 @@ export function determineReleaseType(
   for (const commit of commits) {
     // Breaking change = major (highest priority, can return early)
     const hasBreakingChange = commit.notes.some(note =>
-      note.title === 'BREAKING CHANGE' || note.title === 'BREAKING-CHANGE',
-    );
+      note.title === 'BREAKING CHANGE' || note.title === 'BREAKING-CHANGE');
     if (hasBreakingChange) {
       return 'major';
     }
