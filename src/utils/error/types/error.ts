@@ -8,6 +8,7 @@ import type {
 export interface OnError {
   /**
    * Called when the library reports an error without throwing.
+   * You can opt out of error handling by setting onError to null.
    *
    * @defaultValue {@link logError}
    *

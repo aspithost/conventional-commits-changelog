@@ -87,5 +87,7 @@ export async function releasePackages<T extends string>({
     },
   );
 
-  handleReleasePackagesErrors(releasePackagesResults, onError);
+  if (onError) {
+    handleReleasePackagesErrors(releasePackagesResults, onError);
+  }
 }

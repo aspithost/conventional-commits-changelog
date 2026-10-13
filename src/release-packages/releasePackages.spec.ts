@@ -64,17 +64,14 @@ vi.mock('./utils/handleReleaseErrors.js', () => ({
 describe('releasePackages', () => {
   describe('reading directories', () => {
     it('should read the directories in the provided directory path', async () => {
-      const onError = vi.fn();
       const DIRECTORY_PATH = 'packages';
 
       await releasePackages({
         directoriesReaderOptions: { directoryPath: DIRECTORY_PATH },
-        onError,
       });
 
       expect(DirectoriesReader).toHaveBeenCalledWith({
         directoryPath: DIRECTORY_PATH,
-        onError,
       });
     });
 
@@ -183,5 +180,19 @@ describe('releasePackages', () => {
 
     expect(vi.mocked(handleReleasePackagesErrors))
       .toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
+  });
+
+  it('should not handle errors if the user opted out of error handling', async () => {
+    const releasePackagesResult: PromiseSettledResult<void>[] = [
+      {
+        status: 'rejected',
+        reason: new Error('Failed to release package'),
+      },
+    ];
+    vi.mocked(releaseByScope).mockResolvedValueOnce(releasePackagesResult);
+
+    await releasePackages({ onError: null });
+
+    expect(vi.mocked(handleReleasePackagesErrors)).not.toHaveBeenCalled();
   });
 });
