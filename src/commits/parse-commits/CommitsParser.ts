@@ -8,7 +8,6 @@ import type { RawCommits } from '../retrieve-commits/CommitsRetriever.js';
 
 import { PARSER_STREAM_OPTIONS } from './constants/parser.js';
 
-/** A commit message parsed into conventional-commit fields with its source hash. */
 export interface ParsedCommit extends CommitBase {
   /** The full hash of the source commit, or `null` when unavailable. */
   hash: string | null;
@@ -20,10 +19,8 @@ export interface ParsedCommit extends CommitBase {
   type: string | null;
 }
 
-/** An iterable collection of parsed commits. */
 export type ParsedCommits = Iterable<ParsedCommit>;
 
-/** Options for configuring {@link CommitsParser}. */
 export interface CommitsParserOptions {
   /**
    * Configuration for parsing commit messages.

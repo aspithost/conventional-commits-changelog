@@ -34,7 +34,8 @@ export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>,
    */
   isDryRun?: boolean;
   /**
-   * Forces a release type. Without it, the library determines the type from the commits.
+   * Forces a release type when specified.
+   * If omitted, the library determines the type from the commits.
    */
   releaseType?: ReleaseType;
 }
