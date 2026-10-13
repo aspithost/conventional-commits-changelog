@@ -1,16 +1,14 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { type ErrorHandler, logError } from '@/utils/error/logError.js';
+import type { OnError } from '@/utils/error/types/error.js';
 
 export function updateReadme(
   directoryPath: string,
   newVersion: string,
   {
-    onError = logError,
-  }: {
-    onError?: ErrorHandler;
-  } = {},
+    onError,
+  }: OnError = {},
 ): void {
   try {
     const readmePath = join(directoryPath, 'README.md');
@@ -21,9 +19,11 @@ export function updateReadme(
       'utf-8',
     );
   } catch (err) {
-    onError(`Error bumping README.md in folder: ${directoryPath}`, {
-      error: err,
-    });
-    throw err;
+    onError?.(
+      `Error bumping README.md in folder: ${directoryPath}. Continuing without updating README.`,
+      {
+        error: err,
+      },
+    );
   }
 }

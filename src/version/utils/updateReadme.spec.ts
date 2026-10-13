@@ -42,15 +42,13 @@ describe('updateReadme', () => {
     );
   });
 
-  it('should throw an error if readFileSync Fails fails', () => {
+  it('should log an error if readFileSync Fails fails', () => {
     const ERROR = new Error('read error');
     vi.mocked(readFileSync).mockImplementation((): never => {
       throw ERROR;
     });
 
-    expect(() => {
-      updateReadme('some path', '1.0.0', { onError: mockOnError });
-    }).toThrow(ERROR);
+    updateReadme('some path', '1.0.0', { onError: mockOnError });
     expect(readFileSync).toHaveBeenCalledOnce();
     expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
       expect.any(String),
@@ -58,16 +56,14 @@ describe('updateReadme', () => {
     );
   });
 
-  it('should throw an error if writeFileSync fails', () => {
+  it('should log an error if writeFileSync fails', () => {
     const ERROR = new Error('write error');
     vi.mocked(readFileSync).mockReturnValue('Version 1.0.0');
     vi.mocked(writeFileSync).mockImplementation((): never => {
       throw ERROR;
     });
 
-    expect(() => {
-      updateReadme('some path', '1.0.0', { onError: mockOnError });
-    }).toThrow(ERROR);
+    updateReadme('some path', '1.0.0', { onError: mockOnError });
     expect(writeFileSync).toHaveBeenCalledOnce();
     expect(mockOnError).toHaveBeenCalledExactlyOnceWith(
       expect.any(String),

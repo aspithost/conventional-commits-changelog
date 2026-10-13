@@ -1,9 +1,10 @@
-import type { RetrieveCommitsOptions } from '@/commits/retrieveValidatedCommits.js';
-import type { DefaultAllowedTypes } from '@/commits/types/commit.js';
-import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
-import type { ErrorHandler } from '@/utils/error/logError.js';
-import type { BumpVersionOptions } from '@/version/bumpVersion.js';
-import type { ChangelogWriterOptions } from '@/write-changelog/ChangelogWriter.js';
+import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
+import type { DefaultAllowedTypes } from '../../commits/types/commit.js';
+import type { ValidatedCommit } from '../../commits/validate-commits/types/commit.js';
+import type { BumpVersionOptions } from '../../version/bumpVersion.js';
+import type { ChangelogWriterOptions } from '../../write-changelog/ChangelogWriter.js';
+
+import type { OnError } from '@/utils/error/types/error.js';
 
 /** Semantic version increment: `major`, `minor`, or `patch`. */
 export type ReleaseType = 'major' | 'minor' | 'patch';
@@ -11,7 +12,7 @@ export type ReleaseType = 'major' | 'minor' | 'patch';
 /**
  * Options that every release shares. Extends {@link BumpVersionOptions}.
  */
-export interface BaseReleaseOptions extends BumpVersionOptions {
+export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>, OnError {
   /**
    * Options for writing the changelog. Without a `changelogWriterPreset`, the
    * library uses its default preset.
@@ -19,24 +20,23 @@ export interface BaseReleaseOptions extends BumpVersionOptions {
    * @see {@link ChangelogWriterOptions}
    */
   changelogWriterOptions?: Partial<ChangelogWriterOptions>;
-  /** Directory that contains the `package.json` and changelog to update. */
+  /**
+   * Directory that contains the `package.json` and changelog to update.
+   *
+   * @defaultValue `process.cwd()`
+   */
   directoryPath?: string;
   /**
    * Logs the release type that the library would apply, without bumping
    * the version or writing the changelog.
+   *
+   * @defaultValue `false`
    */
   isDryRun?: boolean;
   /**
    * Forces a release type. Without it, the library determines the type from the commits.
    */
   releaseType?: ReleaseType;
-  /**
-   * Called when the library reports an error without throwing, for example
-   * when no release is needed.
-   *
-   * @see {@link ErrorHandler}
-   */
-  onError?: ErrorHandler;
 }
 
 /**

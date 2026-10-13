@@ -76,7 +76,7 @@ describe('retrieveValidatedCommits', () => {
     });
 
     it('should parse raw commits with commitsParserOptions', () => {
-      const commitsParserOptions = { fieldPattern: /somepattern/ };
+      const commitsParserOptions = { parserStreamOptions: { fieldPattern: /somepattern/ } };
       const _ = [...retrieveValidatedCommits({ commitsParserOptions })];
 
       expect(CommitsParser).toHaveBeenCalledWith(commitsParserOptions);

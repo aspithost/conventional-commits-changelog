@@ -1,13 +1,19 @@
+import type { ReleaseType } from '../release/types/release.js';
+
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { updateReadme } from './utils/updateReadme.js';
 
-import type { ReleaseType } from '@/release/types/release.js';
+import type { OnError } from '@/utils/error/types/error.js';
 
 /**
  * Options for bumping a package version.
  */
-export interface BumpVersionOptions {
-  /** Whether to update the version references in the README after the bump. */
+export interface BumpVersionOptions extends OnError {
+  /**
+   * Whether to update the version references in the README after the bump.
+   *
+   * @defaultValue `true`
+   */
   isUpdateReadme?: boolean;
 }
 
@@ -16,6 +22,7 @@ export function bumpVersion(
   releaseType: ReleaseType,
   {
     isUpdateReadme = true,
+    onError,
   }: BumpVersionOptions = {},
 ): string {
   if (!workingDirectory) {
@@ -23,7 +30,7 @@ export function bumpVersion(
   }
   const newVersion = bumpNpmVersion(workingDirectory, releaseType);
   if (isUpdateReadme) {
-    updateReadme(workingDirectory, newVersion);
+    updateReadme(workingDirectory, newVersion, { onError });
   }
   return newVersion;
 }

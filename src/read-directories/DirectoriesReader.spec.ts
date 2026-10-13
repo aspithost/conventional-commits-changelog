@@ -97,7 +97,6 @@ describe('DirectoriesReader', () => {
       });
 
       it('should throw when the root scope name conflicts with an existing entry', () => {
-        const onError = vi.fn();
         const ROOT_SCOPE_NAME = 'root';
         const ROOT_SCOPE_DIRECTORY_PATH = '/path/for/root/scope';
         vi.mocked(readdirSync).mockReturnValue([createDirent(true, ROOT_SCOPE_NAME)]);
@@ -109,12 +108,7 @@ describe('DirectoriesReader', () => {
             rootScopeDirectoryPath: ROOT_SCOPE_DIRECTORY_PATH,
             rootScopeName: ROOT_SCOPE_NAME,
           },
-          onError,
         })).toThrow();
-        expect(onError).toHaveBeenCalledExactlyOnceWith(
-          expect.any(String),
-          expect.any(Error),
-        );
       });
     });
 
@@ -146,7 +140,6 @@ describe('DirectoriesReader', () => {
       });
 
       it('should throw when the root directory does not exist', () => {
-        const onError = vi.fn();
         const error = createEnoentError();
         vi.mocked(readdirSync).mockImplementation(() => {
           throw error;
@@ -154,13 +147,8 @@ describe('DirectoriesReader', () => {
 
         expect(() => new DirectoriesReader({
           directoryPath: '/nonexistent/path',
-          onError,
         }))
-          .toThrow(error);
-        expect(onError).toHaveBeenCalledExactlyOnceWith(
-          expect.any(String),
-          error,
-        );
+          .toThrow(expect.objectContaining({ cause: error }));
       });
 
       it('should handle an empty root directory', () => {
@@ -208,17 +196,13 @@ describe('DirectoriesReader', () => {
       it(
         'should throw when reading package.json fails for a reason other than a missing file',
         () => {
-          const onError = vi.fn();
           const someError = new Error('EACCES: permission denied');
           vi.mocked(readFileSync).mockImplementation(() => {
             throw someError;
           });
 
-          expect(() => new DirectoriesReader({ onError })).toThrow(someError);
-          expect(onError).toHaveBeenCalledExactlyOnceWith(
-            expect.any(String),
-            someError,
-          );
+          expect(() => new DirectoriesReader())
+            .toThrow(expect.objectContaining({ cause: someError }));
         },
       );
 

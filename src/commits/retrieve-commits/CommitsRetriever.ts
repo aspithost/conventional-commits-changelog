@@ -1,9 +1,11 @@
-import { execFileSync } from 'node:child_process';
+import type { ErrorHandler } from '../../utils/error/logError.js';
+import type { OnError } from '../../utils/error/types/error.js';
 
-import { type ErrorHandler, logError } from '@/utils/error/logError.js';
-import type { OnError } from '@/utils/error/types/error.js';
+import { _execFileSync } from '@/utils/node/execFileSync.js';
 
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
+const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
+const FALLBACK_REMOTE_BRANCH = 'origin/main';
 
 /** A commit record parsed from `git log` output. */
 interface RawCommit {
@@ -17,40 +19,55 @@ interface RawCommit {
 export type RawCommits = Iterable<RawCommit>;
 
 /** Configuration options for {@link CommitsRetriever}. */
-export interface CommitsRetrieverOptions {
-  /** The pretty-format string passed to `git log`. */
+export interface CommitsRetrieverOptions extends OnError {
+  /**
+   * The pretty-format string passed to `git log`.
+   * @defaultValue {@link COMMIT_FORMAT}
+   */
   commitFormat?: string;
-  /** The working directory in which to run Git commands. */
+  /**
+   * The working directory in which to run Git commands.
+   * @defaultValue {@link process.cwd}
+   */
   cwd?: string;
-  /** The starting ref; when omitted,
-   * retrieval starts after the latest tag on the default branch. */
-  from?: string;
-  /** The ending ref for commit retrieval. */
+  /**
+   * The starting ref. When omitted, retrieval starts after the latest tag on the
+   * default branch. Pass `null` to retrieve the full history up to `to`.
+   */
+  from?: string | null;
+  /**
+   * The ending ref for commit retrieval.
+   * @defaultValue `'HEAD'`
+   */
   to?: string;
-  /** The ref used to determine the default branch when `from` is omitted. */
-  releaseBranch?: string;
+  /**
+   * The ref used to determine the default remote branch.
+   * Input for the {@link getDefaultRemoteBranch} function.
+   * @defaultValue {@link DEFAULT_REMOTE_SYMBOLIC_REF}
+   */
+  remoteSymbolicRef?: string;
 }
 
 export class CommitsRetriever {
   readonly #commitFormat: string;
   readonly #cwd: string;
-  readonly #from?: string;
+  readonly #from?: string | null;
   readonly #to: string;
-  readonly #releaseBranch: string;
-  readonly #onError: ErrorHandler;
+  readonly #remoteSymbolicRef: string;
+  readonly #onError?: ErrorHandler | null;
 
   constructor({
     commitFormat = COMMIT_FORMAT,
     cwd = process.cwd(),
     from,
     to = 'HEAD',
-    releaseBranch = 'refs/remotes/origin/HEAD',
-    onError = logError,
-  }: CommitsRetrieverOptions & OnError = {}) {
+    remoteSymbolicRef = DEFAULT_REMOTE_SYMBOLIC_REF,
+    onError,
+  }: CommitsRetrieverOptions = {}) {
     for (const [name, value] of Object.entries({
       from,
       to,
-      releaseBranch,
+      remoteSymbolicRef,
     })) {
       this.#validateInput(name, value);
     }
@@ -59,7 +76,7 @@ export class CommitsRetriever {
     this.#cwd = cwd;
     this.#from = from;
     this.#to = to;
-    this.#releaseBranch = releaseBranch;
+    this.#remoteSymbolicRef = remoteSymbolicRef;
     this.#onError = onError;
   }
 
@@ -76,18 +93,21 @@ export class CommitsRetriever {
         };
       }
     } catch (err) {
-      this.#onError('Could not retrieve commits.', err);
-      return;
+      throw new Error('Could not retrieve commits.', { cause: err });
     }
   }
 
   get #commitRange(): string {
-    const from = this.#from ?? this.#getLatestTag();
-    return from ? `${from}..${this.#to}` : this.#to;
+    if (this.#from) return `${this.#from}..${this.#to}`;
+    if (this.#from !== null) {
+      const latestTag = this.#getLatestTag();
+      if (latestTag) return `${latestTag}..${this.#to}`;
+    }
+    return this.#to;
   }
 
   #getRawCommitsString(): string {
-    return this.#_execFileSync('git', [
+    return this.#execGit([
       'log',
       `--pretty=format:${this.#commitFormat}`,
       this.#commitRange,
@@ -96,39 +116,36 @@ export class CommitsRetriever {
 
   #getLatestTag(): string | null {
     try {
-      const defaultBranch = this.#getDefaultBranch();
-      return this.#_execFileSync('git', [
+      const defaultRemoteBranch = this.#getDefaultRemoteBranch();
+      return this.#execGit([
         'describe',
         '--tags',
         '--abbrev=0',
-        defaultBranch,
+        defaultRemoteBranch,
       ]);
     } catch (err) {
-      this.#onError('No tags found.', err);
+      this.#onError?.('WARN: no tags found on remote branch.', err);
       return null;
     }
   }
 
-  #getDefaultBranch(): string {
+  #getDefaultRemoteBranch(): string {
     try {
-      // Return type: 'refs/remotes/origin/HEAD'
-      return this.#_execFileSync('git', ['symbolic-ref', this.#releaseBranch]);
+      return _execFileSync('git', ['symbolic-ref', this.#remoteSymbolicRef], this.#cwd);
     } catch (err) {
-      this.#onError('No remote HEAD reference found. Now defaults to origin/main.', err);
-      // Default fallback
-      return 'origin/main';
+      this.#onError?.(
+        `WARN: No remote symbolic reference found. Defaults to ${FALLBACK_REMOTE_BRANCH}.`,
+        err,
+      );
+      return FALLBACK_REMOTE_BRANCH;
     }
   }
 
-  #_execFileSync(command: string, args: string[]): string {
-    return execFileSync(command, args, {
-      encoding: 'utf-8',
-      cwd: this.#cwd,
-      maxBuffer: 1024 * 1024 * 10, // 10 MB
-    }).trim();
+  #execGit(args: string[]): string {
+    return _execFileSync('git', args, this.#cwd);
   }
 
-  #validateInput(name: string, value?: string) {
+  #validateInput(name: string, value?: string | null) {
     if (value?.startsWith('-')) {
       throw new Error(`Invalid ${name} "${value}": refs may not start with '-'`);
     }

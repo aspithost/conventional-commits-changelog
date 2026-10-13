@@ -2,6 +2,7 @@
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import type { DefaultAllowedTypes } from '../commits/types/commit.js';
 import { logError } from '../utils/error/logError.js';
+import { bumpVersion } from '../version/bumpVersion.js';
 
 import type {
   ReleaseOptions,
@@ -9,9 +10,7 @@ import type {
   ReleaseOptionsWithoutCommits,
 } from './types/release.js';
 import { createChangelogWriter } from './utils/createChangelogWriter.js';
-
-import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
-import { bumpVersion } from '@/version/bumpVersion.js';
+import { determineReleaseType } from './utils/determineReleaseType.js';
 
 /**
  * Releases a single package: retrieves and validates the commits since the latest tag,
@@ -30,12 +29,6 @@ import { bumpVersion } from '@/version/bumpVersion.js';
  * When no commits justify a release and you do not set `releaseType`, the function
  * reports an error through `onError` and returns without changes.
  * With `isDryRun`, the function logs the release type and skips the version bump and changelog.
- *
- * Option defaults:
- * - `directoryPath`: `process.cwd()`
- * - `isDryRun`: `false`
- * - `isUpdateReadme`: `true`
- * - `onError`: `logError`, which writes to `console.error`
  *
  * @example
  * ```ts
@@ -94,9 +87,7 @@ export async function release({
   // Determine release type
   const releaseType = _releaseType ?? determineReleaseType(resolvedCommits);
   if (!releaseType) {
-    const errorMessage = 'No release needed based on the commits since the latest tag.';
-    onError(errorMessage, new Error(errorMessage));
-    return;
+    throw new Error('No release needed based on the commits since the latest tag.');
   }
   if (isDryRun) {
     console.log(`[dry-run] Would bump with release type ${releaseType}.`);
@@ -104,10 +95,13 @@ export async function release({
   }
 
   // Bump version
-  const newVersion = bumpVersion(directoryPath, releaseType, { isUpdateReadme });
+  const newVersion = bumpVersion(directoryPath, releaseType, {
+    isUpdateReadme,
+    onError,
+  });
 
   // Write changelog
-  const changelogWriter = createChangelogWriter(changelogWriterOptions, onError);
+  const changelogWriter = createChangelogWriter(changelogWriterOptions);
 
   await changelogWriter.writeChangelog(
     directoryPath,

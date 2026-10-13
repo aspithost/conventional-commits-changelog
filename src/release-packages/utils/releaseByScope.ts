@@ -1,7 +1,7 @@
-import type { CommitsByScopeMap } from '@/commits/group-commits/CommitsGrouper.js';
-import type { DirectoryPathByScopeMap } from '@/read-directories/DirectoriesReader.js';
-import { release } from '@/release/release.js';
-import type { BaseReleaseOptions } from '@/release/types/release.js';
+import type { CommitsByScopeMap } from '../../commits/group-commits/CommitsGrouper.js';
+import type { DirectoryPathByScopeMap } from '../../read-directories/DirectoriesReader.js';
+import { release } from '../../release/release.js';
+import type { BaseReleaseOptions } from '../../release/types/release.js';
 
 export async function releaseByScope<T extends string>(
   directoryPathByScopeMap: DirectoryPathByScopeMap<string>,

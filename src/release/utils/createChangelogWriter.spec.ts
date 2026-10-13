@@ -10,46 +10,27 @@ const REMOTE_REPOSITORY_INFORMATION = {
   owner: 'someguy',
   repository: 'somrepo',
 };
-const CHANGELOG_WRITER_OPTIONS = {
-  options: {
-    remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
-  },
-};
 vi.mock('@/write-changelog/ChangelogWriter.js');
 
 describe('createChangelogWriter', () => {
   it('should create and return a ChangelogWriter with default parameters', () => {
-    const onError = vi.fn();
     const { withDefaultPreset } = vi.mocked(ChangelogWriter);
 
-    createChangelogWriter(
-      undefined,
-      onError,
-    );
+    createChangelogWriter();
 
-    expect(withDefaultPreset).toHaveBeenCalledExactlyOnceWith(
-      undefined,
-      onError,
-    );
+    expect(withDefaultPreset).toHaveBeenCalledTimes(1);
   });
 
   it('should create and return a ChangelogWriter with parameters specified by the user', () => {
-    const onError = vi.fn();
     const CHANGELOG_WRITER_PRESET = { someKey: 'someValue' } as unknown as ChangelogWriterPreset;
     const changelogWriterOptions = {
       changelogWriterPreset: CHANGELOG_WRITER_PRESET,
-      ...CHANGELOG_WRITER_OPTIONS,
+      remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
     };
 
-    createChangelogWriter(changelogWriterOptions, onError);
+    createChangelogWriter(changelogWriterOptions);
 
-    expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledWith(
-      changelogWriterOptions.changelogWriterPreset,
-      {
-        remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
-        onError,
-      },
-    );
+    expect(vi.mocked(ChangelogWriter)).toHaveBeenCalledExactlyOnceWith(changelogWriterOptions);
     const { withDefaultPreset } = vi.mocked(ChangelogWriter);
     expect(withDefaultPreset).not.toHaveBeenCalled();
   });

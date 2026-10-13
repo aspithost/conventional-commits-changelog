@@ -78,7 +78,8 @@ describe('releasePackages', () => {
       });
     });
 
-    it('should throw an error if the user does not have any folders with a package.json file',
+    it(
+      'should throw an error if the user does not have any folders with a package.json file',
       async () => {
         // @ts-expect-error: Simplified mock of DirectoriesReader class
         vi.mocked(DirectoriesReader).mockImplementationOnce(class DirectoriesReader {
@@ -117,7 +118,8 @@ describe('releasePackages', () => {
       );
     });
 
-    it('should filter out commits with scopes that do not match the allowed commit scopes',
+    it(
+      'should filter out commits with scopes that do not match the allowed commit scopes',
       async () => {
         const allowedCommitScopes = new Set([BUTTON_SCOPE, CARD_SCOPE]);
 

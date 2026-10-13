@@ -4,6 +4,7 @@ import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commit
 import { release } from './release.js';
 
 import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
+import type { OnError } from '@/utils/error/types/error.js';
 import { bumpVersion } from '@/version/bumpVersion.js';
 
 vi.mock('@/commits/retrieveValidatedCommits.js', () => ({
@@ -54,7 +55,8 @@ describe('release', () => {
       expect(determineReleaseType).toHaveBeenCalledWith(BUTTON_COMMITS);
     });
 
-    it('should not retrieve commits, but determine the release type based on passed in commits',
+    it(
+      'should not retrieve commits, but determine the release type based on passed in commits',
       async () => {
         const SINGLE_COMMIT = BUTTON_COMMITS[0];
 
@@ -64,7 +66,8 @@ describe('release', () => {
       },
     );
 
-    it('should not determine the release type if the user manually passes a release type',
+    it(
+      'should not determine the release type if the user manually passes a release type',
       async () => {
         await release({ releaseType: 'patch' });
 
@@ -72,18 +75,16 @@ describe('release', () => {
       },
     );
 
-    it('should not release if the validated commits do not contain types that warrant a release',
+    it(
+      'should not release if the validated commits do not contain types that warrant a release',
       async () => {
         vi.mocked(determineReleaseType).mockReturnValue(null);
-        const onError = vi.fn();
 
-        await release({ onError });
+        await expect(release())
+          .rejects
+          .toThrow('No release needed based on the commits since the latest tag.');
 
         expect(determineReleaseType).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledExactlyOnceWith(
-          expect.any(String),
-          expect.any(Error),
-        );
         expect(bumpVersion).not.toHaveBeenCalled();
         expect(mockWriteChangelog).not.toHaveBeenCalled();
       },
@@ -95,14 +96,18 @@ describe('release', () => {
       vi.mocked(determineReleaseType).mockReturnValue('minor');
     });
 
-    it('should bump the version based on the desired release type specified by the user',
+    it(
+      'should bump the version based on the desired release type specified by the user',
       async () => {
         await release();
 
         expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
           process.cwd(),
           'minor',
-          { isUpdateReadme: true },
+          expect.objectContaining({
+            isUpdateReadme: true,
+            onError: expect.any(Function) as OnError,
+          }),
         );
       },
     );
@@ -112,14 +117,22 @@ describe('release', () => {
       await release({ directoryPath: DIRECTORY_PATH });
 
       expect(vi.mocked(bumpVersion))
-        .toHaveBeenCalledWith(DIRECTORY_PATH, 'minor', { isUpdateReadme: true });
+        .toHaveBeenCalledWith(
+          DIRECTORY_PATH,
+          'minor',
+          expect.objectContaining({ isUpdateReadme: true }),
+        );
     });
 
     it('should not update the readme, if specified by the user', async () => {
       await release({ isUpdateReadme: false });
 
       expect(vi.mocked(bumpVersion))
-        .toHaveBeenCalledWith(process.cwd(), 'minor', { isUpdateReadme: false });
+        .toHaveBeenCalledWith(
+          process.cwd(),
+          'minor',
+          expect.objectContaining({ isUpdateReadme: false }),
+        );
     });
 
     it('should not bump the version if the user wants to perform a dry run', async () => {

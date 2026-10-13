@@ -5,16 +5,30 @@ import { join } from 'node:path';
 
 import { type PackageJsonSchema, packageJsonSchema } from './schemas/package.js';
 
-import { type ErrorHandler, logError } from '@/utils/error/logError.js';
-
+/**
+ * Options for adding the repository root as an extra scope.
+ *
+ * @typeParam T - Name of the optional root scope.
+ */
 type RootScopeOptions<T extends string> = {
   addRootScope: true;
+  /**
+   * The directory path of the root scope.
+   * @remarks You should specify this path if you set `addRootScope` to `true`.
+   */
   rootScopeDirectoryPath: string;
+  /**
+   * The name of the root scope.
+   * @remarks You should specify this name if you set `addRootScope` to `true`.
+   */
   rootScopeName: T;
 } | {
+  /**
+   * Whether to add the repository root as an extra scope.
+   *
+   * @defaultValue `false`
+   */
   addRootScope?: false;
-  rootScopeDirectoryPath?: undefined;
-  rootScopeName?: undefined;
 };
 
 /**
@@ -23,15 +37,13 @@ type RootScopeOptions<T extends string> = {
  * @typeParam T - Name of the optional root scope.
  */
 export interface DirectoriesReaderOptions<T extends string> {
-  /** Directory that contains the packages. */
-  directoryPath?: string;
   /**
-   * Adds the repository root as an extra scope. Set `addRootScope` to `true`
-   * and provide `rootScopeDirectoryPath` and `rootScopeName`.
+   * Directory that contains the packages.
+   *
+   * @defaultValue {@link process.cwd}
    */
+  directoryPath?: string;
   rootScopeOptions?: RootScopeOptions<T>;
-  /** Called when reading a directory fails. */
-  onError?: ErrorHandler;
 }
 
 // Note: TS workaround so that consumer can see provided root scope key in ScopesMap.
@@ -43,16 +55,13 @@ export type DirectoryPathByScopeMap<
 
 export class DirectoriesReader<T extends string> {
   readonly #directoryPathByScopeMap: DirectoryPathByScopeMap<T>;
-  readonly #onError: ErrorHandler;
 
   constructor({
     directoryPath = process.cwd(),
     rootScopeOptions = {
       addRootScope: false,
     },
-    onError = logError,
   }: DirectoriesReaderOptions<T> = {}) {
-    this.#onError = onError;
     this.#directoryPathByScopeMap = this.#createDirectoryPathByScopeMap(
       directoryPath,
       rootScopeOptions,
@@ -95,8 +104,7 @@ export class DirectoriesReader<T extends string> {
         withFileTypes: true,
       });
     } catch (err) {
-      this.#onError(`Could not read directory with path: ${directoryPath}`, err);
-      throw err;
+      throw new Error(`Could not read directory with path: ${directoryPath}`, { cause: err });
     }
   }
 
@@ -145,8 +153,7 @@ export class DirectoriesReader<T extends string> {
         // no package.json in this folder, silently handle error and return
         return;
       }
-      this.#onError(`Could not read package.json at: ${packageJsonPath}`, err);
-      throw err;
+      throw new Error(`Could not read package.json at: ${packageJsonPath}`, { cause: err });
     }
   }
 
@@ -163,9 +170,7 @@ export class DirectoriesReader<T extends string> {
       const errorMessage =
         `ScopesMap already contains an entry for ${rootScopeName}. ` +
         'Provide a unique rootScopeName to avoid conflicts.';
-      const error = new Error(errorMessage);
-      this.#onError(errorMessage, error);
-      throw error;
+      throw new Error(errorMessage);
     }
     scopesMap.set(rootScopeName, {
       directoryPath: rootScopeDirectoryPath,

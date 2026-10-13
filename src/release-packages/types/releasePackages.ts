@@ -1,6 +1,6 @@
-import type { RetrieveCommitsOptions } from '@/commits/retrieveValidatedCommits.js';
-import type { DirectoriesReaderOptions } from '@/read-directories/DirectoriesReader.js';
-import type { BaseReleaseOptions } from '@/release/types/release.js';
+import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
+import type { DirectoriesReaderOptions } from '../../read-directories/DirectoriesReader.js';
+import type { BaseReleaseOptions } from '../../release/types/release.js';
 
 /**
  * Extends {@link DirectoriesReaderOptions} with scope filtering.
@@ -11,6 +11,8 @@ interface DirectoriesReaderOptionsExtended<T extends string> extends Directories
   /**
    * Strips the npm scope prefix from package names, so `@org/pkg` becomes the
    * commit scope `pkg`.
+   *
+   * @defaultValue `false`
    */
   isFilterScope?: boolean;
 }
@@ -18,7 +20,11 @@ interface DirectoriesReaderOptionsExtended<T extends string> extends Directories
 interface BaseReleasePackageOptions<
   T extends string,
 > extends Omit<BaseReleaseOptions, 'directoryPath' | 'releaseType'> {
-  /** Options for finding packages and mapping them to commit scopes. */
+  /**
+   * Options for finding packages and mapping them to commit scopes.
+   *
+   * @defaultValue {@link DirectoriesReaderOptionsExtended}
+   */
   directoriesReaderOptions?: DirectoriesReaderOptionsExtended<T>;
 }
 

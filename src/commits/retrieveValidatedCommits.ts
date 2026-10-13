@@ -1,3 +1,5 @@
+import type { OnError } from '../utils/error/types/error.js';
+
 import { CommitsParser, type CommitsParserOptions } from './parse-commits/CommitsParser.js';
 import {
   CommitsRetriever,
@@ -21,8 +23,6 @@ import type {
   AllowedCommitTypes,
   CommitsValidatorOptions,
 } from './validate-commits/types/options.js';
-
-import type { OnError } from '@/utils/error/types/error.js';
 
 /**
  * Options for retrieving, parsing, and validating commits.
