@@ -33,15 +33,7 @@ export interface ChangelogWriterOptions {
 }
 
 export interface WriteChangelogOptions {
-  /**
-   * The date shown in the entry header, formatted as `YYYY-MM-DD`.
-   * @defaultValue today's date
-   */
   date?: string;
-  /**
-   * The changelog filename inside the directory.
-   * @defaultValue `'CHANGELOG.md'`
-   */
   filename?: string;
 }
 

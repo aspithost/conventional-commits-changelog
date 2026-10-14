@@ -5,9 +5,6 @@ import { updateReadme } from './utils/updateReadme.js';
 
 import type { OnError } from '@/utils/error/types/error.js';
 
-/**
- * Options for bumping a package version.
- */
 export interface BumpVersionOptions extends OnError {
   /**
    * Whether to update the version references in the README after the bump.

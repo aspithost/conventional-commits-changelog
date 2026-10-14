@@ -5,11 +5,6 @@ import { join } from 'node:path';
 
 import { type PackageJsonSchema, packageJsonSchema } from './schemas/package.js';
 
-/**
- * Options for adding the repository root as an extra scope.
- *
- * @typeParam T - Name of the optional root scope.
- */
 type RootScopeOptions<T extends string> = {
   addRootScope: true;
   /**
@@ -31,11 +26,6 @@ type RootScopeOptions<T extends string> = {
   addRootScope?: false;
 };
 
-/**
- * Options for reading package directories and mapping them to commit scopes.
- *
- * @typeParam T - Name of the optional root scope.
- */
 export interface DirectoriesReaderOptions<T extends string> {
   /**
    * Directory that contains the packages.
@@ -43,6 +33,11 @@ export interface DirectoriesReaderOptions<T extends string> {
    * @defaultValue {@link process.cwd}
    */
   directoryPath?: string;
+  /**
+   * Options for adding the repository root as an extra scope.
+   *
+   * @see {@link RootScopeOptions}
+   */
   rootScopeOptions?: RootScopeOptions<T>;
 }
 

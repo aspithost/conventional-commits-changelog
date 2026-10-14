@@ -7,7 +7,6 @@ export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purpo
 const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 const FALLBACK_REMOTE_BRANCH = 'origin/main';
 
-/** A commit record parsed from `git log` output. */
 interface RawCommit {
   /** The commit message body. */
   commit: string;
@@ -15,10 +14,8 @@ interface RawCommit {
   hash: string;
 }
 
-/** An iterable collection of raw commit records. */
 export type RawCommits = Iterable<RawCommit>;
 
-/** Configuration options for {@link CommitsRetriever}. */
 export interface CommitsRetrieverOptions extends OnError {
   /**
    * The pretty-format string passed to `git log`.
