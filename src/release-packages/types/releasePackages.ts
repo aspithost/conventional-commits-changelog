@@ -9,8 +9,8 @@ import type { BaseReleaseOptions } from '../../release/types/release.js';
  */
 interface DirectoriesReaderOptionsExtended<T extends string> extends DirectoriesReaderOptions<T> {
   /**
-   * Strips the npm scope prefix from package names, so `@org/pkg` becomes the
-   * commit scope `pkg`.
+   * If set to true, strips the npm scope prefix from package names,
+   * so `@org/pkg` becomes the commit scope `pkg`.
    *
    * @defaultValue `false`
    */
@@ -23,7 +23,7 @@ interface BaseReleasePackageOptions<
   /**
    * Options for finding packages and mapping them to commit scopes.
    *
-   * @defaultValue {@link DirectoriesReaderOptionsExtended}
+   * @see {@link DirectoriesReaderOptionsExtended}
    */
   directoriesReaderOptions?: DirectoriesReaderOptionsExtended<T>;
 }

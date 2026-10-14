@@ -24,21 +24,27 @@ import type {
   CommitsValidatorOptions,
 } from './validate-commits/types/options.js';
 
-/**
- * Options for retrieving, parsing, and validating commits.
- *
- * @typeParam T - Allowed commit scopes.
- * @typeParam U - Allowed commit types.
- */
 export interface RetrieveCommitsOptions<
   T extends string,
   U extends string,
 > {
-  /** Options that control how the library parses raw commits. */
+  /**
+   * Options that control how the library parses raw commits.
+   *
+   * @see {@link CommitsParserOptions} for the available options.
+   */
   commitsParserOptions?: CommitsParserOptions;
-  /** Options that control how the library retrieves raw commits from git. */
+  /**
+   * Options that control how the library retrieves raw commits from git.
+   *
+   * @see {@link CommitsRetrieverOptions} for the available options.
+   */
   commitsRetrieverOptions?: CommitsRetrieverOptions;
-  /** Options that control which scopes and types the library accepts as valid. */
+  /**
+   * Allows users to validate commits based on commit scopes and types.
+   *
+   * @see {@link CommitsValidatorOptions} for the available options.
+   */
   commitsValidatorOptions?: CommitsValidatorOptions<T, U>;
 }
 

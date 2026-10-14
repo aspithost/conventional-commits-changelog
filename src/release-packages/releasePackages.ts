@@ -12,10 +12,10 @@ import { releaseByScope } from './utils/releaseByScope.js';
 /**
  * Releases every package in a monorepo. The function reads the package directories,
  * maps each commit scope to its package, and releases each package with its own
- * commits: version bump plus changelog.
+ * commits.
  *
  * @typeParam T - Allowed commit scopes.
- * @param options - {@link ReleasePackagesOptions | Release options}.
+ * @param options - {@link ReleasePackagesOptions | ReleasePackages options}.
  * @returns A promise that resolves when all packages finish releasing.
  * @throws Error when the specified directory contains no scopes.
  *

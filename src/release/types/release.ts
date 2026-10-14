@@ -9,9 +9,6 @@ import type { OnError } from '@/utils/error/types/error.js';
 /** Semantic version increment: `major`, `minor`, or `patch`. */
 export type ReleaseType = 'major' | 'minor' | 'patch';
 
-/**
- * Options that every release shares. Extends {@link BumpVersionOptions}.
- */
 export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>, OnError {
   /**
    * Options for writing the changelog. Without a `changelogWriterPreset`, the
@@ -34,28 +31,17 @@ export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>,
    */
   isDryRun?: boolean;
   /**
-   * Forces a release type. Without it, the library determines the type from the commits.
+   * Forces a release type when specified.
+   * If omitted, the library determines the type from the commits.
    */
   releaseType?: ReleaseType;
 }
 
-/**
- * Options for `release` when the library retrieves commits from git.
- *
- * @typeParam T - Allowed commit scopes.
- * @typeParam U - Allowed commit types.
- */
 export type ReleaseOptionsWithoutCommits<
   T extends string,
   U extends DefaultAllowedTypes = DefaultAllowedTypes,
 > = BaseReleaseOptions & RetrieveCommitsOptions<T, U>;
 
-/**
- * Options for `release` when you supply the commits yourself.
- *
- * @typeParam T - Allowed commit scopes.
- * @typeParam U - Allowed commit types.
- */
 export interface ReleaseOptionsWithCommits<
   T extends string,
   U extends string,
@@ -64,12 +50,6 @@ export interface ReleaseOptionsWithCommits<
   commits: Iterable<ValidatedCommit<T, U>>;
 }
 
-/**
- * Combined options that the `release` implementation accepts.
- *
- * @typeParam T - Allowed commit scopes.
- * @typeParam U - Allowed commit types.
- */
 export interface ReleaseOptions<
   T extends string,
   U extends string,
