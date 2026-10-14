@@ -1,12 +1,12 @@
-import type { BaseReleaseOptions } from '../../release/types/release.js';
+import type { ErrorHandler } from '../../utils/error/logError.js';
 
 export function handleReleasePackagesErrors(
   releasePackagesResults: PromiseSettledResult<void>[],
-  onError: NonNullable<BaseReleaseOptions['onError']>,
+  onError: ErrorHandler,
 ) {
-  const failures = releasePackagesResults
-    .filter((result): result is PromiseRejectedResult => result.status === 'rejected');
-  for (const failure of failures) {
-    onError('A package release failed.', { error: failure.reason as unknown });
+  for (const result of releasePackagesResults) {
+    if (result.status === 'rejected') {
+      onError('A package release failed.', { error: result.reason as unknown });
+    }
   }
 }

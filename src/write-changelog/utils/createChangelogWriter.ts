@@ -1,7 +1,7 @@
 import {
   ChangelogWriter,
   type ChangelogWriterOptions,
-} from '../../write-changelog/ChangelogWriter.js';
+} from '../ChangelogWriter.js';
 
 export function createChangelogWriter(
   changelogWriterOptions?: Partial<ChangelogWriterOptions>,

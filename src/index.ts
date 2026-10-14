@@ -30,6 +30,9 @@ export type {
   ScopeName,
 } from './read-directories/DirectoriesReader.js';
 
+export { generateChangelog } from './generate-changelog/generateChangelog.js';
+export type { GenerateChangelogOptions } from './generate-changelog/types/generateChangelog.js';
+
 export { release } from './release/release.js';
 export type { ReleaseOptions } from './release/types/release.js';
 

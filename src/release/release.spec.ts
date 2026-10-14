@@ -23,7 +23,7 @@ const { mockWriteChangelog } = vi.hoisted(() => ({
   mockWriteChangelog: vi.fn(),
 }));
 
-vi.mock('@/release/utils/createChangelogWriter.js', () => ({
+vi.mock('@/write-changelog/utils/createChangelogWriter.js', () => ({
   createChangelogWriter: () => ({
     writeChangelog: mockWriteChangelog,
   }),
