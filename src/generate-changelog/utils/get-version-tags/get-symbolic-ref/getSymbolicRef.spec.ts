@@ -1,8 +1,8 @@
+import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+
 import { getSymbolicRef } from './getSymbolicRef.js';
 
-import { _execFileSync } from '@/utils/node/execFileSync.js';
-
-vi.mock('@/utils/node/execFileSync.js', () => ({
+vi.mock('../../../../utils/node/execFileSync.js', () => ({
   _execFileSync: vi.fn(),
 }));
 

@@ -1,12 +1,12 @@
 import { releasePackages } from './releasePackages.js';
 import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
 import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
-import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
 
 import { CommitsGrouper } from '@/commits/group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '@/read-directories/DirectoriesReader.js';
+import { logRejectedPromises } from '@/utils/log-rejected-promises/logRejectedPromises.js';
 
 const BUTTON_SCOPE = vi.hoisted(() => '@some-scope/button');
 const CARD_SCOPE = vi.hoisted(() => '@some-other-scope/card');
@@ -57,8 +57,8 @@ vi.mock('./utils/releaseByScope.js', () => ({
   releaseByScope: vi.fn(),
 }));
 
-vi.mock('./utils/handleReleaseErrors.js', () => ({
-  handleReleasePackagesErrors: vi.fn(),
+vi.mock('../utils/log-rejected-promises/logRejectedPromises.js', () => ({
+  logRejectedPromises: vi.fn(),
 }));
 
 describe('releasePackages', () => {
@@ -178,8 +178,8 @@ describe('releasePackages', () => {
 
     await releasePackages({ onError });
 
-    expect(vi.mocked(handleReleasePackagesErrors))
-      .toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError);
+    expect(vi.mocked(logRejectedPromises))
+      .toHaveBeenCalledExactlyOnceWith(releasePackagesResult, onError, 'A package release failed.');
   });
 
   it('should not handle errors if the user opted out of error handling', async () => {
@@ -193,6 +193,6 @@ describe('releasePackages', () => {
 
     await releasePackages({ onError: null });
 
-    expect(vi.mocked(handleReleasePackagesErrors)).not.toHaveBeenCalled();
+    expect(vi.mocked(logRejectedPromises)).not.toHaveBeenCalled();
   });
 });

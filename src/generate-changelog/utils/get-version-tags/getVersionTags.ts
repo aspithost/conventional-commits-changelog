@@ -1,16 +1,8 @@
+import { getSortedTags } from './get-sorted-tags/getSortedTags.js';
+import { getSymbolicRef } from './get-symbolic-ref/getSymbolicRef.js';
 
-import { getSortedTags } from './git/getSortedTags.js';
-import { getSymbolicRef } from './git/getSymbolicRef.js';
-
-// to-do: review if used
 interface GetVersionTagsOptions {
-  /**
-   * Current working directory.
-   */
   cwd: string;
-  /**
-   * Symbolic ref that points to the default remote branch.
-   */
   remoteSymbolicRef: string;
 }
 

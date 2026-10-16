@@ -2,25 +2,28 @@ import { logError } from '../utils/error/logError.js';
 
 import { generateChangelog } from './generateChangelog.js';
 import type { TagEntry } from './generateChangelog.js';
-import { generateChangelogVersioned } from './utils/generateChangelogVersioned.js';
-import { getVersionTags } from './utils/getVersionTags.js';
-import { getTagDate } from './utils/git/getTagDate.js';
-import { handleGenerateChangelogErrors } from './utils/handleGenerateChangelogErrors.js';
+import {
+  generateChangelogVersioned,
+} from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
+import { getTagDate } from './utils/get-tag-date/getTagDate.js';
+import { getVersionTags } from './utils/get-version-tags/getVersionTags.js';
+
+import { logRejectedPromises } from '@/utils/log-rejected-promises/logRejectedPromises.js';
 
 vi.mock('../utils/error/logError.js', () => ({
   logError: vi.fn(),
 }));
-vi.mock('./utils/generateChangelogVersioned.js', () => ({
+vi.mock('./utils/generate-changelog-versioned/generateChangelogVersioned.js', () => ({
   generateChangelogVersioned: vi.fn(() => VERSIONED_RESULTS),
 }));
-vi.mock('./utils/git/getTagDate.js', () => ({
+vi.mock('./utils/get-tag-date/getTagDate.js', () => ({
   getTagDate: vi.fn((tag: string, _) => `date-${tag}`),
 }));
-vi.mock('./utils/getVersionTags.js', () => ({
+vi.mock('./utils/get-version-tags/getVersionTags.js', () => ({
   getVersionTags: vi.fn(() => TAGS),
 }));
-vi.mock('./utils/handleGenerateChangelogErrors.js', () => ({
-  handleGenerateChangelogErrors: vi.fn(),
+vi.mock('../utils/log-rejected-promises/logRejectedPromises.js', () => ({
+  logRejectedPromises: vi.fn(),
 }));
 
 const DIRECTORY_PATH = '/repo';
@@ -73,7 +76,7 @@ describe('generateChangelog', () => {
     });
     expect(getTagDate).not.toHaveBeenCalled();
     expect(generateChangelogVersioned).not.toHaveBeenCalled();
-    expect(handleGenerateChangelogErrors).not.toHaveBeenCalled();
+    expect(logRejectedPromises).not.toHaveBeenCalled();
   });
 
   it(
@@ -108,9 +111,10 @@ describe('generateChangelog', () => {
           onError,
         },
       );
-      expect(handleGenerateChangelogErrors).toHaveBeenCalledExactlyOnceWith(
+      expect(logRejectedPromises).toHaveBeenCalledExactlyOnceWith(
         VERSIONED_RESULTS,
         onError,
+        'A changelog generation failed.',
       );
     },
   );
@@ -122,7 +126,7 @@ describe('generateChangelog', () => {
     });
 
     expect(generateChangelogVersioned).not.toHaveBeenCalled();
-    expect(handleGenerateChangelogErrors).not.toHaveBeenCalled();
+    expect(logRejectedPromises).not.toHaveBeenCalled();
   });
 
   it(
@@ -134,9 +138,10 @@ describe('generateChangelog', () => {
         TAG_ENTRIES,
         expect.objectContaining({ onError: logError }),
       );
-      expect(handleGenerateChangelogErrors).toHaveBeenCalledExactlyOnceWith(
+      expect(logRejectedPromises).toHaveBeenCalledExactlyOnceWith(
         VERSIONED_RESULTS,
         logError,
+        'A changelog generation failed.',
       );
     },
   );
@@ -151,6 +156,6 @@ describe('generateChangelog', () => {
       TAG_ENTRIES,
       expect.objectContaining({ onError: null }),
     );
-    expect(handleGenerateChangelogErrors).not.toHaveBeenCalled();
+    expect(logRejectedPromises).not.toHaveBeenCalled();
   });
 });

@@ -1,9 +1,9 @@
+import { getSortedTags } from './get-sorted-tags/getSortedTags.js';
+import { getSymbolicRef } from './get-symbolic-ref/getSymbolicRef.js';
 import { getVersionTags } from './getVersionTags.js';
-import { getSortedTags } from './git/getSortedTags.js';
-import { getSymbolicRef } from './git/getSymbolicRef.js';
 
-vi.mock('./git/getSortedTags.js');
-vi.mock('./git/getSymbolicRef.js');
+vi.mock('./get-sorted-tags/getSortedTags.js');
+vi.mock('./get-symbolic-ref/getSymbolicRef.js');
 
 describe('getVersionTags', () => {
   it('should retrieve git version tags', () => {

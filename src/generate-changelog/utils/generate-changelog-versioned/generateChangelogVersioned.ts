@@ -1,12 +1,10 @@
-import type { TagEntry } from '../generateChangelog.js';
-import type { GenerateChangelogOptions } from '../types/generateChangelog.js';
-
+import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
+import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
+import type { TagEntry } from '../../generateChangelog.js';
+import type { GenerateChangelogOptions } from '../../types/generateChangelog.js';
 import {
   getReleaseTypeBetweenTags, parseSemverVersion,
-} from './version/version.js';
-
-import { retrieveValidatedCommits } from '@/commits/retrieveValidatedCommits.js';
-import { createChangelogWriter } from '@/write-changelog/utils/createChangelogWriter.js';
+} from '../version/version.js';
 
 export async function generateChangelogVersioned(
   tagEntries: TagEntry[],
@@ -49,5 +47,6 @@ export async function generateChangelogVersioned(
       { date },
     ));
   }
+
   return Promise.allSettled(changelogWriterPromises);
 }

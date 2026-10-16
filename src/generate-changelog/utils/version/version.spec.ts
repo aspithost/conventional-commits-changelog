@@ -1,11 +1,11 @@
 import { getReleaseTypeBetweenTags, parseSemverVersion } from './version.js';
 
 describe('parseSemverVersion', () => {
-  it('should strip the v prefix', () => {
+  it('should strip the v prefix from the version', () => {
     expect(parseSemverVersion('v1.2.3')).toBe('1.2.3');
   });
 
-  it('should keep a version without prefix', () => {
+  it('should return the version without a prefix', () => {
     expect(parseSemverVersion('1.2.3')).toBe('1.2.3');
   });
 });
@@ -13,36 +13,39 @@ describe('parseSemverVersion', () => {
 describe('getReleaseTypeBetweenTags', () => {
   it.each([
     [
+      'major',
+      'v1.5.3',
       'v2.0.0',
-      'v1.5.3',
-      'major',
     ],
     [
+      'minor',
+      'v1.5.3',
       'v1.6.0',
-      'v1.5.3',
-      'minor',
     ],
     [
+      'patch',
+      'v1.5.3',
       'v1.5.4',
-      'v1.5.3',
-      'patch',
     ],
     [
-      'v1.0.0',
-      undefined,
       'major',
+      undefined,
+      'v1.0.0',
     ],
     [
-      'v0.1.0',
-      undefined,
       'minor',
+      undefined,
+      'v0.1.0',
     ],
     [
-      'v0.0.1',
-      undefined,
       'patch',
+      undefined,
+      'v0.0.1',
     ],
-  ] as const)('should return the type for %s after %s', (tag, previousTag, expected) => {
-    expect(getReleaseTypeBetweenTags(tag, previousTag)).toBe(expected);
-  });
+  ] as const)(
+    'should return the expected %s type for updates from version %s to version %s',
+    (expected, previousTag, newTag) => {
+      expect(getReleaseTypeBetweenTags(newTag, previousTag)).toBe(expected);
+    },
+  );
 });

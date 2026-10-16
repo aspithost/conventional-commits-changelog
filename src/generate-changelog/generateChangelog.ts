@@ -1,17 +1,19 @@
 import { logError } from '../utils/error/logError.js';
+import { logRejectedPromises } from '../utils/log-rejected-promises/logRejectedPromises.js';
 
 import type { GenerateChangelogOptions } from './types/generateChangelog.js';
-import { generateChangelogVersioned } from './utils/generateChangelogVersioned.js';
-import { getVersionTags } from './utils/getVersionTags.js';
-import { getTagDate } from './utils/git/getTagDate.js';
-import { handleGenerateChangelogErrors } from './utils/handleGenerateChangelogErrors.js';
+import {
+  generateChangelogVersioned,
+}from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
+import { getTagDate } from './utils/get-tag-date/getTagDate.js';
+import { getVersionTags } from './utils/get-version-tags/getVersionTags.js';
 
 const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 
 export interface TagEntry {
-  tag: string;
-  previousTag?: string;
   date: string;
+  previousTag?: string;
+  tag: string;
 }
 
 /**
@@ -80,9 +82,10 @@ export async function generateChangelog({
   );
 
   if (onError) {
-    handleGenerateChangelogErrors(
+    logRejectedPromises(
       generateChangelogVersionedResults,
       onError,
+      'A changelog generation failed.',
     );
   }
 }
