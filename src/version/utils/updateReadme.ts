@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { OnError } from '@/utils/error/types/error.js';
+import type { OnError } from '../../utils/error/types/error.js';
 
 export function updateReadme(
   directoryPath: string,

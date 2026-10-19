@@ -1,7 +1,6 @@
 import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
+import type { OnError } from '../../utils/error/types/error.js';
 import type { ChangelogWriterOptions } from '../../write-changelog/ChangelogWriter.js';
-
-import type { OnError } from '@/utils/error/types/error.js';
 
 /**
  * Options for `generateChangelog`.

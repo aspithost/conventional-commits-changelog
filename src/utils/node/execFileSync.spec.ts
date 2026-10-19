@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { _execFileSync } from './execFileSync.js';
 
 vi.mock('node:child_process', () => ({
-  execFileSync: vi.fn(),
+  execFileSync: vi.fn(() => ''),
 }));
 
 describe('_execFileSync', () => {

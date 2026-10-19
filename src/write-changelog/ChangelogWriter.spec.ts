@@ -3,27 +3,29 @@ import { join } from 'node:path';
 
 import { writeChangelog } from 'conventional-changelog-writer';
 
-import { ChangelogWriter } from './ChangelogWriter.js';
+import { ChangelogWriter, type ChangelogWriterPreset } from './ChangelogWriter.js';
 
 import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
-import { createWriterPreset } from '@/write-changelog/presets/createWriterPreset.js';
-import { getFormattedDate } from '@/write-changelog/utils/getFormattedDate.js';
 
 vi.mock('node:fs', () => ({
-  readFileSync: vi.fn(),
+  readFileSync: vi.fn(() => ''),
   writeFileSync: vi.fn(),
 }));
 
 vi.mock('conventional-changelog-writer', () => ({
-  writeChangelog: vi.fn(),
+  writeChangelog: vi.fn(() => () => createChangelogChunks([
+    '## 1.0.0\n\n',
+    '### Features\n\n',
+    '* add feature\n',
+  ])),
 }));
 
 vi.mock('./presets/createWriterPreset', () => ({
-  createWriterPreset: vi.fn(),
+  createWriterPreset: vi.fn(() => MOCK_WRITER_PRESET),
 }));
 
 vi.mock('./utils/getFormattedDate', () => ({
-  getFormattedDate: vi.fn(),
+  getFormattedDate: vi.fn(() => '2024-01-15'),
 }));
 
 type ValidatedCommits = Iterable<ValidatedCommit<string, string>>;
@@ -56,25 +58,13 @@ const MOCK_WRITER_PRESET = {
   headerPartial: '',
   commitPartial: '',
   footerPartial: '',
-};
+} as unknown as ChangelogWriterPreset;
 const DIRECTORY_PATH = '/path/to/package';
 const CHANGELOG_PATH = join(DIRECTORY_PATH, 'CHANGELOG.md');
 
 describe('ChangelogWriter', () => {
   beforeAll(() => {
     console.error = vi.fn();
-  });
-
-  beforeEach(() => {
-    vi.mocked(createWriterPreset).mockReturnValue(MOCK_WRITER_PRESET as never);
-    vi.mocked(getFormattedDate).mockReturnValue('2024-01-15');
-    vi.mocked(readFileSync).mockReturnValue('');
-    vi.mocked(writeChangelog)
-      .mockReturnValue(() => createChangelogChunks([
-        '## 1.0.0\n\n',
-        '### Features\n\n',
-        '* add feature\n',
-      ]) as never);
   });
 
   describe('factory methods', () => {
@@ -169,7 +159,7 @@ describe('ChangelogWriter', () => {
       'should re-throw errors if the writeChangelog operation from fails',
       async () => {
         const someError = new Error('Some error');
-        vi.mocked(writeChangelog).mockImplementation(() => {
+        vi.mocked(writeChangelog).mockImplementationOnce(() => {
           throw someError;
         });
         const writer = ChangelogWriter.withDefaultPreset();
@@ -189,7 +179,7 @@ describe('ChangelogWriter', () => {
   describe('changelog content insertion', () => {
     it('should create new changelog when file is empty', async () => {
       vi.mocked(writeChangelog)
-        .mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
+        .mockReturnValueOnce(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
@@ -203,9 +193,9 @@ describe('ChangelogWriter', () => {
     });
 
     it('should append entry after header when no versions exist', async () => {
-      vi.mocked(readFileSync).mockReturnValue('# Changelog\n\nAll notable changes.\n');
+      vi.mocked(readFileSync).mockReturnValueOnce('# Changelog\n\nAll notable changes.\n');
       vi.mocked(writeChangelog)
-        .mockReturnValue(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
+        .mockReturnValueOnce(() => createChangelogChunks(['## 1.0.0\n\n* feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
@@ -219,9 +209,9 @@ describe('ChangelogWriter', () => {
     });
 
     it('should insert entry before existing versions', async () => {
-      vi.mocked(readFileSync).mockReturnValue('# Changelog\n\n## 1.0.0\n\n* old feature\n');
+      vi.mocked(readFileSync).mockReturnValueOnce('# Changelog\n\n## 1.0.0\n\n* old feature\n');
       vi.mocked(writeChangelog)
-        .mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new feature\n']) as never);
+        .mockReturnValueOnce(() => createChangelogChunks(['## 2.0.0\n\n* new feature\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
@@ -236,9 +226,9 @@ describe('ChangelogWriter', () => {
 
     it('should handle multiple existing versions', async () => {
       vi.mocked(readFileSync)
-        .mockReturnValue('# Changelog\n\n## 2.0.0\n\n* v2\n\n## 1.0.0\n\n* v1\n');
+        .mockReturnValueOnce('# Changelog\n\n## 2.0.0\n\n* v2\n\n## 1.0.0\n\n* v1\n');
       vi.mocked(writeChangelog)
-        .mockReturnValue(() => createChangelogChunks(['## 3.0.0\n\n* v3\n']) as never);
+        .mockReturnValueOnce(() => createChangelogChunks(['## 3.0.0\n\n* v3\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
@@ -252,9 +242,9 @@ describe('ChangelogWriter', () => {
     });
 
     it('should handle changelog with trailing whitespace', async () => {
-      vi.mocked(readFileSync).mockReturnValue('# Changelog\n\n## 1.0.0\n\n* feature\n\n\n');
+      vi.mocked(readFileSync).mockReturnValueOnce('# Changelog\n\n## 1.0.0\n\n* feature\n\n\n');
       vi.mocked(writeChangelog)
-        .mockReturnValue(() => createChangelogChunks(['## 2.0.0\n\n* new\n']) as never);
+        .mockReturnValueOnce(() => createChangelogChunks(['## 2.0.0\n\n* new\n']) as never);
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
       const writer = ChangelogWriter.withDefaultPreset();
 
@@ -271,7 +261,7 @@ describe('ChangelogWriter', () => {
   describe('error handling', () => {
     it('should throw when the changelog file cannot be read', async () => {
       const err = new Error('ENOENT: no such file or directory');
-      vi.mocked(readFileSync).mockImplementation(() => {
+      vi.mocked(readFileSync).mockImplementationOnce(() => {
         throw err;
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);
@@ -283,7 +273,7 @@ describe('ChangelogWriter', () => {
 
     it('should throw when changelog file cannot be written', async () => {
       const err = new Error('EACCES: permission denied');
-      vi.mocked(writeFileSync).mockImplementation(() => {
+      vi.mocked(writeFileSync).mockImplementationOnce(() => {
         throw err;
       });
       const commits = createValidatedCommits([BASE_VALIDATED_COMMIT]);

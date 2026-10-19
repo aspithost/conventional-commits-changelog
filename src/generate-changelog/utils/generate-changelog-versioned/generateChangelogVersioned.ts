@@ -16,37 +16,43 @@ export async function generateChangelogVersioned(
     directoryPath,
     onError,
   }: GenerateChangelogOptions<string, string> & { directoryPath: string },
-): Promise<PromiseSettledResult<void>[]> {
+) {
   const changelogWriter = createChangelogWriter(changelogWriterOptions);
 
-  const changelogWriterPromises: Promise<void>[] = [];
+  await tagEntries.reduce<Promise<void>>(
+    async (previousChangelogEntry, {
+      date,
+      previousVersion,
+      targetVersion,
+    }) => {
+      await previousChangelogEntry;
 
-  for (const {
-    tag, previousTag, date,
-  } of tagEntries) {
-    const commits = [
-      ...retrieveValidatedCommits({
-        commitsParserOptions,
-        commitsRetrieverOptions: {
-          ...commitsRetrieverOptions,
-          cwd: directoryPath,
-          from: previousTag ?? null,
-          to: tag,
-          onError,
-        },
-        commitsValidatorOptions,
-        onError,
-      }),
-    ];
-
-    changelogWriterPromises.push(changelogWriter.writeChangelog(
-      directoryPath,
-      parseSemverVersion(tag),
-      getReleaseTypeBetweenTags(tag, previousTag),
-      commits,
-      { date },
-    ));
-  }
-
-  return Promise.allSettled(changelogWriterPromises);
+      try {
+        await changelogWriter.writeChangelog(
+          directoryPath,
+          parseSemverVersion(targetVersion),
+          getReleaseTypeBetweenTags(targetVersion, previousVersion),
+          retrieveValidatedCommits({
+            commitsParserOptions,
+            commitsRetrieverOptions: {
+              ...commitsRetrieverOptions,
+              cwd: directoryPath,
+              from: previousVersion ?? null,
+              to: targetVersion,
+              onError,
+            },
+            commitsValidatorOptions,
+            onError,
+          }),
+          { date },
+        );
+      } catch (err) {
+        onError?.(
+          `Failed to generate changelog entry for version ${targetVersion}`,
+          { cause: err },
+        );
+      }
+    },
+    Promise.resolve(),
+  );
 }

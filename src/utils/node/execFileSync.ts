@@ -18,5 +18,5 @@ export function _execFileSync(
     cwd,
     encoding,
     maxBuffer,
-  });
+  }).trim();
 }

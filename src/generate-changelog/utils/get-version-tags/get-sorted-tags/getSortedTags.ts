@@ -1,6 +1,6 @@
 import { _execFileSync } from '../../../../utils/node/execFileSync.js';
 
-const VERSION_TAG_PATTERN = /^v?\d+\.\d+\.\d+$/;
+const VERSION_TAG_PATTERN = /^(?:v|.+@)?\d+\.\d+\.\d+$/;
 
 export function getSortedTags(
   branch: string,
@@ -14,7 +14,7 @@ export function getSortedTags(
         '--list',
         '--merged',
         branch,
-        '--sort=v:refname',
+        '--sort=-v:refname',
       ],
       cwd,
     )

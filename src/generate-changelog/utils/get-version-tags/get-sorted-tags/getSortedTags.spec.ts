@@ -11,13 +11,13 @@ describe('getSortedTags', () => {
     const BRANCH = 'main';
     const CWD = '/repo';
     vi.mocked(_execFileSync).mockReturnValueOnce(
-      'v1.0.0\nnightly\n1.1.0\nv2.0.0-beta.1\nv1.2.0\n',
+      'v2.0.0-beta.1\nv1.2.0\n1.1.0\nv1.0.0\nnightly\n',
     );
 
     expect(getSortedTags(BRANCH, CWD)).toEqual([
-      'v1.0.0',
-      '1.1.0',
       'v1.2.0',
+      '1.1.0',
+      'v1.0.0',
     ]);
 
     expect(_execFileSync).toHaveBeenCalledExactlyOnceWith(
@@ -27,7 +27,7 @@ describe('getSortedTags', () => {
         '--list',
         '--merged',
         BRANCH,
-        '--sort=v:refname',
+        '--sort=-v:refname',
       ],
       CWD,
     );

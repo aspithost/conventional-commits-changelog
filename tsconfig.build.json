@@ -4,5 +4,6 @@
     "noEmitOnError": true,
     "types": ["node"]
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts"]
 }

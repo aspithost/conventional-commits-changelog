@@ -1,5 +1,4 @@
 import { logError } from '../utils/error/logError.js';
-import { logRejectedPromises } from '../utils/log-rejected-promises/logRejectedPromises.js';
 
 import type { GenerateChangelogOptions } from './types/generateChangelog.js';
 import {
@@ -12,8 +11,8 @@ const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 
 export interface TagEntry {
   date: string;
-  previousTag?: string;
-  tag: string;
+  previousVersion?: string;
+  targetVersion: string;
 }
 
 /**
@@ -56,20 +55,20 @@ export async function generateChangelog({
     throw new Error('Did not find valid semantic version tags.');
   }
 
-  const tagEntries: TagEntry[] = tags.map((tag, index) => ({
-    tag,
-    previousTag: index === 0 ? undefined : tags[index - 1],
-    date: getTagDate(tag, directoryPath),
+  const tagEntries: TagEntry[] = tags.map((targetVersion, index) => ({
+    targetVersion,
+    previousVersion: index === tags.length - 1 ? undefined : tags[index + 1],
+    date: getTagDate(targetVersion, directoryPath),
   }));
 
   if (isDryRun) {
-    for (const { tag, date } of tagEntries) {
-      console.log(`[dry-run] Would write changelog entry for ${tag} (${date}).`);
+    for (const { targetVersion, date } of tagEntries) {
+      console.log(`[dry-run] Would write changelog entry for version v${targetVersion} (${date}).`);
     }
     return;
   }
 
-  const generateChangelogVersionedResults = await generateChangelogVersioned(
+  await generateChangelogVersioned(
     tagEntries,
     {
       changelogWriterOptions,
@@ -80,12 +79,4 @@ export async function generateChangelog({
       onError,
     },
   );
-
-  if (onError) {
-    logRejectedPromises(
-      generateChangelogVersionedResults,
-      onError,
-      'A changelog generation failed.',
-    );
-  }
 }
