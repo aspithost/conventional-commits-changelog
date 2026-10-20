@@ -1,30 +1,20 @@
-import { getReleaseTypeBetweenTags, parseSemverVersion } from './version.js';
-
-describe('parseSemverVersion', () => {
-  it('should strip the v prefix from the version', () => {
-    expect(parseSemverVersion('v1.2.3')).toBe('1.2.3');
-  });
-
-  it('should return the version without a prefix', () => {
-    expect(parseSemverVersion('1.2.3')).toBe('1.2.3');
-  });
-});
+import { getReleaseTypeBetweenTags } from './getReleaseTypeBetweenTags.js';
 
 describe('getReleaseTypeBetweenTags', () => {
   it.each([
     [
       'major',
-      'v1.5.3',
+      '@abelspithost/commitlint@1.5.3',
       'v2.0.0',
     ],
     [
       'minor',
-      'v1.5.3',
+      '@abelspithost/commitlint@1.5.3',
       'v1.6.0',
     ],
     [
       'patch',
-      'v1.5.3',
+      '1.5.3',
       'v1.5.4',
     ],
     [
@@ -48,4 +38,19 @@ describe('getReleaseTypeBetweenTags', () => {
       expect(getReleaseTypeBetweenTags(newTag, previousTag)).toBe(expected);
     },
   );
+
+  it.each([
+    [
+      'patch',
+      'v1.1.1',
+      'v2',
+    ],
+    [
+      'minor',
+      'v1',
+      'v0.1.1',
+    ],
+  ])('should handle invalid types properly', (expected, previousTag, newTag) => {
+    expect(getReleaseTypeBetweenTags(newTag, previousTag)).toBe(expected);
+  });
 });

@@ -1,4 +1,4 @@
-import { _execFileSync } from '../../../utils/node/execFileSync.js';
+import { _execFileSync } from '../../../../utils/node/execFileSync.js';
 
 export function getTagDate(
   tag: string,

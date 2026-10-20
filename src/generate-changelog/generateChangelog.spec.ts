@@ -1,57 +1,44 @@
 import { generateChangelog } from './generateChangelog.js';
-import type { TagEntry } from './generateChangelog.js';
 import {
   generateChangelogVersioned,
 } from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
-import { getTagDate } from './utils/get-tag-date/getTagDate.js';
-import { getVersionTags } from './utils/get-version-tags/getVersionTags.js';
+import { type TagEntry, formatTagEntries } from './utils/tags/formatTagEntries.js';
+import { getVersionTags } from './utils/tags/getVersionTags.js';
+
+const TAGS = vi.hoisted(() => [
+  'v0.0.1',
+  'v0.1.0',
+  'v1.0.0',
+]);
+const FORMATTED_TAG_ENTRIES: TagEntry[] = vi.hoisted(() => [
+  {
+    tagCurrent: 'v0.0.1',
+    tagPrevious: undefined,
+    date: 'date-v0.0.1',
+  },
+  {
+    tagCurrent: 'v0.1.0',
+    tagPrevious: 'v0.0.1',
+    date: 'date-v0.1.0',
+  },
+  {
+    tagCurrent: 'v1.0.0',
+    tagPrevious: 'v0.1.0',
+    date: 'date-v1.0.0',
+  },
+]);
 
 vi.mock('./utils/generate-changelog-versioned/generateChangelogVersioned.js', () => ({
-  generateChangelogVersioned: vi.fn(() => VERSIONED_RESULTS),
+  generateChangelogVersioned: vi.fn(),
 }));
-vi.mock('./utils/get-tag-date/getTagDate.js', () => ({
-  getTagDate: vi.fn((tag: string, _) => `date-${tag}`),
+vi.mock('./utils/tags/formatTagEntries.js', () => ({
+  formatTagEntries: vi.fn(() => FORMATTED_TAG_ENTRIES),
 }));
-vi.mock('./utils/get-version-tags/getVersionTags.js', () => ({
+vi.mock('./utils/tags/getVersionTags.js', () => ({
   getVersionTags: vi.fn(() => TAGS),
 }));
 
 const DIRECTORY_PATH = '/repo';
-const TAGS = vi.hoisted(() => [
-  'v1.0.0',
-  'v0.1.0',
-  'v0.0.1',
-]);
-const TAG_ENTRIES: TagEntry[] = [
-  {
-    targetVersion: 'v1.0.0',
-    previousVersion: 'v0.1.0',
-    date: 'date-v1.0.0',
-  },
-  {
-    previousVersion: 'v0.0.1',
-    targetVersion: 'v0.1.0',
-    date: 'date-v0.1.0',
-  },
-  {
-    targetVersion: 'v0.0.1',
-    date: 'date-v0.0.1',
-  },
-];
-const VERSIONED_RESULTS: PromiseSettledResult<void>[] = vi.hoisted(() => [
-  {
-    status: 'fulfilled',
-    value: undefined,
-  },
-  {
-    status: 'fulfilled',
-    value: undefined,
-  },
-  {
-    status: 'fulfilled',
-    value: undefined,
-  },
-]);
 
 describe('generateChangelog', () => {
   it('should find tags on the default remote branch and throw when none exist', async () => {
@@ -64,7 +51,6 @@ describe('generateChangelog', () => {
       cwd: DIRECTORY_PATH,
       remoteSymbolicRef: 'refs/remotes/origin/HEAD',
     });
-    expect(getTagDate).not.toHaveBeenCalled();
     expect(generateChangelogVersioned).not.toHaveBeenCalled();
   });
 
@@ -86,23 +72,13 @@ describe('generateChangelog', () => {
         onError,
       });
 
-      expect(vi.mocked(getTagDate)).toHaveBeenNthCalledWith(
-        1,
-        TAG_ENTRIES[0].targetVersion,
-        DIRECTORY_PATH,
-      );
-      expect(vi.mocked(getTagDate)).toHaveBeenNthCalledWith(
-        2,
-        TAG_ENTRIES[1].targetVersion,
-        DIRECTORY_PATH,
-      );
-      expect(vi.mocked(getTagDate)).toHaveBeenNthCalledWith(
-        3,
-        TAG_ENTRIES[2].targetVersion,
-        DIRECTORY_PATH,
-      );
+      expect(getVersionTags).toHaveBeenCalledExactlyOnceWith({
+        cwd: DIRECTORY_PATH,
+        remoteSymbolicRef: 'refs/remotes/upstream/HEAD',
+      });
+      expect(formatTagEntries).toHaveBeenCalledExactlyOnceWith(DIRECTORY_PATH, TAGS);
       expect(generateChangelogVersioned).toHaveBeenCalledExactlyOnceWith(
-        TAG_ENTRIES,
+        FORMATTED_TAG_ENTRIES,
         {
           changelogWriterOptions,
           commitsParserOptions,
@@ -115,13 +91,29 @@ describe('generateChangelog', () => {
     },
   );
 
-  it('should not generate changelog entries when the user performs a dry run', async () => {
-    console.log = vi.fn();
+  it('should log the parsed version and date for each dry-run tag', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
     await generateChangelog({
       directoryPath: DIRECTORY_PATH,
       isDryRun: true,
     });
 
+    expect(logSpy).toHaveBeenCalledTimes(FORMATTED_TAG_ENTRIES.length);
+    expect(logSpy).toHaveBeenNthCalledWith(
+      1,
+      '[dry-run] Would write changelog entry for tag 0.0.1 (date-v0.0.1).',
+    );
+    expect(logSpy).toHaveBeenNthCalledWith(
+      2,
+      '[dry-run] Would write changelog entry for tag 0.1.0 (date-v0.1.0).',
+    );
+    expect(logSpy).toHaveBeenNthCalledWith(
+      3,
+      '[dry-run] Would write changelog entry for tag 1.0.0 (date-v1.0.0).',
+    );
     expect(generateChangelogVersioned).not.toHaveBeenCalled();
+
+    logSpy.mockRestore();
   });
 });

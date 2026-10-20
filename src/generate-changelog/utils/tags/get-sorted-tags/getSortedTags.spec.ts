@@ -1,8 +1,8 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
-
 import { getSortedTags } from './getSortedTags.js';
 
-vi.mock('../../../../utils/node/execFileSync.js', () => ({
+import { _execFileSync } from '@/utils/node/execFileSync.js';
+
+vi.mock('@/utils/node/execFileSync.js', () => ({
   _execFileSync: vi.fn(),
 }));
 
@@ -11,13 +11,13 @@ describe('getSortedTags', () => {
     const BRANCH = 'main';
     const CWD = '/repo';
     vi.mocked(_execFileSync).mockReturnValueOnce(
-      'v2.0.0-beta.1\nv1.2.0\n1.1.0\nv1.0.0\nnightly\n',
+      'nightly\nv1.0.0\n1.1.0\nv1.2.0\nv2.0.0-beta.1\n',
     );
 
     expect(getSortedTags(BRANCH, CWD)).toEqual([
-      'v1.2.0',
-      '1.1.0',
       'v1.0.0',
+      '1.1.0',
+      'v1.2.0',
     ]);
 
     expect(_execFileSync).toHaveBeenCalledExactlyOnceWith(
@@ -27,7 +27,7 @@ describe('getSortedTags', () => {
         '--list',
         '--merged',
         BRANCH,
-        '--sort=-v:refname',
+        '--sort=v:refname',
       ],
       CWD,
     );
