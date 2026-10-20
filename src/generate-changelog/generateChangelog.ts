@@ -52,7 +52,6 @@ export async function generateChangelog({
     throw new Error('Did not find valid semantic version tags.');
   }
 
-  // to-do: formatTagEntries util
   const tagEntries: TagEntry[] = formatTagEntries(directoryPath, tags);
 
   if (isDryRun) {
