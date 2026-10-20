@@ -1,5 +1,6 @@
 import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
+import type { TagEntry } from '../tags/formatTagEntries.js';
 import {
   getReleaseTypeBetweenTags,
 } from '../tags/get-release-type-between-tags/getReleaseTypeBetweenTags.js';
@@ -10,7 +11,6 @@ import {
 import { generateChangelogVersioned } from './generateChangelogVersioned.js';
 
 import type { CommitsRetrieverOptions } from '@/commits/retrieve-commits/CommitsRetriever.js';
-import type { TagEntry } from '@/generate-changelog/generateChangelog.js';
 
 const COMMITS = vi.hoisted(() => [
   { commit: 'one' },
@@ -36,15 +36,15 @@ vi.mock('../tags/parse-semver-version-from-tag/parseSemverVersionFromTag.js', ()
 
 describe('generateChangelogVersioned', () => {
   const DIRECTORY_PATH = 'some-path';
-  const TAG_ENTRY_ONE = {
+  const TAG_ENTRY_ONE: TagEntry = {
     date: '2024-06-07',
     tagPrevious: 'v0.1.0',
     tagCurrent: 'v0.1.1',
-  } satisfies TagEntry;
-  const TAG_ENTRY_TWO = {
+  };
+  const TAG_ENTRY_TWO: TagEntry = {
     date: '2024-06-06',
     tagCurrent: 'v0.1.0',
-  } satisfies TagEntry;
+  };
   const onError = vi.fn();
 
   describe('happy flow', () => {
