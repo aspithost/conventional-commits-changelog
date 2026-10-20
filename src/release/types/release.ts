@@ -1,10 +1,9 @@
 import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
 import type { DefaultAllowedTypes } from '../../commits/types/commit.js';
 import type { ValidatedCommit } from '../../commits/validate-commits/types/commit.js';
+import type { OnError } from '../../utils/error/types/error.js';
 import type { BumpVersionOptions } from '../../version/bumpVersion.js';
 import type { ChangelogWriterOptions } from '../../write-changelog/ChangelogWriter.js';
-
-import type { OnError } from '@/utils/error/types/error.js';
 
 /** Semantic version increment: `major`, `minor`, or `patch`. */
 export type ReleaseType = 'major' | 'minor' | 'patch';

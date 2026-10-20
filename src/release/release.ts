@@ -3,13 +3,13 @@ import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js
 import type { DefaultAllowedTypes } from '../commits/types/commit.js';
 import { logError } from '../utils/error/logError.js';
 import { bumpVersion } from '../version/bumpVersion.js';
+import { createChangelogWriter } from '../write-changelog/utils/createChangelogWriter.js';
 
 import type {
   ReleaseOptions,
   ReleaseOptionsWithCommits,
   ReleaseOptionsWithoutCommits,
 } from './types/release.js';
-import { createChangelogWriter } from './utils/createChangelogWriter.js';
 import { determineReleaseType } from './utils/determineReleaseType.js';
 
 /**

@@ -1,9 +1,8 @@
 import type { ReleaseType } from '../release/types/release.js';
+import type { OnError } from '../utils/error/types/error.js';
 
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { updateReadme } from './utils/updateReadme.js';
-
-import type { OnError } from '@/utils/error/types/error.js';
 
 export interface BumpVersionOptions extends OnError {
   /**

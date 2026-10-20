@@ -2,11 +2,11 @@ import { CommitsGrouper } from '../commits/group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../read-directories/DirectoriesReader.js';
 import { logError } from '../utils/error/logError.js';
+import { logRejectedPromises } from '../utils/log-rejected-promises/logRejectedPromises.js';
 
 import type { ReleasePackagesOptions } from './types/releasePackages.js';
 import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
 import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
-import { handleReleasePackagesErrors } from './utils/handleReleaseErrors.js';
 import { releaseByScope } from './utils/releaseByScope.js';
 
 /**
@@ -88,6 +88,6 @@ export async function releasePackages<T extends string>({
   );
 
   if (onError) {
-    handleReleasePackagesErrors(releasePackagesResults, onError);
+    logRejectedPromises(releasePackagesResults, onError, 'A package release failed.');
   }
 }

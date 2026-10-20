@@ -1,7 +1,6 @@
 import type { ErrorHandler } from '../../utils/error/logError.js';
 import type { OnError } from '../../utils/error/types/error.js';
-
-import { _execFileSync } from '@/utils/node/execFileSync.js';
+import { _execFileSync } from '../../utils/node/execFileSync.js';
 
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
 const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';

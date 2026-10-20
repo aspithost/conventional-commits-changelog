@@ -12,7 +12,7 @@ import type { ReleaseType } from '../release/types/release.js';
 import { createWriterPreset } from './presets/createWriterPreset.js';
 import { getFormattedDate } from './utils/getFormattedDate.js';
 
-export type { Options as ChangelogWriterPreset } from 'conventional-changelog-writer';
+export type { FinalOptions as ChangelogWriterPreset } from 'conventional-changelog-writer';
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
 
