@@ -1,10 +1,13 @@
 import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
-import type { TagEntry } from '../../generateChangelog.js';
 import type { GenerateChangelogOptions } from '../../types/generateChangelog.js';
+import type { TagEntry } from '../tags/formatTagEntries.js';
 import {
-  getReleaseTypeBetweenTags, parseSemverVersion,
-} from '../version/version.js';
+  getReleaseTypeBetweenTags,
+} from '../tags/get-release-type-between-tags/getReleaseTypeBetweenTags.js';
+import {
+  parseSemverVersionFromTag,
+} from '../tags/parse-semver-version-from-tag/parseSemverVersionFromTag.js';
 
 export async function generateChangelogVersioned(
   tagEntries: TagEntry[],
@@ -22,23 +25,29 @@ export async function generateChangelogVersioned(
   await tagEntries.reduce<Promise<void>>(
     async (previousChangelogEntry, {
       date,
-      previousVersion,
-      targetVersion,
+      tagPrevious,
+      tagCurrent,
     }) => {
       await previousChangelogEntry;
+
+      const versionCurrent = parseSemverVersionFromTag(tagCurrent);
+      const releaseType = getReleaseTypeBetweenTags(
+        versionCurrent,
+        tagPrevious ? parseSemverVersionFromTag(tagPrevious) : undefined,
+      );
 
       try {
         await changelogWriter.writeChangelog(
           directoryPath,
-          parseSemverVersion(targetVersion),
-          getReleaseTypeBetweenTags(targetVersion, previousVersion),
+          versionCurrent,
+          releaseType,
           retrieveValidatedCommits({
             commitsParserOptions,
             commitsRetrieverOptions: {
               ...commitsRetrieverOptions,
               cwd: directoryPath,
-              from: previousVersion ?? null,
-              to: targetVersion,
+              from: tagPrevious ?? null,
+              to: tagCurrent,
               onError,
             },
             commitsValidatorOptions,
@@ -48,7 +57,7 @@ export async function generateChangelogVersioned(
         );
       } catch (err) {
         onError?.(
-          `Failed to generate changelog entry for version ${targetVersion}`,
+          `Failed to generate changelog entry for version ${tagCurrent}`,
           { cause: err },
         );
       }

@@ -1,7 +1,8 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+import { _execFileSync } from '@/utils/node/execFileSync.js';
 
 const VERSION_TAG_PATTERN = /^(?:v|.+@)?\d+\.\d+\.\d+$/;
 
+// to-do: add note to documentation that this only supports sorting on whole ref name
 export function getSortedTags(
   branch: string,
   cwd: string,
@@ -14,12 +15,11 @@ export function getSortedTags(
         '--list',
         '--merged',
         branch,
-        '--sort=-v:refname',
+        '--sort=v:refname',
       ],
       cwd,
     )
       .split('\n')
-      .map(tag => tag.trim())
       .filter(tag => VERSION_TAG_PATTERN.test(tag));
   } catch (err) {
     throw new Error(`Could not retrieve sorted tags for branch: ${branch}`, { cause: err });

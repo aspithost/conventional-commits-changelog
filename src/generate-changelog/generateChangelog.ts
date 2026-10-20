@@ -4,16 +4,13 @@ import type { GenerateChangelogOptions } from './types/generateChangelog.js';
 import {
   generateChangelogVersioned,
 }from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
-import { getTagDate } from './utils/get-tag-date/getTagDate.js';
-import { getVersionTags } from './utils/get-version-tags/getVersionTags.js';
+import { type TagEntry, formatTagEntries } from './utils/tags/formatTagEntries.js';
+import { getVersionTags } from './utils/tags/getVersionTags.js';
+import {
+  parseSemverVersionFromTag,
+} from './utils/tags/parse-semver-version-from-tag/parseSemverVersionFromTag.js';
 
 const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
-
-export interface TagEntry {
-  date: string;
-  previousVersion?: string;
-  targetVersion: string;
-}
 
 /**
  * Generates a changelog from the full git history of a project that has no
@@ -55,15 +52,12 @@ export async function generateChangelog({
     throw new Error('Did not find valid semantic version tags.');
   }
 
-  const tagEntries: TagEntry[] = tags.map((targetVersion, index) => ({
-    targetVersion,
-    previousVersion: index === tags.length - 1 ? undefined : tags[index + 1],
-    date: getTagDate(targetVersion, directoryPath),
-  }));
+  const tagEntries: TagEntry[] = formatTagEntries(directoryPath, tags);
 
   if (isDryRun) {
-    for (const { targetVersion, date } of tagEntries) {
-      console.log(`[dry-run] Would write changelog entry for version v${targetVersion} (${date}).`);
+    for (const { tagCurrent, date } of tagEntries) {
+      const version = parseSemverVersionFromTag(tagCurrent);
+      console.log(`[dry-run] Would write changelog entry for tag ${version} (${date}).`);
     }
     return;
   }
