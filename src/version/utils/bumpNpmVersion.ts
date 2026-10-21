@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 
-import type { ReleaseType } from '../../release/types/release.js';
+import type { ReleaseType } from '../../release/release/types/release.js';
 
 export function bumpNpmVersion(
   directoryPath: string,

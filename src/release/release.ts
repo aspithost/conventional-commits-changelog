@@ -6,28 +6,24 @@ import { bumpVersion } from '../version/bumpVersion.js';
 import { createChangelogWriter } from '../write-changelog/utils/createChangelogWriter.js';
 
 import type {
-  ReleaseOptions,
-  ReleaseOptionsWithCommits,
-  ReleaseOptionsWithoutCommits,
-} from './types/release.js';
+  ReleaseOptions, ReleaseOptionsWithCommits, ReleaseOptionsWithoutCommits,
+} from './release/types/release.js';
 import { determineReleaseType } from './utils/determineReleaseType.js';
 
 /**
  * Releases a single package: retrieves and validates the commits since the latest tag,
  * determines the release type, bumps the version in `package.json` (and optionally the
- * README), and writes the changelog.
+ * README), and writes the changelog. The function defaults to a patch release when no
+ * commit indicates a release.
  *
  * This overload retrieves commits from git. Use the overload with `commits` to supply your own.
  *
  * @typeParam T - Allowed commit scopes.
  * @typeParam U - Allowed commit types. Defaults to the conventional commit types.
  * @param options - {@link ReleaseOptionsWithoutCommits | Release options}.
- * @returns A promise that resolves when the release finishes. It also resolves
- * without changes when no release is needed.
+ * @returns A promise that resolves when the release finishes.
  *
  * @remarks
- * When no commits justify a release and you do not set `releaseType`, the function
- * reports an error through `onError` and returns without changes.
  * With `isDryRun`, the function logs the release type and skips the version bump and changelog.
  *
  * @example
@@ -85,25 +81,18 @@ export async function release({
   ];
 
   // Determine release type
-  const releaseType = _releaseType ?? determineReleaseType(resolvedCommits);
-  if (!releaseType) {
-    throw new Error('No release needed based on the commits since the latest tag.');
-  }
+  const releaseType = _releaseType ?? determineReleaseType(resolvedCommits) ?? 'patch';
   if (isDryRun) {
     console.log(`[dry-run] Would bump with release type ${releaseType}.`);
     return;
   }
 
-  // Bump version
   const newVersion = bumpVersion(directoryPath, releaseType, {
     isUpdateReadme,
     onError,
   });
 
-  // Write changelog
-  const changelogWriter = createChangelogWriter(changelogWriterOptions);
-
-  await changelogWriter.writeChangelog(
+  await createChangelogWriter(changelogWriterOptions).writeChangelog(
     directoryPath,
     newVersion,
     releaseType,

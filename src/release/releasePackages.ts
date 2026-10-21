@@ -2,17 +2,17 @@ import { CommitsGrouper } from '../commits/group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../read-directories/DirectoriesReader.js';
 import { logError } from '../utils/error/logError.js';
-import { logRejectedPromises } from '../utils/log-rejected-promises/logRejectedPromises.js';
 
-import type { ReleasePackagesOptions } from './types/releasePackages.js';
-import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
-import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
-import { releaseByScope } from './utils/releaseByScope.js';
+import type { ReleasePackagesOptions } from './release-packages/types/releasePackages.js';
+import { getAllowedCommitsScopes } from './release-packages/utils/getAllowedCommitsScopes.js';
+import { getFilteredCommitsScopes } from './release-packages/utils/getFilteredCommitsScopes.js';
+import { logRejectedPromises } from './release-packages/utils/logRejectedPromises.js';
+import { releaseByScope } from './release-packages/utils/releaseByScope.js';
 
 /**
- * Releases every package in a monorepo. The function reads the package directories,
- * maps each commit scope to its package, and releases each package with its own
- * commits.
+ * Releases packages whose commit scopes map to package directories and whose commits
+ * warrant a release. The function reads package directories, maps commit scopes to
+ * packages, and releases each eligible package with its own commits.
  *
  * @typeParam T - Allowed commit scopes.
  * @param options - {@link ReleasePackagesOptions | ReleasePackages options}.
@@ -20,10 +20,8 @@ import { releaseByScope } from './utils/releaseByScope.js';
  * @throws Error when the specified directory contains no scopes.
  *
  * @remarks
- * The function reports per-package failures through
- * {@link ReleasePackagesOptions.onError | onError} once all packages finish.
- * With {@link ReleasePackagesOptions.isDryRun | isDryRun}, the function skips version bumps
- * and changelog writes.
+ * The function reports changelog-writing failures through
+ * {@link ReleasePackagesOptions.onError | onError} after all attempted changelog writes settle.
  *
  * @example
  * ```ts

@@ -1,9 +1,9 @@
-import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
-import type { DefaultAllowedTypes } from '../../commits/types/commit.js';
-import type { ValidatedCommit } from '../../commits/validate-commits/types/commit.js';
-import type { OnError } from '../../utils/error/types/error.js';
-import type { BumpVersionOptions } from '../../version/bumpVersion.js';
-import type { ChangelogWriterOptions } from '../../write-changelog/ChangelogWriter.js';
+import type { RetrieveCommitsOptions } from '../../../commits/retrieveValidatedCommits.js';
+import type { DefaultAllowedTypes } from '../../../commits/types/commit.js';
+import type { ValidatedCommit } from '../../../commits/validate-commits/types/commit.js';
+import type { OnError } from '../../../utils/error/types/error.js';
+import type { BumpVersionOptions } from '../../../version/bumpVersion.js';
+import type { ChangelogWriterOptions } from '../../../write-changelog/ChangelogWriter.js';
 
 /** Semantic version increment: `major`, `minor`, or `patch`. */
 export type ReleaseType = 'major' | 'minor' | 'patch';
@@ -31,7 +31,8 @@ export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>,
   isDryRun?: boolean;
   /**
    * Forces a release type when specified.
-   * If omitted, the library determines the type from the commits.
+   * If omitted, the library determines the type from the commits and defaults
+   * to `patch` when no commit indicates a release.
    */
   releaseType?: ReleaseType;
 }

@@ -13,22 +13,17 @@ import {
 const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 
 /**
- * Generates a changelog from the full git history of a project that has no
- * changelog yet. The function writes one entry for every semver tag
- * (`1.2.3` or `v1.2.3`) on the default branch, newest first, and leaves
- * `package.json` and the README untouched.
+ * Generates changelog entries for version tags merged into the configured branch.
  *
- * Run this function once when you adopt the library. Use `release`
- * for every release after that.
+ * Use this function to add existing release history. Use `release` for
+ * subsequent releases.
  *
- * @param options - {@link GenerateChangelogOptions}.
- * @returns A promise that resolves when the function writes the changelog.
+ * @param options - Options for changelog generation.
+ * @returns A promise that resolves when changelog generation completes.
  *
  * @remarks
- * The function throws when the repository has no version tags or when the
- * changelog already contains version entries. Commits after the latest tag
- * stay out of the changelog; the next `release` call picks them up.
- * With `isDryRun`, the function logs the versions it would write and changes nothing.
+ * The function throws when no valid version tags exist. With `isDryRun`, it
+ * logs the entries without writing to the changelog.
  *
  * @example
  * ```ts

@@ -1,4 +1,6 @@
-import { logRejectedPromises } from './logRejectedPromises.js';
+import {
+  logRejectedPromises,
+} from './logRejectedPromises.js';
 
 describe('logRejectedPromises', () => {
   it('should handle the error for each failed changelog generation', () => {

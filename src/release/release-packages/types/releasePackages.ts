@@ -1,5 +1,5 @@
-import type { RetrieveCommitsOptions } from '../../commits/retrieveValidatedCommits.js';
-import type { DirectoriesReaderOptions } from '../../read-directories/DirectoriesReader.js';
+import type { RetrieveCommitsOptions } from '../../../commits/retrieveValidatedCommits.js';
+import type { DirectoriesReaderOptions } from '../../../read-directories/DirectoriesReader.js';
 import type { BaseReleaseOptions } from '../../release/types/release.js';
 
 /**

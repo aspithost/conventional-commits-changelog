@@ -3,9 +3,9 @@ import { join } from 'node:path';
 
 import { writeChangelog } from 'conventional-changelog-writer';
 
-import { ChangelogWriter, type ChangelogWriterPreset } from './ChangelogWriter.js';
+import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
 
-import type { ValidatedCommit } from '@/commits/validate-commits/types/commit.js';
+import { ChangelogWriter, type ChangelogWriterPreset } from './ChangelogWriter.js';
 
 vi.mock('node:fs', () => ({
   readFileSync: vi.fn(() => ''),

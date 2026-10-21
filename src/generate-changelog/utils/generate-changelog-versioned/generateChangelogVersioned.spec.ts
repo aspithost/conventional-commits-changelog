@@ -1,3 +1,6 @@
+import type {
+  CommitsRetrieverOptions,
+} from '../../../commits/retrieve-commits/CommitsRetriever.js';
 import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
 import type { TagEntry } from '../tags/formatTagEntries.js';
@@ -9,8 +12,6 @@ import {
 } from '../tags/parse-semver-version-from-tag/parseSemverVersionFromTag.js';
 
 import { generateChangelogVersioned } from './generateChangelogVersioned.js';
-
-import type { CommitsRetrieverOptions } from '@/commits/retrieve-commits/CommitsRetriever.js';
 
 const COMMITS = vi.hoisted(() => [
   { commit: 'one' },

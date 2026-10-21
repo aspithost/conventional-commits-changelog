@@ -7,7 +7,7 @@ import {
 } from 'conventional-changelog-writer';
 
 import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '../release/types/release.js';
+import type { ReleaseType } from '../release/release/types/release.js';
 
 import { createWriterPreset } from './presets/createWriterPreset.js';
 import { getFormattedDate } from './utils/getFormattedDate.js';

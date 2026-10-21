@@ -1,8 +1,8 @@
+import { _execFileSync } from '../../utils/node/execFileSync.js';
+
 import { COMMIT_FORMAT, CommitsRetriever } from './CommitsRetriever.js';
 
-import { _execFileSync } from '@/utils/node/execFileSync.js';
-
-vi.mock('@/utils/node/execFileSync.js', () => ({
+vi.mock('../../utils/node/execFileSync.js', () => ({
   _execFileSync: vi.fn(),
 }));
 
