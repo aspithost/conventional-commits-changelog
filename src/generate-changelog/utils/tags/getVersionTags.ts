@@ -1,4 +1,5 @@
-import { getSortedTags } from './get-sorted-tags/getSortedTags.js';
+import { getSortedTags } from '../generate-changelog-versioned/get-sorted-tags/getSortedTags.js';
+
 import { getSymbolicRef } from './get-symbolic-ref/getSymbolicRef.js';
 
 interface GetVersionTagsOptions {

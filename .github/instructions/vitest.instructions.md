@@ -9,7 +9,7 @@ applyTo: '**/*.spec.ts'
 - Colocate each test as `<source>.test.ts`.
 - Name the top-level `describe` after the unit. Nest `describe` blocks by method or behavior.
 - Start every `it` title with `should` plus an action verb. Describe the observable outcome.
-- Mock modules with `vi.mock('@/...', factory)` at module level. Access mocks through `vi.mocked(fn)`.
+- Mock modules with `vi.mock('./...', factory)` at module level. Access mocks through `vi.mocked(fn)`.
 - Declare default mock behavior in the factory, so every test starts with a working mock: `vi.fn(() => '')`. Share mock references with the factory through `vi.hoisted`.
 - Override single calls with `mockReturnValueOnce` or `mockImplementationOnce`. Use `beforeEach` only for defaults that one suite needs.
 - Cast partial fixtures with `as unknown as Type`. Use `satisfies Type` for complete fixtures.

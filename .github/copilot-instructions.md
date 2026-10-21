@@ -19,7 +19,6 @@ Every project extends these `@abelspithost` presets. Never duplicate their setti
 - Type uncertain values as `unknown`, never `any`. Narrow them with type guards, control flow, or `zod` parsing. Fix the underlying type instead of asserting around it.
 - Never suggest `@ts-ignore` or `@ts-expect-error` unless the user asks.
 - Use named exports only. Never use `export default`, and re-export public API through `src/index.ts`.
-- Prefer the `@/*` alias over deep relative imports. Path alias maps to `src/*`.
 - Write small, focused functions. Declare explicit return types on exported functions.
 - Reuse existing dependencies before adding a new library.
 

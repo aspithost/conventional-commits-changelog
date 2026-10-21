@@ -1,4 +1,4 @@
-import type { ErrorHandler } from '../error/logError.js';
+import type { ErrorHandler } from '../../../utils/error/logError.js';
 
 export function logRejectedPromises(
   releasePackagesResults: PromiseSettledResult<void>[],

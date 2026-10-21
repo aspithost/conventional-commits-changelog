@@ -1,21 +1,20 @@
 import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
 import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commits/types/commit.js';
+import { determineReleaseType } from '../release/utils/determineReleaseType.js';
+import type { OnError } from '../utils/error/types/error.js';
+import { bumpVersion } from '../version/bumpVersion.js';
 
 import { release } from './release.js';
 
-import { determineReleaseType } from '@/release/utils/determineReleaseType.js';
-import type { OnError } from '@/utils/error/types/error.js';
-import { bumpVersion } from '@/version/bumpVersion.js';
-
-vi.mock('@/commits/retrieveValidatedCommits.js', () => ({
+vi.mock('../commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(),
 }));
 
-vi.mock('@/version/bumpVersion.js', () => ({
+vi.mock('../version/bumpVersion.js', () => ({
   bumpVersion: vi.fn(),
 }));
 
-vi.mock('@/release/utils/determineReleaseType.js', () => ({
+vi.mock('../release/utils/determineReleaseType.js', () => ({
   determineReleaseType: vi.fn(),
 }));
 
@@ -23,7 +22,7 @@ const { mockWriteChangelog } = vi.hoisted(() => ({
   mockWriteChangelog: vi.fn(),
 }));
 
-vi.mock('@/write-changelog/utils/createChangelogWriter.js', () => ({
+vi.mock('../write-changelog/utils/createChangelogWriter.js', () => ({
   createChangelogWriter: () => ({
     writeChangelog: mockWriteChangelog,
   }),
@@ -76,17 +75,24 @@ describe('release', () => {
     );
 
     it(
-      'should not release if the validated commits do not contain types that warrant a release',
+      'should default to a patch release if the validated commits do not warrant a release',
       async () => {
         vi.mocked(determineReleaseType).mockReturnValue(null);
 
-        await expect(release())
-          .rejects
-          .toThrow('No release needed based on the commits since the latest tag.');
-
+        await release();
         expect(determineReleaseType).toHaveBeenCalledTimes(1);
-        expect(bumpVersion).not.toHaveBeenCalled();
-        expect(mockWriteChangelog).not.toHaveBeenCalled();
+
+        expect(bumpVersion).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          'patch',
+          expect.any(Object),
+        );
+        expect(mockWriteChangelog).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          undefined,
+          'patch',
+          expect.any(Object),
+        );
       },
     );
   });

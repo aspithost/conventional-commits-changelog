@@ -1,8 +1,10 @@
-import { getSortedTags } from './get-sorted-tags/getSortedTags.js';
+
+import { getSortedTags } from '../generate-changelog-versioned/get-sorted-tags/getSortedTags.js';
+
 import { getSymbolicRef } from './get-symbolic-ref/getSymbolicRef.js';
 import { getVersionTags } from './getVersionTags.js';
 
-vi.mock('./get-sorted-tags/getSortedTags.js');
+vi.mock('../generate-changelog-versioned/get-sorted-tags/getSortedTags.js');
 vi.mock('./get-symbolic-ref/getSymbolicRef.js');
 
 describe('getVersionTags', () => {
