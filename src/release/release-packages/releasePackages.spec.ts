@@ -1,12 +1,12 @@
-import { CommitsGrouper } from '../commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
-import { DirectoriesReader } from '../read-directories/DirectoriesReader.js';
+import { CommitsGrouper } from '../../commits/group-commits/CommitsGrouper.js';
+import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
+import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 
-import { getAllowedCommitsScopes } from './release-packages/utils/getAllowedCommitsScopes.js';
-import { getFilteredCommitsScopes } from './release-packages/utils/getFilteredCommitsScopes.js';
-import { logRejectedPromises } from './release-packages/utils/logRejectedPromises.js';
-import { releaseByScope } from './release-packages/utils/releaseByScope.js';
 import { releasePackages } from './releasePackages.js';
+import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
+import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
+import { logRejectedPromises } from './utils/logRejectedPromises.js';
+import { releaseByScope } from './utils/releaseByScope.js';
 
 const BUTTON_SCOPE = vi.hoisted(() => '@some-scope/button');
 const CARD_SCOPE = vi.hoisted(() => '@some-other-scope/card');
@@ -26,18 +26,18 @@ const DIRECTORY_PATH_BY_SCOPE_MAP = vi.hoisted(() => new Map([
   [DRAWER_SCOPE, { directoryPath: DRAWER_DIRECTORY_PATH }],
 ]));
 
-vi.mock('../commits/group-commits/CommitsGrouper.js', () => {
+vi.mock('../../commits/group-commits/CommitsGrouper.js', () => {
   const CommitsGrouper = vi.fn(class {
     commitsByScopeMap = COMMIT_BY_SCOPE_MAP;
   });
   return { CommitsGrouper };
 });
 
-vi.mock('../commits/retrieveValidatedCommits.js', () => ({
+vi.mock('../../commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(() => []),
 }));
 
-vi.mock('../read-directories/DirectoriesReader.js', () => {
+vi.mock('../../read-directories/DirectoriesReader.js', () => {
   const DirectoriesReader = vi.fn(class {
     directoryPathByScopeMap = DIRECTORY_PATH_BY_SCOPE_MAP;
     scopes = DIRECTORY_PATH_BY_SCOPE_MAP.keys();
@@ -45,19 +45,19 @@ vi.mock('../read-directories/DirectoriesReader.js', () => {
   return { DirectoriesReader };
 });
 
-vi.mock('./release-packages/utils/getAllowedCommitsScopes.js', () => ({
+vi.mock('./utils/getAllowedCommitsScopes.js', () => ({
   getAllowedCommitsScopes: vi.fn(() => new Set([BUTTON_SCOPE, CARD_SCOPE])),
 }));
 
-vi.mock('./release-packages/utils/getFilteredCommitsScopes.js', () => ({
+vi.mock('./utils/getFilteredCommitsScopes.js', () => ({
   getFilteredCommitsScopes: vi.fn((scopes: Iterable<string>) => new Set(scopes)),
 }));
 
-vi.mock('./release-packages/utils/releaseByScope.js', () => ({
+vi.mock('./utils/releaseByScope.js', () => ({
   releaseByScope: vi.fn(),
 }));
 
-vi.mock('./release-packages/utils/logRejectedPromises.js', () => ({
+vi.mock('./utils/logRejectedPromises.js', () => ({
   logRejectedPromises: vi.fn(),
 }));
 
