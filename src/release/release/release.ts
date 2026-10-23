@@ -9,6 +9,7 @@ import { determineReleaseType } from '../utils/determineReleaseType.js';
 import type {
   ReleaseOptions, ReleaseOptionsWithCommits, ReleaseOptionsWithoutCommits,
 } from './types/release.js';
+import { validateReleaseInput } from './utils/validateReleaseInput.js';
 
 /**
  * Releases a single package: retrieves and validates the commits since the latest tag,
@@ -72,6 +73,15 @@ export async function release({
   releaseVersion,
   onError = logError,
 }: ReleaseOptions<string, string> = {}): Promise<void> {
+  validateReleaseInput({
+    changelogWriterOptions,
+    directoryPath,
+    isDryRun,
+    isUpdateReadme,
+    releaseType: _releaseType,
+    releaseVersion,
+  });
+
   const resolvedCommits = [
     ...(commits ?? retrieveValidatedCommits({
       commitsParserOptions,
@@ -84,7 +94,7 @@ export async function release({
   // Determine release type
   const releaseType = _releaseType ?? determineReleaseType(resolvedCommits) ?? 'patch';
   if (isDryRun) {
-    console.log(`[dry-run] Would bump with release type ${releaseType}.`);
+    console.log(`[dry-run] Will bump version with type ${releaseType}.`);
     return;
   }
 

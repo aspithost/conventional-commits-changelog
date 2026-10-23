@@ -3,8 +3,10 @@ import type { OnError } from '../utils/error/types/error.js';
 import { CommitsParser, type CommitsParserOptions } from './parse-commits/CommitsParser.js';
 import {
   CommitsRetriever,
-  type CommitsRetrieverOptions,
 } from './retrieve-commits/CommitsRetriever.js';
+import type {
+  CommitsRetrieverOptions,
+} from './retrieve-commits/schemas/commitsRetrieverOptions.js';
 import { CommitsValidator } from './validate-commits/CommitsValidator.js';
 import { CommitsValidatorWithScope } from './validate-commits/CommitsValidatorWithScope.js';
 import {

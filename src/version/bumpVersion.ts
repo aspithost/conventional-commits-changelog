@@ -3,7 +3,7 @@ import type { OnError } from '../utils/error/types/error.js';
 import { bumpNpmVersion } from './utils/bumpNpmVersion.js';
 import { updateReadme } from './utils/updateReadme.js';
 
-export interface BumpVersionOptions extends OnError {
+export interface BumpVersionOptions {
   /**
    * Whether to update the version references in the README after the bump.
    *
@@ -18,7 +18,7 @@ export function bumpVersion(
   {
     isUpdateReadme = true,
     onError,
-  }: BumpVersionOptions = {},
+  }: BumpVersionOptions & OnError = {},
 ): string {
   if (!workingDirectory) {
     throw new Error('You need to provide the path to a working directory with a package.json.');

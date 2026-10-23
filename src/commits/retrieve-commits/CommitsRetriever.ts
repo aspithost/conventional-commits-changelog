@@ -2,8 +2,13 @@ import type { ErrorHandler } from '../../utils/error/logError.js';
 import type { OnError } from '../../utils/error/types/error.js';
 import { _execFileSync } from '../../utils/node/execFileSync.js';
 
+import {
+  type CommitsRetrieverOptions,
+  commitsRetrieverOptions,
+} from './schemas/commitsRetrieverOptions.js';
+
 export const COMMIT_FORMAT = '%H||%B%x00'; // Note: exported for unit test purposes only
-const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
+export const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 const FALLBACK_REMOTE_BRANCH = 'origin/main';
 
 interface RawCommit {
@@ -14,35 +19,6 @@ interface RawCommit {
 }
 
 export type RawCommits = Iterable<RawCommit>;
-
-export interface CommitsRetrieverOptions extends OnError {
-  /**
-   * The pretty-format string passed to `git log`.
-   * @defaultValue {@link COMMIT_FORMAT}
-   */
-  commitFormat?: string;
-  /**
-   * The working directory in which to run Git commands.
-   * @defaultValue {@link process.cwd}
-   */
-  cwd?: string;
-  /**
-   * The starting ref. When omitted, retrieval starts after the latest tag on the
-   * default branch. Pass `null` to retrieve the full history up to `to`.
-   */
-  from?: string | null;
-  /**
-   * The ending ref for commit retrieval.
-   * @defaultValue `'HEAD'`
-   */
-  to?: string;
-  /**
-   * The ref used to determine the default remote branch.
-   * Input for the {@link getDefaultRemoteBranch} function.
-   * @defaultValue {@link DEFAULT_REMOTE_SYMBOLIC_REF}
-   */
-  remoteSymbolicRef?: string;
-}
 
 export class CommitsRetriever {
   readonly #commitFormat: string;
@@ -59,14 +35,14 @@ export class CommitsRetriever {
     to = 'HEAD',
     remoteSymbolicRef = DEFAULT_REMOTE_SYMBOLIC_REF,
     onError,
-  }: CommitsRetrieverOptions = {}) {
-    for (const [name, value] of Object.entries({
+  }: CommitsRetrieverOptions & OnError = {}) {
+    this.#validateConstructorOptions({
+      commitFormat,
+      cwd,
       from,
       to,
       remoteSymbolicRef,
-    })) {
-      this.#validateInput(name, value);
-    }
+    });
 
     this.#commitFormat = commitFormat;
     this.#cwd = cwd;
@@ -141,9 +117,11 @@ export class CommitsRetriever {
     return _execFileSync('git', args, this.#cwd);
   }
 
-  #validateInput(name: string, value?: string | null) {
-    if (value?.startsWith('-')) {
-      throw new Error(`Invalid ${name} "${value}": refs may not start with '-'`);
+  #validateConstructorOptions(options: CommitsRetrieverOptions) {
+    try {
+      return commitsRetrieverOptions.parse(options);
+    } catch (err) {
+      throw new Error('Invalid commits retriever options.', { cause: err });
     }
   }
 }

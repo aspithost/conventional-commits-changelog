@@ -7,23 +7,18 @@ import {
 } from 'conventional-changelog-writer';
 
 import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
-import type { ReleaseType } from '../release/release/types/release.js';
+import type { ReleaseType } from '../release/schemas/release.js';
 
 import { createWriterPreset } from './presets/createWriterPreset.js';
+import {
+  type RemoteRepositoryInformation,
+  changelogWriterOptions,
+} from './schemas/changelogWriterOptions.js';
 import { getFormattedDate } from './utils/getFormattedDate.js';
 
 export type { FinalOptions as ChangelogWriterPreset } from 'conventional-changelog-writer';
 
 const VERSION_HEADER_PATTERN = /^##\s\d+\.\d+\.\d+/m;
-
-interface RemoteRepositoryInformation {
-  /** The remote host URL, such as `https://github.com`. */
-  host: string;
-  /** The repository owner's account or organization name. */
-  owner: string;
-  /** The repository name. */
-  repository: string;
-}
 
 export interface ChangelogWriterOptions {
   /** The `conventional-changelog-writer` preset that formats the changelog. */
@@ -45,6 +40,10 @@ export class ChangelogWriter {
     changelogWriterPreset,
     remoteRepositoryInformation,
   }: ChangelogWriterOptions) {
+    this.#validateConstructorOptions({
+      changelogWriterPreset,
+      remoteRepositoryInformation,
+    });
     this.#changelogWriterPreset = changelogWriterPreset;
     this.#remoteRepositoryInformation = remoteRepositoryInformation;
   }
@@ -156,5 +155,13 @@ export class ChangelogWriter {
     const before = currentContent.slice(0, versionHeaderIndex).trimEnd();
     const after = currentContent.slice(versionHeaderIndex).trimEnd();
     return `${before}\n\n${newEntry}\n\n${after}\n`;
+  }
+
+  #validateConstructorOptions(options: ChangelogWriterOptions) {
+    try {
+      return changelogWriterOptions.parse(options);
+    } catch (err) {
+      throw new Error('Invalid changelog writer options.', { cause: err });
+    }
   }
 }

@@ -6,6 +6,7 @@ import { writeChangelog } from 'conventional-changelog-writer';
 import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
 
 import { ChangelogWriter, type ChangelogWriterPreset } from './ChangelogWriter.js';
+import type { RemoteRepositoryInformation } from './schemas/changelogWriterOptions.js';
 
 vi.mock('node:fs', () => ({
   readFileSync: vi.fn(() => ''),
@@ -59,6 +60,13 @@ const MOCK_WRITER_PRESET = {
   commitPartial: '',
   footerPartial: '',
 } as unknown as ChangelogWriterPreset;
+
+const REMOTE_REPOSITORY_INFORMATION: RemoteRepositoryInformation = {
+  host: 'some-website.com',
+  owner: 'some-user',
+  repository: 'some-repo',
+};
+
 const DIRECTORY_PATH = '/path/to/package';
 const CHANGELOG_PATH = join(DIRECTORY_PATH, 'CHANGELOG.md');
 
@@ -67,8 +75,26 @@ describe('ChangelogWriter', () => {
     console.error = vi.fn();
   });
 
+  describe('constructor', () => {
+    it('should validate the user\'s constructor options', () => {
+
+      expect(() => new ChangelogWriter({
+        changelogWriterPreset: {},
+        remoteRepositoryInformation: REMOTE_REPOSITORY_INFORMATION,
+      })).not.toThrow();
+    });
+
+    it('should throw an error if the user provides invalid constructor arguments', () => {
+      expect(() => new ChangelogWriter({
+        changelogWriterPreset: {},
+        // @ts-expect-error: invalid remote repository information
+        remoteRepositoryInformation: { invalid: 'value' },
+      })).toThrow();
+    });
+  });
+
   describe('factory methods', () => {
-    it('should create instance with default preset', () => {
+    it('should create an instance with the default preset', () => {
       const writer = ChangelogWriter.withDefaultPreset();
 
       expect(writer).toBeInstanceOf(ChangelogWriter);

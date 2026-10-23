@@ -49,17 +49,17 @@ describe('CommitsRetriever', () => {
         from: '--some-flag',
         to: 'v2.0.0',
         remoteSymbolicRef: 'refs/remotes/origin/main',
-      })).toThrow();
+      })).toThrow(expect.objectContaining({ message: 'Invalid commits retriever options.' }));
       expect(() => new CommitsRetriever({
         from: 'v1.0.0',
         to: '--some-flag',
         remoteSymbolicRef: 'refs/remotes/origin/main',
-      })).toThrow();
+      })).toThrow(expect.objectContaining({ message: 'Invalid commits retriever options.' }));
       expect(() => new CommitsRetriever({
         from: 'v1.0.0',
         to: 'v2.0.0',
         remoteSymbolicRef: '--some-flag',
-      })).toThrow();
+      })).toThrow(expect.objectContaining({ message: 'Invalid commits retriever options.' }));
     });
 
     it('should allow values that merely contain a dash, or are empty', () => {
