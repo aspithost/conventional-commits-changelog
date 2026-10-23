@@ -6,10 +6,12 @@ on:
 
 jobs:
   cicd:
-    uses: aspithost/actions/.github/workflows/node-cicd.yml@v2
+    # uses: aspithost/actions/.github/workflows/node-cicd.yml@v2
+    uses: aspithost/actions/.github/workflows/node-ci.yml@v2
     permissions:
-      contents: write
-      id-token: write
+      # contents: write
+      # id-token: write
+      contents: read
       pull-requests: write
     with:
       run-dependency-review: false
