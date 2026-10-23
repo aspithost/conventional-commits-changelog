@@ -3,7 +3,7 @@ import type { OnError } from '../../utils/error/types/error.js';
 import { _execFileSync } from '../../utils/node/execFileSync.js';
 
 import {
-  type CommitsRetrieverOptions,
+  type CommitsRetrieverOptions as _CommitsRetrieverOptions,
   commitsRetrieverOptions,
 } from './schemas/commitsRetrieverOptions.js';
 
@@ -17,6 +17,8 @@ interface RawCommit {
   /** The full hash of the commit. */
   hash: string;
 }
+
+export type CommitsRetrieverOptions = _CommitsRetrieverOptions & OnError;
 
 export type RawCommits = Iterable<RawCommit>;
 
