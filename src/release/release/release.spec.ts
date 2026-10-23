@@ -40,7 +40,7 @@ vi.mock('../../write-changelog/utils/createChangelogWriter.js', () => ({
   }),
 }));
 
-vi.mock('./utils/vaidateReleaseInput.js', () => ({
+vi.mock('./utils/validateReleaseInput.js', () => ({
   validateReleaseInput: vi.fn(),
 }));
 
