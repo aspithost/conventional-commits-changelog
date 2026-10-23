@@ -5,7 +5,9 @@ import { join } from 'node:path';
 
 import { type PackageJsonSchema, packageJsonSchema } from './schemas/package.js';
 import type {
-  DirectoriesReaderOptions, DirectoryPathByScopeMap, RootScopeOptions,
+  DirectoriesReaderOptions,
+  DirectoryPathByScopeMap,
+  RootScopeOptions,
   ScopeName,
 } from './types/directoriesReader.js';
 
@@ -123,9 +125,9 @@ export class DirectoriesReader<T extends string> {
     rootScopeDirectoryPath: string,
   ): DirectoryPathByScopeMap<T> {
     if (scopesMap.get(rootScopeName)) {
-      const errorMessage =
-        `ScopesMap already contains an entry for ${rootScopeName}. ` +
-        'Provide a unique rootScopeName to avoid conflicts.';
+      const errorMessage
+        = `ScopesMap already contains an entry for ${rootScopeName}. `
+        + 'Provide a unique rootScopeName to avoid conflicts.';
       throw new Error(errorMessage);
     }
     scopesMap.set(rootScopeName, {

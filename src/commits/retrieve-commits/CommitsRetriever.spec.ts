@@ -222,7 +222,7 @@ describe('CommitsRetriever', () => {
       console.error = vi.fn();
       setupMocks({ latestTag: new Error('no tags') });
 
-      const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
+      const _ = [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -236,7 +236,7 @@ describe('CommitsRetriever', () => {
     it('should use the latest tag when from is not specified', () => {
       setupMocks();
 
-      const _ =[...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
+      const _ = [...new CommitsRetriever({ to: 'HEAD' }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -248,7 +248,7 @@ describe('CommitsRetriever', () => {
     it('should return null when no tags exist', () => {
       setupMocks({ latestTag: new Error('no tags found') });
 
-      const _ =[...new CommitsRetriever().getRawCommits()];
+      const _ = [...new CommitsRetriever().getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenLastCalledWith(
         'git',
@@ -264,7 +264,7 @@ describe('CommitsRetriever', () => {
       const CWD_PATH = '/some/path';
       setupMocks({ remoteSymbolicRef: REMOTE_FEATURE_BRANCH });
 
-      const _ =[
+      const _ = [
         ...new CommitsRetriever({
           cwd: CWD_PATH,
           remoteSymbolicRef: REMOTE_FEATURE_BRANCH,
@@ -289,7 +289,7 @@ describe('CommitsRetriever', () => {
         latestTag: TAG_ERROR,
       });
 
-      const _ =[...new CommitsRetriever({ onError: mockOnError }).getRawCommits()];
+      const _ = [...new CommitsRetriever({ onError: mockOnError }).getRawCommits()];
 
       expect(mockExecFileSync).toHaveBeenNthCalledWith(
         2,

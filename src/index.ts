@@ -28,7 +28,7 @@ export type {
   DirectoriesReaderOptions,
   DirectoryPathByScopeMap,
   ScopeName,
-} from './read-directories/DirectoriesReader.js';
+} from './read-directories/types/directoriesReader.js';
 
 export { generateChangelog } from './generate-changelog/generateChangelog.js';
 export type { GenerateChangelogOptions } from './generate-changelog/types/generateChangelog.js';

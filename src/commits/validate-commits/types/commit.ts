@@ -22,8 +22,7 @@ export type ValidatedCommitWithScopeAndType<
 export type ValidatedCommit<
   Scope extends string,
   Type extends string,
-> =
-  | ValidatedCommitWithDefaultType
+> = ValidatedCommitWithDefaultType
   | ValidatedCommitWithScope<Scope>
   | ValidatedCommitWithType<Type>
   | ValidatedCommitWithScopeAndType<Scope, Type>;

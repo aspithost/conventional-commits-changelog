@@ -50,7 +50,7 @@ describe('generateChangelogVersioned', () => {
   const onError = vi.fn();
 
   describe('happy flow', () => {
-    beforeEach( async () => {
+    beforeEach(async () => {
       await generateChangelogVersioned([TAG_ENTRY_ONE, TAG_ENTRY_TWO], {
         directoryPath: DIRECTORY_PATH,
         onError,

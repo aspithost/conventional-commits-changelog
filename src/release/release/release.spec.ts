@@ -73,7 +73,7 @@ describe('release', () => {
       async () => {
         const SINGLE_COMMIT = BUTTON_COMMITS[0];
 
-        await release({ commits: [SINGLE_COMMIT] } );
+        await release({ commits: [SINGLE_COMMIT] });
 
         expect(determineReleaseType).toHaveBeenCalledWith([SINGLE_COMMIT]);
       },

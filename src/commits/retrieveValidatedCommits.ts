@@ -99,8 +99,7 @@ export function* retrieveValidatedCommits< T extends string = string, U extends 
   commitsRetrieverOptions,
   commitsValidatorOptions,
   onError,
-}: RetrieveCommitsOptions<T, U> & OnError = {}): Iterable<ValidatedCommit<T, U>>
-{
+}: RetrieveCommitsOptions<T, U> & OnError = {}): Iterable<ValidatedCommit<T, U>> {
   const rawCommits = new CommitsRetriever(commitsRetrieverOptions).getRawCommits();
   const parsedCommits = new CommitsParser(commitsParserOptions).getParsedCommits(rawCommits);
 

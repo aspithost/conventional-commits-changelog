@@ -3,7 +3,7 @@ import { logError } from '../utils/error/logError.js';
 import type { GenerateChangelogOptions } from './types/generateChangelog.js';
 import {
   generateChangelogVersioned,
-}from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
+} from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
 import { type TagEntry, formatTagEntries } from './utils/tags/formatTagEntries.js';
 import { getVersionTags } from './utils/tags/getVersionTags.js';
 import {
