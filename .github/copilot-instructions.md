@@ -7,7 +7,6 @@ This TypeScript library follows these rules for code, comments, and commit messa
 Every project extends these `@abelspithost` presets. Never duplicate their settings in local config, and never suggest rules that conflict with them. A package never extends itself.
 
 - `@abelspithost/commitlint`: commit message linting.
-- `@abelspithost/conventional-commits-changelog`: Conventional commits changelog generation.
 - `@abelspithost/eslint-config-ts`: ESLint rules and formatting.
 - `@abelspithost/tsconfig`: TypeScript compiler options.
 - `@abelspithost/tsconfig-node`: TypeScript compiler options for Node-only code and tooling.

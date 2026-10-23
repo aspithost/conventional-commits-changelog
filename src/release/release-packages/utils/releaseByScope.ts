@@ -1,8 +1,9 @@
 import type { CommitsByScopeMap } from '../../../commits/group-commits/CommitsGrouper.js';
 import type { DirectoryPathByScopeMap } from '../../../read-directories/DirectoriesReader.js';
+import type { OnError } from '../../../utils/error/types/error.js';
 import { bumpVersion } from '../../../version/bumpVersion.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
-import type { BaseReleaseOptions } from '../../release/types/release.js';
+import type { BaseReleaseOptions } from '../../release/schemas/releaseOptions.js';
 import { determineReleaseType } from '../../utils/determineReleaseType.js';
 
 export function releaseByScope<T extends string>(
@@ -12,7 +13,7 @@ export function releaseByScope<T extends string>(
     changelogWriterOptions,
     isUpdateReadme,
     onError,
-  }: Partial<BaseReleaseOptions> = {},
+  }: Partial<BaseReleaseOptions> & OnError = {},
 ): Promise<PromiseSettledResult<void>[]> {
   const releasePromises: Promise<void>[] = [];
 

@@ -1,4 +1,3 @@
-import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
 import type {
   ValidatedCommitWithScopeAndType,
 } from '../../commits/validate-commits/types/commit.js';
@@ -7,9 +6,20 @@ import { bumpVersion } from '../../version/bumpVersion.js';
 import { determineReleaseType } from '../utils/determineReleaseType.js';
 
 import { release } from './release.js';
+import type { BaseReleaseOptions } from './schemas/releaseOptions.js';
+import { validateReleaseInput } from './utils/validateReleaseInput.js';
 
+const BUTTON_FEAT_COMMIT = vi.hoisted(() => ({
+  scope: 'button',
+  type: 'feat',
+} as unknown as ValidatedCommitWithScopeAndType<string, string>));
+const BUTTON_FIX_COMMIT = vi.hoisted(() => ({
+  scope: 'button',
+  type: 'fix',
+} as unknown as ValidatedCommitWithScopeAndType<string, string>));
+const BUTTON_COMMITS = vi.hoisted(() => [BUTTON_FEAT_COMMIT, BUTTON_FIX_COMMIT]);
 vi.mock('../../commits/retrieveValidatedCommits.js', () => ({
-  retrieveValidatedCommits: vi.fn(),
+  retrieveValidatedCommits: vi.fn(() => BUTTON_COMMITS),
 }));
 
 vi.mock('../../version/bumpVersion.js', () => ({
@@ -17,7 +27,7 @@ vi.mock('../../version/bumpVersion.js', () => ({
 }));
 
 vi.mock('../utils/determineReleaseType.js', () => ({
-  determineReleaseType: vi.fn(),
+  determineReleaseType: vi.fn(() => 'minor'),
 }));
 
 const { mockWriteChangelog } = vi.hoisted(() => ({
@@ -30,26 +40,28 @@ vi.mock('../../write-changelog/utils/createChangelogWriter.js', () => ({
   }),
 }));
 
-const BUTTON_FEAT_COMMIT = {
-  scope: 'button',
-  type: 'feat',
-} as unknown as ValidatedCommitWithScopeAndType<string, string>;
-const BUTTON_FIX_COMMIT = {
-  scope: 'button',
-  type: 'fix',
-} as unknown as ValidatedCommitWithScopeAndType<string, string>;
-const BUTTON_COMMITS = [BUTTON_FEAT_COMMIT, BUTTON_FIX_COMMIT];
+vi.mock('./utils/validateReleaseInput.js', () => ({
+  validateReleaseInput: vi.fn(),
+}));
 
 describe('release', () => {
-  beforeEach(() => {
-    vi.mocked(retrieveValidatedCommits).mockReturnValue(BUTTON_COMMITS);
+  describe('validate release input', () => {
+    it('should validate user input parameters', () => {
+      const RELEASE_INPUT: BaseReleaseOptions = {
+        changelogWriterOptions: {},
+        directoryPath: '/some-path',
+        isDryRun: true,
+        isUpdateReadme: false,
+        releaseType: 'patch',
+        releaseVersion: '1.2.3',
+      };
+
+      expect(() => release(RELEASE_INPUT)).not.toThrow();
+      expect(validateReleaseInput).toHaveBeenCalledExactlyOnceWith(RELEASE_INPUT);
+    });
   });
 
   describe('determine release type', () => {
-    beforeEach(() => {
-      vi.mocked(determineReleaseType).mockReturnValue('patch');
-    });
-
     it('should determine the release type based on the retrieved validated commits', async () => {
       await release();
 
@@ -79,7 +91,7 @@ describe('release', () => {
     it(
       'should default to a patch release if the validated commits do not warrant a release',
       async () => {
-        vi.mocked(determineReleaseType).mockReturnValue(null);
+        vi.mocked(determineReleaseType).mockReturnValueOnce(null);
 
         await release();
         expect(determineReleaseType).toHaveBeenCalledTimes(1);
@@ -100,9 +112,21 @@ describe('release', () => {
   });
 
   describe('bumping the version', () => {
-    it('should bump the version based on the determined release type', () => {
-      vi.mocked(determineReleaseType).mockReturnValue('minor');
-    });
+    it(
+      'should bump the version with the default directory and based on the determined release type',
+      async () => {
+        const RELEASE_TYPE = 'major';
+        vi.mocked(determineReleaseType).mockReturnValueOnce(RELEASE_TYPE);
+
+        await release();
+
+        expect(bumpVersion).toHaveBeenCalledWith(
+          process.cwd(),
+          RELEASE_TYPE,
+          expect.any(Object),
+        );
+      },
+    );
 
     it(
       'should bump the version based on the release type specified by the user',
@@ -111,7 +135,7 @@ describe('release', () => {
         await release({ releaseType: RELEASE_TYPE });
 
         expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
-          process.cwd(),
+          expect.any(String),
           RELEASE_TYPE,
           expect.objectContaining({
             isUpdateReadme: true,
@@ -173,9 +197,11 @@ describe('release', () => {
   });
 
   describe('write changelog', () => {
+    const RELEASE_TYPE = 'patch';
+    const RELEASE_VERSION = 'v1.1.1';
     beforeEach(() => {
-      vi.mocked(determineReleaseType).mockReturnValue('patch');
-      vi.mocked(bumpVersion).mockReturnValue('v1.1.1');
+      vi.mocked(determineReleaseType).mockReturnValueOnce(RELEASE_TYPE);
+      vi.mocked(bumpVersion).mockReturnValueOnce(RELEASE_VERSION);
     });
 
     it('should retrieve validated commits and write changelog entries', async () => {
@@ -183,8 +209,8 @@ describe('release', () => {
 
       expect(mockWriteChangelog).toHaveBeenCalledExactlyOnceWith(
         process.cwd(),
-        'v1.1.1',
-        'patch',
+        RELEASE_VERSION,
+        RELEASE_TYPE,
         BUTTON_COMMITS,
       );
     });
@@ -196,8 +222,8 @@ describe('release', () => {
 
       expect(mockWriteChangelog).toHaveBeenCalledExactlyOnceWith(
         process.cwd(),
-        'v1.1.1',
-        'patch',
+        RELEASE_VERSION,
+        RELEASE_TYPE,
         [SINGLE_COMMIT],
       );
     });

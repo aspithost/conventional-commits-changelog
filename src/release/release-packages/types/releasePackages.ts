@@ -1,6 +1,7 @@
 import type { RetrieveCommitsOptions } from '../../../commits/retrieveValidatedCommits.js';
 import type { DirectoriesReaderOptions } from '../../../read-directories/DirectoriesReader.js';
-import type { BaseReleaseOptions } from '../../release/types/release.js';
+import type { OnError } from '../../../utils/error/types/error.js';
+import type { BaseReleaseOptions } from '../../release/schemas/releaseOptions.js';
 
 /**
  * Extends {@link DirectoriesReaderOptions} with scope filtering.
@@ -36,4 +37,4 @@ interface BaseReleasePackageOptions<
  */
 export type ReleasePackagesOptions<
   T extends string,
-> = BaseReleasePackageOptions<T> & RetrieveCommitsOptions<T, string>;
+> = BaseReleasePackageOptions<T> & RetrieveCommitsOptions<T, string> & OnError;

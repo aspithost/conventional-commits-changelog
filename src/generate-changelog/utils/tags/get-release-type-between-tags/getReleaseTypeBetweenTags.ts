@@ -1,4 +1,4 @@
-import type { ReleaseType } from '../../../../release/release/types/release.js';
+import type { ReleaseType } from '../../../../release/schemas/release.js';
 
 export function getReleaseTypeBetweenTags(
   targetVersion: string,
