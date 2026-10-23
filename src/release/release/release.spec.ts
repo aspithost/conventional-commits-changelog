@@ -46,16 +46,15 @@ vi.mock('./utils/validateReleaseInput.js', () => ({
 
 describe('release', () => {
   describe('validate release input', () => {
-    const RELEASE_INPUT: BaseReleaseOptions = {
-      changelogWriterOptions: {},
-      directoryPath: '/some-path',
-      isDryRun: true,
-      isUpdateReadme: false,
-      releaseType: 'patch',
-      releaseVersion: '1.2.3',
-    };
-
-    it('should validate user input paramers', () => {
+    it('should validate user input parameters', () => {
+      const RELEASE_INPUT: BaseReleaseOptions = {
+        changelogWriterOptions: {},
+        directoryPath: '/some-path',
+        isDryRun: true,
+        isUpdateReadme: false,
+        releaseType: 'patch',
+        releaseVersion: '1.2.3',
+      };
 
       expect(() => release(RELEASE_INPUT)).not.toThrow();
       expect(validateReleaseInput).toHaveBeenCalledExactlyOnceWith(RELEASE_INPUT);
