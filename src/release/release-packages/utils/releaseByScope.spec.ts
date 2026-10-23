@@ -1,5 +1,5 @@
 import type { CommitsByScopeMap } from '../../../commits/group-commits/CommitsGrouper.js';
-import type { DirectoryPathByScopeMap } from '../../../read-directories/DirectoriesReader.js';
+import type { DirectoryPathByScopeMap } from '../../../read-directories/types/directoriesReader.js';
 import { bumpVersion } from '../../../version/bumpVersion.js';
 import type { ChangelogWriterOptions } from '../../../write-changelog/ChangelogWriter.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';

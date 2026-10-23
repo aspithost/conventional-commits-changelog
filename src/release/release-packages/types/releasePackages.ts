@@ -1,5 +1,7 @@
 import type { RetrieveCommitsOptions } from '../../../commits/retrieveValidatedCommits.js';
-import type { DirectoriesReaderOptions } from '../../../read-directories/DirectoriesReader.js';
+import type {
+  DirectoriesReaderOptions,
+} from '../../../read-directories/types/directoriesReader.js';
 import type { OnError } from '../../../utils/error/types/error.js';
 import type { BaseReleaseOptions } from '../../release/schemas/releaseOptions.js';
 
@@ -20,7 +22,7 @@ interface DirectoriesReaderOptionsExtended<T extends string> extends Directories
 
 interface BaseReleasePackageOptions<
   T extends string,
-> extends Omit<BaseReleaseOptions, 'directoryPath' | 'releaseType'> {
+> extends Omit<BaseReleaseOptions, 'directoryPath' | 'releaseType' | 'releaseVersion'> {
   /**
    * Options for finding packages and mapping them to commit scopes.
    *
