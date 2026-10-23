@@ -1,14 +1,14 @@
 
-import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
-import type { DefaultAllowedTypes } from '../commits/types/commit.js';
-import { logError } from '../utils/error/logError.js';
-import { bumpVersion } from '../version/bumpVersion.js';
-import { createChangelogWriter } from '../write-changelog/utils/createChangelogWriter.js';
+import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
+import type { DefaultAllowedTypes } from '../../commits/types/commit.js';
+import { logError } from '../../utils/error/logError.js';
+import { bumpVersion } from '../../version/bumpVersion.js';
+import { createChangelogWriter } from '../../write-changelog/utils/createChangelogWriter.js';
+import { determineReleaseType } from '../utils/determineReleaseType.js';
 
 import type {
   ReleaseOptions, ReleaseOptionsWithCommits, ReleaseOptionsWithoutCommits,
-} from './release/types/release.js';
-import { determineReleaseType } from './utils/determineReleaseType.js';
+} from './types/release.js';
 
 /**
  * Releases a single package: retrieves and validates the commits since the latest tag,
@@ -69,6 +69,7 @@ export async function release({
   isDryRun = false,
   isUpdateReadme = true,
   releaseType: _releaseType,
+  releaseVersion,
   onError = logError,
 }: ReleaseOptions<string, string> = {}): Promise<void> {
   const resolvedCommits = [
@@ -87,7 +88,7 @@ export async function release({
     return;
   }
 
-  const newVersion = bumpVersion(directoryPath, releaseType, {
+  const newVersion = bumpVersion(directoryPath, releaseVersion ?? releaseType, {
     isUpdateReadme,
     onError,
   });

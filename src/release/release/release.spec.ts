@@ -1,20 +1,22 @@
-import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
-import type { ValidatedCommitWithScopeAndType } from '../commits/validate-commits/types/commit.js';
-import { determineReleaseType } from '../release/utils/determineReleaseType.js';
-import type { OnError } from '../utils/error/types/error.js';
-import { bumpVersion } from '../version/bumpVersion.js';
+import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
+import type {
+  ValidatedCommitWithScopeAndType,
+} from '../../commits/validate-commits/types/commit.js';
+import type { OnError } from '../../utils/error/types/error.js';
+import { bumpVersion } from '../../version/bumpVersion.js';
+import { determineReleaseType } from '../utils/determineReleaseType.js';
 
 import { release } from './release.js';
 
-vi.mock('../commits/retrieveValidatedCommits.js', () => ({
+vi.mock('../../commits/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(),
 }));
 
-vi.mock('../version/bumpVersion.js', () => ({
+vi.mock('../../version/bumpVersion.js', () => ({
   bumpVersion: vi.fn(),
 }));
 
-vi.mock('../release/utils/determineReleaseType.js', () => ({
+vi.mock('../utils/determineReleaseType.js', () => ({
   determineReleaseType: vi.fn(),
 }));
 
@@ -22,7 +24,7 @@ const { mockWriteChangelog } = vi.hoisted(() => ({
   mockWriteChangelog: vi.fn(),
 }));
 
-vi.mock('../write-changelog/utils/createChangelogWriter.js', () => ({
+vi.mock('../../write-changelog/utils/createChangelogWriter.js', () => ({
   createChangelogWriter: () => ({
     writeChangelog: mockWriteChangelog,
   }),
@@ -103,13 +105,14 @@ describe('release', () => {
     });
 
     it(
-      'should bump the version based on the desired release type specified by the user',
+      'should bump the version based on the release type specified by the user',
       async () => {
-        await release();
+        const RELEASE_TYPE = 'major';
+        await release({ releaseType: RELEASE_TYPE });
 
         expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
           process.cwd(),
-          'minor',
+          RELEASE_TYPE,
           expect.objectContaining({
             isUpdateReadme: true,
             onError: expect.any(Function) as OnError,
@@ -117,6 +120,25 @@ describe('release', () => {
         );
       },
     );
+
+    it('should bump the version based on the release version specified by the user', async () => {
+      // Note: release version takes precedence over release type when user specifies both
+      const RELEASE_VERSION = '3.4.5';
+      const RELEASE_TYPE = 'major';
+      await release({
+        releaseVersion: RELEASE_VERSION,
+        releaseType: RELEASE_TYPE,
+      });
+
+      expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
+        process.cwd(),
+        RELEASE_VERSION,
+        expect.objectContaining({
+          isUpdateReadme: true,
+          onError: expect.any(Function) as OnError,
+        }),
+      );
+    });
 
     it('should bump the version with a custom directory path', async () => {
       const DIRECTORY_PATH = 'path/to/directory';

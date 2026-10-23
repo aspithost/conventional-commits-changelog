@@ -1,13 +1,13 @@
-import { CommitsGrouper } from '../commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '../commits/retrieveValidatedCommits.js';
-import { DirectoriesReader } from '../read-directories/DirectoriesReader.js';
-import { logError } from '../utils/error/logError.js';
+import { CommitsGrouper } from '../../commits/group-commits/CommitsGrouper.js';
+import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
+import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
+import { logError } from '../../utils/error/logError.js';
 
-import type { ReleasePackagesOptions } from './release-packages/types/releasePackages.js';
-import { getAllowedCommitsScopes } from './release-packages/utils/getAllowedCommitsScopes.js';
-import { getFilteredCommitsScopes } from './release-packages/utils/getFilteredCommitsScopes.js';
-import { logRejectedPromises } from './release-packages/utils/logRejectedPromises.js';
-import { releaseByScope } from './release-packages/utils/releaseByScope.js';
+import type { ReleasePackagesOptions } from './types/releasePackages.js';
+import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
+import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
+import { logRejectedPromises } from './utils/logRejectedPromises.js';
+import { releaseByScope } from './utils/releaseByScope.js';
 
 /**
  * Releases packages whose commit scopes map to package directories and whose commits

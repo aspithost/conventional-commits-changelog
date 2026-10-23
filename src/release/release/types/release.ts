@@ -35,6 +35,14 @@ export interface BaseReleaseOptions extends Omit<BumpVersionOptions, 'onError'>,
    * to `patch` when no commit indicates a release.
    */
   releaseType?: ReleaseType;
+  /**
+   * Forces a release version when specified. Must adhere to semver standards.
+   * Overrides the `releaseType` parameter if user provides both.
+   * If you omit both `releaseType` and `releaseVersion`,
+   * the library determines the type from the commits
+   * and defaults to patch when no commit indicates a release.
+   */
+  releaseVersion?: string;
 }
 
 export type ReleaseOptionsWithoutCommits<
