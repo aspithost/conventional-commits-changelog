@@ -1,9 +1,9 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+import { execFileSyncWrapper } from '../../../../utils/node/execFileSync.js';
 
 import { getSymbolicRef } from './getSymbolicRef.js';
 
 vi.mock('../../../../utils/node/execFileSync.js', () => ({
-  _execFileSync: vi.fn(),
+  execFileSyncWrapper: vi.fn(),
 }));
 
 describe('getSymbolicRef', () => {
@@ -11,11 +11,11 @@ describe('getSymbolicRef', () => {
     const SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
     const CWD = '/repo';
     const REMOTE_BRANCH = 'refs/remotes/origin/main';
-    vi.mocked(_execFileSync).mockReturnValueOnce(REMOTE_BRANCH);
+    vi.mocked(execFileSyncWrapper).mockReturnValueOnce(REMOTE_BRANCH);
 
     expect(getSymbolicRef(SYMBOLIC_REF, CWD)).toBe(REMOTE_BRANCH);
 
-    expect(_execFileSync).toHaveBeenCalledExactlyOnceWith(
+    expect(execFileSyncWrapper).toHaveBeenCalledExactlyOnceWith(
       'git',
       ['symbolic-ref', SYMBOLIC_REF],
       CWD,
@@ -26,7 +26,7 @@ describe('getSymbolicRef', () => {
     const SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
     const CWD = '/repo';
     const ERROR = new Error('some git error');
-    vi.mocked(_execFileSync).mockImplementationOnce(() => {
+    vi.mocked(execFileSyncWrapper).mockImplementationOnce(() => {
       throw ERROR;
     });
 

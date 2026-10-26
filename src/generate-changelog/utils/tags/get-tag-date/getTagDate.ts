@@ -1,11 +1,11 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+import { execFileSyncWrapper } from '../../../../utils/node/execFileSync.js';
 
 export function getTagDate(
   tag: string,
   cwd: string,
 ): string {
   try {
-    return _execFileSync('git', [
+    return execFileSyncWrapper('git', [
       'log',
       '-1',
       '--format=%cs',

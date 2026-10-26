@@ -5,7 +5,7 @@ export interface ExecFileSyncOptions {
   maxBuffer?: number;
 }
 
-export function _execFileSync(
+export function execFileSyncWrapper(
   command: string,
   args: readonly string[],
   cwd: string,

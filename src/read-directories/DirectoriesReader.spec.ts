@@ -3,7 +3,8 @@ import { join } from 'node:path';
 
 import { DirectoriesReader } from './DirectoriesReader.js';
 
-const PACKAGE_JSON_NAME = vi.hoisted(() => 'some-package');
+const PACKAGE_JSON_NAME_WITHOUT_SCOPE = vi.hoisted(() => 'some-package');
+const PACKAGE_JSON_NAME = vi.hoisted(() => `@some-scope/${PACKAGE_JSON_NAME_WITHOUT_SCOPE}`);
 const PACKAGE_JSON = vi.hoisted(() => `{"name": "${PACKAGE_JSON_NAME}"}`);
 
 vi.mock('node:fs', () => ({
@@ -58,74 +59,36 @@ describe('DirectoriesReader', () => {
     });
   });
 
-  describe('Execution of createDirectoryPathByScopeMap on initialization of class', () => {
-    describe('root scope entry in createDirectoryPathByScopeMap', () => {
-      it('should not create a root scope entry if not specified', () => {
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toHaveLength(0);
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
-      });
-
-      it('should add a map entry for a root scope when the user opts in', () => {
-        const ROOT_SCOPE_NAME = 'root';
-        const ROOT_SCOPE_DIRECTORY_PATH = '/path/for/root/scope';
-        const directoriesReader = new DirectoriesReader({
-          rootScopeOptions: {
-            addRootScope: true,
-            rootScopeDirectoryPath: ROOT_SCOPE_DIRECTORY_PATH,
-            rootScopeName: ROOT_SCOPE_NAME,
-          },
-        });
-
-        expect([...directoriesReader.scopes]).toStrictEqual([ROOT_SCOPE_NAME]);
-        expect(directoriesReader.directoryPathByScopeMap.get(ROOT_SCOPE_NAME)).toStrictEqual({
-          directoryPath: ROOT_SCOPE_DIRECTORY_PATH,
-        });
-      });
-
-      it('should throw when the root scope name conflicts with an existing entry', () => {
-        const ROOT_SCOPE_NAME = 'root';
-        const ROOT_SCOPE_DIRECTORY_PATH = '/path/for/root/scope';
-        vi.mocked(readdirSync).mockReturnValueOnce([createDirent(true, ROOT_SCOPE_NAME)]);
-        vi.mocked(readFileSync).mockReturnValueOnce(`{"name": "${ROOT_SCOPE_NAME}"}`);
-
-        expect(() => new DirectoriesReader({
-          rootScopeOptions: {
-            addRootScope: true,
-            rootScopeDirectoryPath: ROOT_SCOPE_DIRECTORY_PATH,
-            rootScopeName: ROOT_SCOPE_NAME,
-          },
-        })).toThrow();
-      });
-    });
-
+  describe('Execution of createpackagesDirectoriesMap on initialization of class', () => {
     describe('read and filter directories', () => {
-      it('should filter out non-directory entries', () => {
-        const PACKAGE_JSON_NAME_TWO = 'some-package-two';
-        const PACKAGE_JSON_TWO = `{"name": "${PACKAGE_JSON_NAME_TWO}"}`;
-        vi.mocked(readFileSync)
-          .mockReturnValueOnce(PACKAGE_JSON)
-          .mockReturnValueOnce(PACKAGE_JSON_TWO);
-        vi.mocked(readdirSync).mockReturnValueOnce([
-          createDirent(true, 'package-one'),
-          createDirent(false, 'README.md'),
-          createDirent(true, 'package-two'),
-          createDirent(false, '.gitignore'),
-        ]);
-        const directoriesReader = new DirectoriesReader();
+      it(
+        'should filter out non-directory entries',
+        () => {
+          const PACKAGE_JSON_NAME_TWO = 'some-package-two';
+          const PACKAGE_JSON_TWO = `{"name": "${PACKAGE_JSON_NAME_TWO}"}`;
+          vi.mocked(readFileSync)
+            .mockReturnValueOnce(PACKAGE_JSON)
+            .mockReturnValueOnce(PACKAGE_JSON_TWO);
+          vi.mocked(readdirSync).mockReturnValueOnce([
+            createDirent(true, 'package-one'),
+            createDirent(false, 'README.md'),
+            createDirent(true, 'package-two'),
+            createDirent(false, '.gitignore'),
+          ]);
+          const directoriesReader = new DirectoriesReader();
 
-        expect([...directoriesReader.scopes])
-          .toStrictEqual([PACKAGE_JSON_NAME, PACKAGE_JSON_NAME_TWO]);
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(2);
-        expect(directoriesReader.directoryPathByScopeMap.get(PACKAGE_JSON_NAME)).toStrictEqual({
-          directoryPath: join(process.cwd(), 'package-one'),
-        });
-        expect(directoriesReader.directoryPathByScopeMap.get(PACKAGE_JSON_NAME_TWO)).toStrictEqual({
-          directoryPath: join(process.cwd(), 'package-two'),
-        });
-        expect(readFileSync).toHaveBeenCalledTimes(2);
-      });
+          expect(directoriesReader.packagesDirectoriesMap.size).toBe(2);
+          expect(directoriesReader.packagesDirectoriesMap.get(PACKAGE_JSON_NAME_WITHOUT_SCOPE))
+            .toStrictEqual({
+              directoryPath: join(process.cwd(), 'package-one'),
+            });
+          expect(directoriesReader.packagesDirectoriesMap.get(PACKAGE_JSON_NAME_TWO))
+            .toStrictEqual({
+              directoryPath: join(process.cwd(), 'package-two'),
+            });
+          expect(readFileSync).toHaveBeenCalledTimes(2);
+        },
+      );
 
       it('should throw when the root directory does not exist', () => {
         const error = createEnoentError();
@@ -142,13 +105,12 @@ describe('DirectoriesReader', () => {
       it('should handle an empty root directory', () => {
         const directoriesReader = new DirectoriesReader();
 
-        expect([...directoriesReader.scopes]).toHaveLength(0);
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
+        expect(directoriesReader.packagesDirectoriesMap.size).toBe(0);
       });
     });
 
     describe('package.json handling for each directory', () => {
-      it('should read and parse package.json from each directory', () => {
+      it('should read and parse the package.json from each directory', () => {
         const customPath = '/packages/custom';
         vi.mocked(readdirSync).mockReturnValueOnce([createDirent(true, 'my-pkg', customPath)]);
 
@@ -178,8 +140,7 @@ describe('DirectoriesReader', () => {
 
             const directoriesReader = new DirectoriesReader();
 
-            expect([...directoriesReader.scopes]).toHaveLength(0);
-            expect(directoriesReader.directoryPathByScopeMap.size).toBe(0);
+            expect(directoriesReader.packagesDirectoriesMap.size).toBe(0);
           },
         );
 
@@ -212,55 +173,8 @@ describe('DirectoriesReader', () => {
   });
 
   describe('getters', () => {
-    describe('scopes', () => {
-      it('should return an iterable of scope names', () => {
-        vi.mocked(readdirSync).mockReturnValueOnce([createDirent(true, 'package-one')]);
-
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toStrictEqual([PACKAGE_JSON_NAME]);
-      });
-
-      it('should return an empty array when readdirSync finds no packages', () => {
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toHaveLength(0);
-      });
-
-      it('should return multiple scope names', () => {
-        vi.mocked(readdirSync).mockReturnValueOnce([
-          createDirent(true, 'package-one'),
-          createDirent(true, 'package-two'),
-          createDirent(true, 'package-three'),
-        ]);
-        vi.mocked(readFileSync)
-          .mockReturnValueOnce('{"name": "app-one"}')
-          .mockReturnValueOnce('{"name": "app-two"}')
-          .mockReturnValueOnce('{"name": "app-three"}');
-
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toStrictEqual([
-          'app-one',
-          'app-two',
-          'app-three',
-        ]);
-      });
-
-      it('should skip directories without a package.json but keep the rest', () => {
-        vi.mocked(readdirSync).mockReturnValueOnce([
-          createDirent(true, 'package-one'),
-          createDirent(true, 'no-package-json'),
-        ]);
-
-        const directoriesReader = new DirectoriesReader();
-
-        expect([...directoriesReader.scopes]).toStrictEqual([PACKAGE_JSON_NAME]);
-      });
-    });
-
-    describe('directoryPathByScopeMap', () => {
-      it('should return a readonly array of ScopeInformation', () => {
+    describe('packagesDirectoriesMap', () => {
+      it('should return a map of package names (excl. scope) to their directory paths', () => {
         const DIRECTORY_PATH = '/path/to/packages';
         const NESTED_DIRECTORY = join('package-one');
         vi.mocked(readdirSync).mockReturnValueOnce([
@@ -273,13 +187,14 @@ describe('DirectoriesReader', () => {
 
         const directoriesReader = new DirectoriesReader({ directoryPath: DIRECTORY_PATH });
 
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(1);
-        expect(directoriesReader.directoryPathByScopeMap.get(PACKAGE_JSON_NAME)).toStrictEqual({
-          directoryPath: join(DIRECTORY_PATH, NESTED_DIRECTORY),
-        });
+        expect(directoriesReader.packagesDirectoriesMap.size).toBe(1);
+        expect(directoriesReader.packagesDirectoriesMap.get(PACKAGE_JSON_NAME_WITHOUT_SCOPE))
+          .toStrictEqual({
+            directoryPath: join(DIRECTORY_PATH, NESTED_DIRECTORY),
+          });
       });
 
-      it('should return nested scopes and their directory paths', () => {
+      it('should return nested package.json names and their directory paths', () => {
         const DIRECTORY_PATH = '/packages';
         const FIRST_LEVEL_DIRECTORY = join(DIRECTORY_PATH, 'i');
         const SECOND_LEVEL_DIRECTORY = join(FIRST_LEVEL_DIRECTORY, 'am');
@@ -297,14 +212,14 @@ describe('DirectoriesReader', () => {
           .mockReturnValueOnce('{"name": "nested"}');
 
         const directoriesReader = new DirectoriesReader({ directoryPath: DIRECTORY_PATH });
-        expect(directoriesReader.directoryPathByScopeMap.size).toBe(3);
-        expect(directoriesReader.directoryPathByScopeMap.get('i')).toStrictEqual({
+        expect(directoriesReader.packagesDirectoriesMap.size).toBe(3);
+        expect(directoriesReader.packagesDirectoriesMap.get('i')).toStrictEqual({
           directoryPath: FIRST_LEVEL_DIRECTORY,
         });
-        expect(directoriesReader.directoryPathByScopeMap.get('am')).toStrictEqual({
+        expect(directoriesReader.packagesDirectoriesMap.get('am')).toStrictEqual({
           directoryPath: SECOND_LEVEL_DIRECTORY,
         });
-        expect(directoriesReader.directoryPathByScopeMap.get('nested')).toStrictEqual({
+        expect(directoriesReader.packagesDirectoriesMap.get('nested')).toStrictEqual({
           directoryPath: THIRD_LEVEL_DIRECTORY,
         });
       });

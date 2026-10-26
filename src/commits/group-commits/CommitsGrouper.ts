@@ -1,44 +1,38 @@
-import type {
-  ValidatedCommitWithScope,
-  ValidatedCommitWithScopeAndType,
-} from '../validate-commits/types/commit.js';
+import type { ValidatedCommit } from '../validate-commits/CommitsValidator.js';
 
-type CommitWithScope<
-  T extends string,
-> = ValidatedCommitWithScope<T> | ValidatedCommitWithScopeAndType<T, string>;
+interface CommitsGrouperOptions {
+  validatedCommits: Iterable<ValidatedCommit>;
+}
 
-export type CommitsByScopeMap<T extends string> = Map<T, CommitWithScope<T>[]>;
+export type CommitsByScopeMap = Map<string, Iterable<ValidatedCommit>>;
 
-export class CommitsGrouper<T extends string> {
-  readonly #allowedCommitScopes: Set<T>;
-  readonly #commitsByScopeMap: CommitsByScopeMap<T>;
+export class CommitsGrouper {
+  readonly #commitsByScopeMap: CommitsByScopeMap;
 
-  constructor(
-    validatedCommits: Iterable<CommitWithScope<T>>,
-    allowedCommitScopes: Set<T>,
-  ) {
-    this.#allowedCommitScopes = allowedCommitScopes;
+  constructor({
+    validatedCommits,
+  }: CommitsGrouperOptions) {
     this.#commitsByScopeMap = this.#groupCommitsByScope(validatedCommits);
   }
 
-  get commitsByScopeMap(): CommitsByScopeMap<T> {
+  get commitsByScopeMap(): CommitsByScopeMap {
     return this.#commitsByScopeMap;
   }
 
   #groupCommitsByScope(
-    validatedCommits: Iterable<CommitWithScope<T>>,
-  ): CommitsByScopeMap<T> {
-    const commitsByScopeMap: CommitsByScopeMap<T> = new Map();
+    validatedCommits: Iterable<ValidatedCommit>,
+  ): CommitsByScopeMap {
+    const commitsByScopeMap: CommitsByScopeMap = new Map();
 
     for (const commit of validatedCommits) {
       const { scope } = commit;
-      if (!scope || !this.#allowedCommitScopes.has(scope)) continue;
+      if (!scope) continue;
 
       const commitsByScope = commitsByScopeMap.get(scope);
       if (!commitsByScope) {
         commitsByScopeMap.set(scope, [commit]);
       } else {
-        commitsByScope.push(commit);
+        commitsByScopeMap.set(scope, [...commitsByScope, commit]);
       }
     }
 

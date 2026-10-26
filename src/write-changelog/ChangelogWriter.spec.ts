@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { writeChangelog } from 'conventional-changelog-writer';
 
-import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
+import type { ValidatedCommit } from '../commits/validate-commits/CommitsValidator.js';
 
 import { ChangelogWriter, type ChangelogWriterPreset } from './ChangelogWriter.js';
 import type { RemoteRepositoryInformation } from './schemas/changelogWriterOptions.js';
@@ -29,7 +29,7 @@ vi.mock('./utils/getFormattedDate', () => ({
   getFormattedDate: vi.fn(() => '2024-01-15'),
 }));
 
-type ValidatedCommits = Iterable<ValidatedCommit<string, string>>;
+type ValidatedCommits = Iterable<ValidatedCommit>;
 function* createValidatedCommits(commits: ValidatedCommits): ValidatedCommits {
   yield* commits;
 }
@@ -41,19 +41,9 @@ function* createChangelogChunks(chunks: string[]): Generator<string> {
 }
 
 const BASE_VALIDATED_COMMIT = {
-  hash: 'abc123',
-  merge: null,
-  revert: null,
-  header: 'feat(core): add feature',
-  body: null,
-  footer: null,
-  notes: [],
-  mentions: [],
-  references: [],
   scope: 'core',
-  subject: 'add feature',
   type: 'feat',
-} satisfies ValidatedCommit<string, string>;
+} as unknown as ValidatedCommit;
 
 const MOCK_WRITER_PRESET = {
   headerPartial: '',

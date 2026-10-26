@@ -6,7 +6,7 @@ import {
   writeChangelog as _writeChangelog,
 } from 'conventional-changelog-writer';
 
-import type { ValidatedCommit } from '../commits/validate-commits/types/commit.js';
+import type { ValidatedCommit } from '../commits/validate-commits/CommitsValidator.js';
 import type { ReleaseType } from '../release/schemas/release.js';
 
 import { createWriterPreset } from './presets/createWriterPreset.js';
@@ -62,7 +62,7 @@ export class ChangelogWriter {
     directoryPath: string,
     newVersion: string,
     releaseType: ReleaseType,
-    commits: Iterable<ValidatedCommit<string, string>>,
+    commits: Iterable<ValidatedCommit>,
     { date = getFormattedDate(), filename = 'CHANGELOG.md' }: WriteChangelogOptions = {},
   ): Promise<void> {
     const changelogPath = join(directoryPath, filename);
@@ -83,7 +83,7 @@ export class ChangelogWriter {
   async #createChangelogString(
     newVersion: string,
     releaseType: ReleaseType,
-    commits: Iterable<ValidatedCommit<string, string>>,
+    commits: Iterable<ValidatedCommit>,
     date: string,
   ): Promise<string> {
     let changelogString = '';
@@ -98,7 +98,7 @@ export class ChangelogWriter {
   #createChangelogEntry(
     newVersion: string,
     releaseType: ReleaseType,
-    commits: Iterable<ValidatedCommit<string, string>>,
+    commits: Iterable<ValidatedCommit>,
     date: string,
   ): AsyncGenerator<string, void, unknown> {
     const context = {

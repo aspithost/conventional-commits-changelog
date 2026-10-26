@@ -1,4 +1,4 @@
-import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
+import { retrieveValidatedCommits } from '../../../commits/utils/retrieveValidatedCommits.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
 import type { GenerateChangelogOptions } from '../../types/generateChangelog.js';
 import type { TagEntry } from '../tags/formatTagEntries.js';
@@ -15,10 +15,10 @@ export async function generateChangelogVersioned(
     commitsParserOptions,
     changelogWriterOptions,
     commitsRetrieverOptions,
-    commitsValidatorOptions,
     directoryPath,
+    tagRetrieverOptions,
     onError,
-  }: GenerateChangelogOptions<string, string> & { directoryPath: string },
+  }: GenerateChangelogOptions & { directoryPath: string },
 ) {
   const changelogWriter = createChangelogWriter(changelogWriterOptions);
 
@@ -50,7 +50,7 @@ export async function generateChangelogVersioned(
               to: tagCurrent,
               onError,
             },
-            commitsValidatorOptions,
+            tagRetrieverOptions,
             onError,
           }),
           { date },

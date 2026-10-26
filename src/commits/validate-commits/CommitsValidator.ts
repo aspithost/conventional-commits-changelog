@@ -1,26 +1,32 @@
-import { DEFAULT_ALLOWED_TYPES } from '../constants/commit.js';
+import type { ErrorHandler } from '../../utils/error/logError.js';
+import type { OnError } from '../../utils/error/types/error.js';
 import type { ParsedCommits } from '../parse-commits/CommitsParser.js';
 
-import {
-  BaseCommitsValidator,
-  type BaseCommitsValidatorOptions,
-} from './base/BaseCommitsValidator.js';
-import { createCommitSchemaWithType } from './schemas/commit.js';
-import type { ValidatedCommitWithDefaultType } from './types/commit.js';
+import { type CommitSchema, commitSchema } from './schemas/commit.js';
 
-export type CommitsValidatorOptions = BaseCommitsValidatorOptions;
+export type ValidatedCommit = CommitSchema;
 
-export class CommitsValidator extends BaseCommitsValidator {
-  constructor({ onError }: CommitsValidatorOptions = {}) {
-    super({ onError });
+export class CommitsValidator {
+  readonly #onError?: ErrorHandler | null;
+
+  constructor({
+    onError,
+  }: OnError = {}) {
+    this.#onError = onError;
   }
 
-  *validateCommits(
+  *getValidatedCommits(
     parsedCommits: ParsedCommits,
-  ): Iterable<ValidatedCommitWithDefaultType> {
-    yield* this.validateCommitsBySchema(
-      parsedCommits,
-      createCommitSchemaWithType(DEFAULT_ALLOWED_TYPES),
-    );
+  ): Iterable<ValidatedCommit> {
+    for (const commit of parsedCommits) {
+      const result = commitSchema.safeParse(commit);
+
+      if (!result.success) {
+        this.#onError?.('Validation error, did not yield commit', result.error);
+        continue;
+      }
+
+      yield result.data;
+    }
   }
 }
