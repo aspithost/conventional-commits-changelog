@@ -1,20 +1,19 @@
 import { CommitsGrouper } from '../../commits/group-commits/CommitsGrouper.js';
-import { retrieveValidatedCommits } from '../../commits/retrieveValidatedCommits.js';
+import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 import { logError } from '../../utils/error/logError.js';
+import { bumpVersion } from '../../version/bumpVersion.js';
+import { createChangelogWriter } from '../../write-changelog/utils/createChangelogWriter.js';
+import { determineReleaseType } from '../utils/determineReleaseType.js';
 
 import type { ReleasePackagesOptions } from './types/releasePackages.js';
-import { getAllowedCommitsScopes } from './utils/getAllowedCommitsScopes.js';
-import { getFilteredCommitsScopes } from './utils/getFilteredCommitsScopes.js';
 import { logRejectedPromises } from './utils/logRejectedPromises.js';
-import { releaseByScope } from './utils/releaseByScope.js';
 
 /**
  * Releases packages whose commit scopes map to package directories and whose commits
  * warrant a release. The function reads package directories, maps commit scopes to
  * packages, and releases each eligible package with its own commits.
  *
- * @typeParam T - Allowed commit scopes.
  * @param options - {@link ReleasePackagesOptions | ReleasePackages options}.
  * @returns A promise that resolves when all packages finish releasing.
  * @throws Error when the specified directory contains no scopes.
@@ -28,62 +27,78 @@ import { releaseByScope } from './utils/releaseByScope.js';
  * await releasePackages({ isDryRun: true });
  * ```
  */
-export async function releasePackages<T extends string>({
+export async function releasePackages({
   changelogWriterOptions,
   commitsParserOptions,
   commitsRetrieverOptions,
-  commitsValidatorOptions,
   directoriesReaderOptions = {
     directoryPath: process.cwd(),
-    isFilterScope: false,
   },
   isDryRun = false,
   isUpdateReadme = true,
+  tagRetrieverOptions,
   onError = logError,
-}: ReleasePackagesOptions<T> = {}): Promise<void> {
-  const { directoryPath, rootScopeOptions } = directoriesReaderOptions;
+}: ReleasePackagesOptions = {}): Promise<void> {
+  // Read package directories and map package.json name to directory path
+  const { directoryPath } = directoriesReaderOptions;
   const directoriesReader = new DirectoriesReader({
     directoryPath,
-    rootScopeOptions,
   });
-  const { directoryPathByScopeMap } = directoriesReader;
-  if (!directoryPathByScopeMap.size) throw new Error('No scopes found in the specified directory');
+  const { packagesDirectoriesMap } = directoriesReader;
+  if (!packagesDirectoriesMap.size) {
+    throw new Error('No packages with a valid package.json found in the specified directory');
+  }
 
-  const filteredScopes = getFilteredCommitsScopes(
-    directoriesReader.scopes,
-    directoriesReaderOptions.isFilterScope,
-  );
+  // Retrieve validated commits
+  const validatedCommitsIterator = retrieveValidatedCommits({
+    commitsParserOptions,
+    commitsRetrieverOptions,
+    tagRetrieverOptions,
+    onError,
+  });
 
-  const allowedCommitScopes = getAllowedCommitsScopes(
-    filteredScopes,
-    commitsValidatorOptions?.allowedCommitScopes,
-  );
-
-  const resolvedCommits = [
-    ...retrieveValidatedCommits({
-      commitsParserOptions,
-      commitsRetrieverOptions,
-      commitsValidatorOptions: {
-        ...commitsValidatorOptions,
-        allowedCommitScopes,
-      },
-      onError,
-    }),
-  ];
-
-  const commitsGrouper = new CommitsGrouper(resolvedCommits, allowedCommitScopes);
+  // Groups commits by commit scope
+  const commitsGrouper = new CommitsGrouper({
+    validatedCommits: validatedCommitsIterator,
+  });
   const { commitsByScopeMap } = commitsGrouper;
 
-  const releasePackagesResults = await releaseByScope(
-    directoryPathByScopeMap,
-    commitsByScopeMap,
-    {
-      changelogWriterOptions,
-      isDryRun,
+  const releasePromises: Promise<void>[] = [];
+  const changelogWriter = createChangelogWriter(changelogWriterOptions);
+
+  // Loops over commits by scope
+  for (const [scopeName, commitsByScope] of commitsByScopeMap) {
+    // Checks if the scope maps to a valid package directory
+    const { directoryPath } = packagesDirectoriesMap.get(scopeName) ?? {};
+    if (!directoryPath) continue;
+
+    // Determine release type for scope
+    const releaseType = determineReleaseType(commitsByScope);
+    if (!releaseType) continue;
+    if (isDryRun) {
+      console.log(
+        `Dry run: would release package at ${directoryPath} with release type ${releaseType}`,
+      );
+      continue;
+    }
+
+    // Bump version for the package
+    const newVersion = bumpVersion(directoryPath, releaseType, {
       isUpdateReadme,
       onError,
-    },
-  );
+    });
+
+    // Add changelog writer promise to promises array and continue with the next scope
+    releasePromises.push(changelogWriter.writeChangelog(
+      directoryPath,
+      newVersion,
+      releaseType,
+      commitsByScope,
+    ));
+  }
+
+  // Await all writeChangelog operations
+  const releasePackagesResults = await Promise.allSettled(releasePromises);
 
   if (onError) {
     logRejectedPromises(releasePackagesResults, onError, 'A package release failed.');

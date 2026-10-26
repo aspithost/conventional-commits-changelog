@@ -10,7 +10,9 @@ const VALID_OPTIONS: BaseReleaseOptions = {
 
 describe('validateReleaseInput', () => {
   it('should not throw an error when the user provides valid release input parameters', () => {
-    expect(() => { validateReleaseInput(VALID_OPTIONS); }).not.toThrow();
+    expect(() => {
+      validateReleaseInput(VALID_OPTIONS);
+    }).not.toThrow();
   });
 
   test.each([
@@ -25,8 +27,10 @@ describe('validateReleaseInput', () => {
       ...options,
     };
 
-    // @ts-expect-error: Invalid input for unit testing purposes
-    expect(() => { validateReleaseInput(INVALID_OPTIONS); }).toThrow(
+    expect(() => {
+      // @ts-expect-error: Invalid input for unit testing purposes
+      validateReleaseInput(INVALID_OPTIONS);
+    }).toThrow(
       expect.objectContaining({
         message: 'Validation error: invalid release options',
       }),

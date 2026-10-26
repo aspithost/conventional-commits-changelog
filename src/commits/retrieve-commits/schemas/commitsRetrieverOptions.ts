@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 import {
   COMMIT_FORMAT as _COMMIT_FORMAT,
-  DEFAULT_REMOTE_SYMBOLIC_REF as _DEFAULT_REMOTE_SYMBOLIC_REF,
 } from '../CommitsRetriever.js';
 
 const validGitInputString = z.string().regex(/^(?!-).*/);
@@ -27,10 +26,5 @@ export const commitsRetrieverOptions = z.object({
    * @defaultValue `'HEAD'`
    */
   to: validGitInputString.optional(),
-  /**
-   * The ref used to determine the default remote branch.
-   * @defaultValue {@link _DEFAULT_REMOTE_SYMBOLIC_REF | DEFAULT_REMOTE_SYMBOLIC_REF}
-   */
-  remoteSymbolicRef: validGitInputString.optional(),
 });
 export type CommitsRetrieverOptions = z.infer<typeof commitsRetrieverOptions>;

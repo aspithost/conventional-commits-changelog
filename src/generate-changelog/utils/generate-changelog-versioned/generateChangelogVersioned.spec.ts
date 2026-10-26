@@ -2,7 +2,7 @@
 import type {
   CommitsRetrieverOptions,
 } from '../../../commits/retrieve-commits/CommitsRetriever.js';
-import { retrieveValidatedCommits } from '../../../commits/retrieveValidatedCommits.js';
+import { retrieveValidatedCommits } from '../../../commits/utils/retrieveValidatedCommits.js';
 import { createChangelogWriter } from '../../../write-changelog/utils/createChangelogWriter.js';
 import type { TagEntry } from '../tags/formatTagEntries.js';
 import {
@@ -18,7 +18,7 @@ const COMMITS = vi.hoisted(() => [
   { commit: 'one' },
   { commit: 'two' },
 ]);
-vi.mock('../../../commits/retrieveValidatedCommits.js', () => ({
+vi.mock('../../../commits/utils/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(() => COMMITS),
 }));
 
@@ -50,7 +50,7 @@ describe('generateChangelogVersioned', () => {
   const onError = vi.fn();
 
   describe('happy flow', () => {
-    beforeEach( async () => {
+    beforeEach(async () => {
       await generateChangelogVersioned([TAG_ENTRY_ONE, TAG_ENTRY_TWO], {
         directoryPath: DIRECTORY_PATH,
         onError,
@@ -122,32 +122,35 @@ describe('generateChangelogVersioned', () => {
   });
 
   describe('options', () => {
-    it('should forward the parser, retriever, and validator options', async () => {
-      const commitsParserOptions = { parserStreamOptions: { headerPattern: /^(.*)$/ } };
-      const commitsRetrieverOptions = { remoteSymbolicRef: 'refs/remotes/upstream/HEAD' };
-      const commitsValidatorOptions = { allowedCommitScopes: new Set(['core']) };
+    it(
+      'should forward the commits parser/retriever/validator and the tag retriever options',
+      async () => {
+        const commitsParserOptions = { parserStreamOptions: { headerPattern: /^(.*)$/ } };
+        const commitsRetrieverOptions = { commitFormat: 'some-format' };
+        const tagRetrieverOptions = { remoteSymbolicRef: 'some-remote-symbolic-ref' };
 
-      await generateChangelogVersioned([TAG_ENTRY_ONE], {
-        commitsParserOptions,
-        commitsRetrieverOptions,
-        commitsValidatorOptions,
-        directoryPath: DIRECTORY_PATH,
-        onError,
-      });
-
-      expect(retrieveValidatedCommits).toHaveBeenCalledExactlyOnceWith({
-        commitsParserOptions,
-        commitsRetrieverOptions: {
-          ...commitsRetrieverOptions,
-          cwd: DIRECTORY_PATH,
-          from: TAG_ENTRY_ONE.tagPrevious,
-          to: TAG_ENTRY_ONE.tagCurrent,
+        await generateChangelogVersioned([TAG_ENTRY_ONE], {
+          commitsParserOptions,
+          commitsRetrieverOptions,
+          directoryPath: DIRECTORY_PATH,
+          tagRetrieverOptions,
           onError,
-        },
-        commitsValidatorOptions,
-        onError,
-      });
-    });
+        });
+
+        expect(retrieveValidatedCommits).toHaveBeenCalledExactlyOnceWith({
+          commitsParserOptions,
+          commitsRetrieverOptions: {
+            ...commitsRetrieverOptions,
+            cwd: DIRECTORY_PATH,
+            from: TAG_ENTRY_ONE.tagPrevious,
+            to: TAG_ENTRY_ONE.tagCurrent,
+            onError,
+          },
+          tagRetrieverOptions,
+          onError,
+        });
+      },
+    );
   });
 
   describe('unhappy flow', () => {

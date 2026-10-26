@@ -1,18 +1,18 @@
 import { execFileSync } from 'node:child_process';
 
-import { _execFileSync } from './execFileSync.js';
+import { execFileSyncWrapper } from './execFileSync.js';
 
 vi.mock('node:child_process', () => ({
   execFileSync: vi.fn(() => ''),
 }));
 
-describe('_execFileSync', () => {
+describe('execFileSyncWrapper', () => {
   it('should call execFileSync with the provided arguments', () => {
     const COMMAND = 'some-command';
     const ARGS = ['some-arg', 'some-other-arg'];
     const CWD = process.cwd();
 
-    _execFileSync(COMMAND, ARGS, CWD);
+    execFileSyncWrapper(COMMAND, ARGS, CWD);
 
     expect(vi.mocked(execFileSync)).toHaveBeenCalledExactlyOnceWith(COMMAND, ARGS, {
       cwd: CWD,

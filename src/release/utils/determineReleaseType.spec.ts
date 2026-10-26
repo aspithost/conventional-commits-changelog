@@ -1,20 +1,10 @@
-import type { ValidatedCommit } from '../../commits/validate-commits/types/commit.js';
+import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import { determineReleaseType } from '../../release/utils/determineReleaseType.js';
 
 const VALIDATED_COMMIT = {
-  hash: 'abc123',
-  merge: null,
-  revert: null,
-  header: 'feat(core): add feature',
-  body: null,
-  footer: null,
   notes: [],
-  mentions: [],
-  references: [],
-  scope: 'core',
-  subject: 'add feature',
   type: 'feat',
-} satisfies ValidatedCommit<string, string>;
+} as unknown as ValidatedCommit;
 
 describe('determineReleaseType', () => {
   it('should return major for commits with a BREAKING CHANGE note', () => {

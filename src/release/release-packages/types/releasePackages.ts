@@ -1,40 +1,28 @@
-import type { RetrieveCommitsOptions } from '../../../commits/retrieveValidatedCommits.js';
-import type { DirectoriesReaderOptions } from '../../../read-directories/DirectoriesReader.js';
+import type {
+  RetrieveValidatedCommitsOptions,
+} from '../../../commits/utils/retrieveValidatedCommits.js';
+import type {
+  DirectoriesReaderOptions,
+} from '../../../read-directories/types/directoriesReader.js';
 import type { OnError } from '../../../utils/error/types/error.js';
 import type { BaseReleaseOptions } from '../../release/schemas/releaseOptions.js';
 
-/**
- * Extends {@link DirectoriesReaderOptions} with scope filtering.
- *
- * @typeParam T - Name of the optional root scope.
- */
-interface DirectoriesReaderOptionsExtended<T extends string> extends DirectoriesReaderOptions<T> {
-  /**
-   * If set to true, strips the npm scope prefix from package names,
-   * so `@org/pkg` becomes the commit scope `pkg`.
-   *
-   * @defaultValue `false`
-   */
-  isFilterScope?: boolean;
-}
-
-interface BaseReleasePackageOptions<
-  T extends string,
-> extends Omit<BaseReleaseOptions, 'directoryPath' | 'releaseType'> {
+interface BaseReleasePackageOptions extends Omit<
+  BaseReleaseOptions,
+'directoryPath' | 'releaseType' | 'releaseVersion'
+> {
   /**
    * Options for finding packages and mapping them to commit scopes.
    *
-   * @see {@link DirectoriesReaderOptionsExtended}
+   * @see {@link DirectoriesReaderOptions}
    */
-  directoriesReaderOptions?: DirectoriesReaderOptionsExtended<T>;
+  directoriesReaderOptions?: DirectoriesReaderOptions;
 }
 
 /**
  * Options for `releasePackages`. Combines {@link BaseReleaseOptions} (without
- * `directoryPath` and `releaseType`) and {@link RetrieveCommitsOptions}.
- *
- * @typeParam T - Allowed commit scopes.
+ * `directoryPath` and `releaseType`) and {@link RetrieveValidatedCommitsOptions}.
  */
-export type ReleasePackagesOptions<
-  T extends string,
-> = BaseReleasePackageOptions<T> & RetrieveCommitsOptions<T, string> & OnError;
+export type ReleasePackagesOptions = BaseReleasePackageOptions
+  & RetrieveValidatedCommitsOptions
+  & OnError;

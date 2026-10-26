@@ -59,16 +59,16 @@ describe('generateChangelog', () => {
     async () => {
       const changelogWriterOptions = {};
       const commitsParserOptions = {};
-      const commitsRetrieverOptions = { remoteSymbolicRef: 'refs/remotes/upstream/HEAD' };
-      const commitsValidatorOptions = {};
+      const commitsRetrieverOptions = {};
+      const tagRetrieverOptions = { remoteSymbolicRef: 'refs/remotes/upstream/HEAD' };
       const onError = vi.fn();
 
       await generateChangelog({
         changelogWriterOptions,
         commitsParserOptions,
         commitsRetrieverOptions,
-        commitsValidatorOptions,
         directoryPath: DIRECTORY_PATH,
+        tagRetrieverOptions,
         onError,
       });
 
@@ -83,8 +83,8 @@ describe('generateChangelog', () => {
           changelogWriterOptions,
           commitsParserOptions,
           commitsRetrieverOptions,
-          commitsValidatorOptions,
           directoryPath: DIRECTORY_PATH,
+          tagRetrieverOptions,
           onError,
         },
       );

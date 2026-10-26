@@ -1,16 +1,16 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+import { execFileSyncWrapper } from '../../../../utils/node/execFileSync.js';
 
 import { getSortedTags } from './getSortedTags.js';
 
 vi.mock('../../../../utils/node/execFileSync.js', () => ({
-  _execFileSync: vi.fn(),
+  execFileSyncWrapper: vi.fn(),
 }));
 
 describe('getSortedTags', () => {
   it('should return only version tags in ascending order', () => {
     const BRANCH = 'main';
     const CWD = '/repo';
-    vi.mocked(_execFileSync).mockReturnValueOnce(
+    vi.mocked(execFileSyncWrapper).mockReturnValueOnce(
       'nightly\nv1.0.0\n1.1.0\nv1.2.0\nv2.0.0-beta.1\n',
     );
 
@@ -20,7 +20,7 @@ describe('getSortedTags', () => {
       'v1.2.0',
     ]);
 
-    expect(_execFileSync).toHaveBeenCalledExactlyOnceWith(
+    expect(execFileSyncWrapper).toHaveBeenCalledExactlyOnceWith(
       'git',
       [
         'tag',
@@ -34,7 +34,7 @@ describe('getSortedTags', () => {
   });
 
   it('should return an empty array when there are no version tags', () => {
-    vi.mocked(_execFileSync).mockReturnValueOnce('nightly\nv1.0.0-beta.1');
+    vi.mocked(execFileSyncWrapper).mockReturnValueOnce('nightly\nv1.0.0-beta.1');
 
     expect(getSortedTags('main', '/repo')).toEqual([]);
   });
@@ -43,7 +43,7 @@ describe('getSortedTags', () => {
     const BRANCH = 'main';
     const CWD = '/repo';
     const ERROR = new Error('some git error');
-    vi.mocked(_execFileSync).mockImplementationOnce(() => {
+    vi.mocked(execFileSyncWrapper).mockImplementationOnce(() => {
       throw ERROR;
     });
 

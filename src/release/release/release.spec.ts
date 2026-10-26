@@ -1,6 +1,4 @@
-import type {
-  ValidatedCommitWithScopeAndType,
-} from '../../commits/validate-commits/types/commit.js';
+import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import type { OnError } from '../../utils/error/types/error.js';
 import { bumpVersion } from '../../version/bumpVersion.js';
 import { determineReleaseType } from '../utils/determineReleaseType.js';
@@ -12,13 +10,13 @@ import { validateReleaseInput } from './utils/validateReleaseInput.js';
 const BUTTON_FEAT_COMMIT = vi.hoisted(() => ({
   scope: 'button',
   type: 'feat',
-} as unknown as ValidatedCommitWithScopeAndType<string, string>));
+} as unknown as ValidatedCommit));
 const BUTTON_FIX_COMMIT = vi.hoisted(() => ({
   scope: 'button',
   type: 'fix',
-} as unknown as ValidatedCommitWithScopeAndType<string, string>));
+} as unknown as ValidatedCommit));
 const BUTTON_COMMITS = vi.hoisted(() => [BUTTON_FEAT_COMMIT, BUTTON_FIX_COMMIT]);
-vi.mock('../../commits/retrieveValidatedCommits.js', () => ({
+vi.mock('../../commits/utils/retrieveValidatedCommits.js', () => ({
   retrieveValidatedCommits: vi.fn(() => BUTTON_COMMITS),
 }));
 
@@ -73,7 +71,7 @@ describe('release', () => {
       async () => {
         const SINGLE_COMMIT = BUTTON_COMMITS[0];
 
-        await release({ commits: [SINGLE_COMMIT] } );
+        await release({ commits: [SINGLE_COMMIT] });
 
         expect(determineReleaseType).toHaveBeenCalledWith([SINGLE_COMMIT]);
       },
@@ -113,7 +111,7 @@ describe('release', () => {
 
   describe('bumping the version', () => {
     it(
-      'should bump the version with the default directory and based on the determined release type',
+      'should bump the version for the default directory and based on the determined release type',
       async () => {
         const RELEASE_TYPE = 'major';
         vi.mocked(determineReleaseType).mockReturnValueOnce(RELEASE_TYPE);
@@ -134,6 +132,7 @@ describe('release', () => {
         const RELEASE_TYPE = 'major';
         await release({ releaseType: RELEASE_TYPE });
 
+        expect(determineReleaseType).not.toHaveBeenCalled();
         expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
           expect.any(String),
           RELEASE_TYPE,
@@ -154,6 +153,7 @@ describe('release', () => {
         releaseType: RELEASE_TYPE,
       });
 
+      expect(determineReleaseType).not.toHaveBeenCalled();
       expect(vi.mocked(bumpVersion)).toHaveBeenCalledWith(
         process.cwd(),
         RELEASE_VERSION,
@@ -168,6 +168,7 @@ describe('release', () => {
       const DIRECTORY_PATH = 'path/to/directory';
       await release({ directoryPath: DIRECTORY_PATH });
 
+      expect(determineReleaseType).toHaveBeenCalledOnce();
       expect(vi.mocked(bumpVersion))
         .toHaveBeenCalledWith(
           DIRECTORY_PATH,
@@ -191,7 +192,7 @@ describe('release', () => {
       console.log = vi.fn(); // Note: suppress console output for this test
       await release({ isDryRun: true });
 
-      expect(determineReleaseType).toHaveBeenCalledTimes(1);
+      expect(determineReleaseType).toHaveBeenCalledOnce();
       expect(bumpVersion).not.toHaveBeenCalled();
     });
   });

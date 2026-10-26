@@ -4,92 +4,35 @@ import {
 import { join } from 'node:path';
 
 import { type PackageJsonSchema, packageJsonSchema } from './schemas/package.js';
+import type {
+  DirectoriesReaderOptions,
+  PackagesDirectoriesMap,
+} from './types/directoriesReader.js';
 
-type RootScopeOptions<T extends string> = {
-  addRootScope: true;
-  /**
-   * The directory path of the root scope.
-   * @remarks You should specify this path if you set `addRootScope` to `true`.
-   */
-  rootScopeDirectoryPath: string;
-  /**
-   * The name of the root scope.
-   * @remarks You should specify this name if you set `addRootScope` to `true`.
-   */
-  rootScopeName: T;
-} | {
-  /**
-   * Whether to add the repository root as an extra scope.
-   *
-   * @defaultValue `false`
-   */
-  addRootScope?: false;
-};
-
-export interface DirectoriesReaderOptions<T extends string> {
-  /**
-   * Directory that contains the packages.
-   *
-   * @defaultValue {@link process.cwd}
-   */
-  directoryPath?: string;
-  /**
-   * Options for adding the repository root as an extra scope.
-   *
-   * @see {@link RootScopeOptions}
-   */
-  rootScopeOptions?: RootScopeOptions<T>;
-}
-
-// Note: TS workaround so that consumer can see provided root scope key in ScopesMap.
-// See: https://stackoverflow.com/questions/61047551/typescript-union-of-string-and-string-literals
-export type ScopeName<T extends string> = T | (string & {});
-export type DirectoryPathByScopeMap<
-  T extends string,
-> = Map<ScopeName<T>, { directoryPath: string }>;
-
-export class DirectoriesReader<T extends string> {
-  readonly #directoryPathByScopeMap: DirectoryPathByScopeMap<T>;
+export class DirectoriesReader {
+  readonly #packagesDirectoryMap: PackagesDirectoriesMap;
 
   constructor({
     directoryPath = process.cwd(),
-    rootScopeOptions = {
-      addRootScope: false,
-    },
-  }: DirectoriesReaderOptions<T> = {}) {
-    this.#directoryPathByScopeMap = this.#createDirectoryPathByScopeMap(
+  }: DirectoriesReaderOptions = {}) {
+    this.#packagesDirectoryMap = this.#createPackagesDirectoryMap(
       directoryPath,
-      rootScopeOptions,
     );
   }
 
-  get scopes(): MapIterator<ScopeName<T>> {
-    return this.#directoryPathByScopeMap.keys();
+  get packagesDirectoriesMap(): PackagesDirectoriesMap {
+    return this.#packagesDirectoryMap;
   }
 
-  get directoryPathByScopeMap(): DirectoryPathByScopeMap<T> {
-    return this.#directoryPathByScopeMap;
-  }
-
-  #createDirectoryPathByScopeMap(
+  #createPackagesDirectoryMap(
     directoryPath: string,
-    rootScopeOptions?: RootScopeOptions<T>,
-  ): DirectoryPathByScopeMap<T> {
+  ): PackagesDirectoriesMap {
     const directories = this.#readDirectories(directoryPath);
     const filteredDirectories = this.#filterDirectories(directories);
-    const scopesMap: DirectoryPathByScopeMap<T> = new Map();
-    this.#addMapEntries(scopesMap, filteredDirectories);
+    const packagesDirectoryMap: PackagesDirectoriesMap = new Map();
+    this.#addMapEntries(packagesDirectoryMap, filteredDirectories);
 
-    if (rootScopeOptions?.addRootScope) {
-      const { rootScopeName, rootScopeDirectoryPath } = rootScopeOptions;
-      this.#addRootScopeEntry(
-        scopesMap,
-        rootScopeName,
-        rootScopeDirectoryPath,
-      );
-    }
-
-    return scopesMap;
+    return packagesDirectoryMap;
   }
 
   #readDirectories(directoryPath: string): Dirent[] {
@@ -108,9 +51,9 @@ export class DirectoriesReader<T extends string> {
   }
 
   #addMapEntries(
-    scopesMap: DirectoryPathByScopeMap<T>,
+    packagesDirectoryMap: PackagesDirectoriesMap,
     directories: Dirent[],
-  ): DirectoryPathByScopeMap<T> {
+  ): PackagesDirectoriesMap {
     for (const directory of directories) {
       const directoryPath = join(directory.parentPath, directory.name);
       const packageJson = this.#readPackageJson(directoryPath);
@@ -119,16 +62,23 @@ export class DirectoriesReader<T extends string> {
       }
       const parsedPackageJson = this.#parseJson(packageJson, directoryPath);
       const { name } = this.#validatePackageJson(parsedPackageJson);
-      scopesMap.set(name, { directoryPath });
+      const strippedName = this.#stripScopeFromPackageName(name);
+      packagesDirectoryMap.set(strippedName, { directoryPath });
     }
-    return scopesMap;
+    return packagesDirectoryMap;
   }
+
   #validatePackageJson(pkg: unknown): PackageJsonSchema {
     const validationResult = packageJsonSchema.safeParse(pkg);
     if (!validationResult.success) {
       throw new Error('Error parsing package.json');
     }
     return validationResult.data;
+  }
+
+  #stripScopeFromPackageName(packageName: string): string {
+    const parts = packageName.split('/');
+    return parts.length > 1 ? parts[1] : parts[0];
   }
 
   #parseJson(json: string, packageJsonPath: string): unknown {
@@ -154,22 +104,5 @@ export class DirectoriesReader<T extends string> {
 
   #isFileNotFoundError(err: unknown): err is NodeJS.ErrnoException {
     return err instanceof Error && 'code' in err && err.code === 'ENOENT';
-  }
-
-  #addRootScopeEntry(
-    scopesMap: DirectoryPathByScopeMap<T>,
-    rootScopeName: T,
-    rootScopeDirectoryPath: string,
-  ): DirectoryPathByScopeMap<T> {
-    if (scopesMap.get(rootScopeName)) {
-      const errorMessage =
-        `ScopesMap already contains an entry for ${rootScopeName}. ` +
-        'Provide a unique rootScopeName to avoid conflicts.';
-      throw new Error(errorMessage);
-    }
-    scopesMap.set(rootScopeName, {
-      directoryPath: rootScopeDirectoryPath,
-    });
-    return scopesMap;
   }
 }

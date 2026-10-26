@@ -1,4 +1,4 @@
-import { _execFileSync } from '../../../../utils/node/execFileSync.js';
+import { execFileSyncWrapper } from '../../../../utils/node/execFileSync.js';
 
 const VERSION_TAG_PATTERN = /^(?:v|.+@)?\d+\.\d+\.\d+$/;
 
@@ -8,7 +8,7 @@ export function getSortedTags(
   cwd: string,
 ): string[] {
   try {
-    return _execFileSync(
+    return execFileSyncWrapper(
       'git',
       [
         'tag',

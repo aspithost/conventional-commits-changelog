@@ -3,7 +3,7 @@ import { logError } from '../utils/error/logError.js';
 import type { GenerateChangelogOptions } from './types/generateChangelog.js';
 import {
   generateChangelogVersioned,
-}from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
+} from './utils/generate-changelog-versioned/generateChangelogVersioned.js';
 import { type TagEntry, formatTagEntries } from './utils/tags/formatTagEntries.js';
 import { getVersionTags } from './utils/tags/getVersionTags.js';
 import {
@@ -34,14 +34,14 @@ export async function generateChangelog({
   changelogWriterOptions,
   commitsParserOptions,
   commitsRetrieverOptions,
-  commitsValidatorOptions,
   directoryPath = process.cwd(),
   isDryRun = false,
+  tagRetrieverOptions,
   onError = logError,
-}: GenerateChangelogOptions<string, string> = {}): Promise<void> {
+}: GenerateChangelogOptions = {}): Promise<void> {
   const tags = getVersionTags({
     cwd: directoryPath,
-    remoteSymbolicRef: commitsRetrieverOptions?.remoteSymbolicRef ?? DEFAULT_REMOTE_SYMBOLIC_REF,
+    remoteSymbolicRef: tagRetrieverOptions?.remoteSymbolicRef ?? DEFAULT_REMOTE_SYMBOLIC_REF,
   });
   if (tags.length === 0) {
     throw new Error('Did not find valid semantic version tags.');
@@ -63,8 +63,8 @@ export async function generateChangelog({
       changelogWriterOptions,
       commitsParserOptions,
       commitsRetrieverOptions,
-      commitsValidatorOptions,
       directoryPath,
+      tagRetrieverOptions,
       onError,
     },
   );

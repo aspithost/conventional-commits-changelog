@@ -8,22 +8,49 @@ applyTo: 'src/write-changelog/**'
 `src/write-changelog/` renders validated commits into a changelog entry and writes it into a `CHANGELOG.md` file.
 
 ```
-commits ─► conventional-changelog-writer (preset) ─► entry string ─► insert above newest version ─► write file
+directoryPath/filename ─► read file ─► conventional-changelog-writer (preset + context) ─► entry string
+                                                                                              │
+                          write file ◄─ insert above newest `## x.y.z` header ◄───────────────┘
 ```
 
-`ChangelogWriter.writeChangelog` runs this flow for one directory. It reads the existing file first, so a missing changelog fails early.
+`ChangelogWriter.writeChangelog` runs this flow for one directory. It reads the existing file first, so a missing changelog fails before rendering.
 
 ## Rules
 
-- `ChangelogWriter` holds a preset and optional `remoteRepositoryInformation` (`host`, `owner`, `repository`). The writer uses them for commit and compare links.
-- `createWriterPreset` wraps `conventional-changelog-conventionalcommits`. `COMMIT_TYPES` in `presets/constants/writer.ts` maps each commit type to a section heading. A custom `formatCommitUrl` builds commit links.
-- `ChangelogWriter.withDefaultPreset` uses `createWriterPreset`. Callers can pass their own `changelogWriterPreset` instead.
-- The writer collects the async chunks of the entry into one string. `isPatch` comes from `releaseType`. `date` defaults to `getFormattedDate` (`yyyy-mm-dd`).
-- `VERSION_HEADER_PATTERN` (`## x.y.z`) locates the newest entry. The writer inserts the new entry before it and keeps the file header intact. Without a version header, the writer appends the entry after the header.
+### Construction
+
+- The constructor validates its options with `changelogWriterOptions` and throws `Error('Invalid changelog writer options.', { cause })` on failure.
+- The schema validates `remoteRepositoryInformation` only. `conventional-changelog-writer` defines the preset shape, so the schema skips it. The constructor stores the original values, not the parsed result.
+- `ChangelogWriter.withDefaultPreset` builds the preset with `createWriterPreset`. Callers can pass their own `changelogWriterPreset` to the constructor instead.
+- `createWriterPreset` wraps `conventional-changelog-conventionalcommits`. `COMMIT_TYPES` in `presets/constants/writer.ts` maps each commit type to a section heading. Its optional `config` spreads last and overrides the defaults, including the custom `formatCommitUrl`.
+
+### Entry creation
+
+- `date` defaults to `getFormattedDate` (`yyyy-mm-dd`). `isPatch` equals `releaseType === 'patch'`.
+- The remote repository fields spread last and override any context key with the same name.
+- The writer never validates commits. It accepts any `Iterable<ValidatedCommit>`.
+
+### Insertion
+
+- `VERSION_HEADER_PATTERN` locates the newest entry. The writer inserts the trimmed entry before it and separates the parts with one blank line.
+- Without a version header, the writer treats the existing content as the header and appends the entry after a blank line. An empty file yields only the entry.
+- The output always ends with a single `\n`.
+
+### Files and errors
+
+- The writer never creates the file. The file must exist.
 - Read, entry creation, and write failures throw an `Error` with the original error as `cause`.
-- `filename` defaults to `CHANGELOG.md`. The writer never creates the file.
+- The `try/catch` in `#createChangelogEntry` covers only the call that creates the generator. Failures during chunk iteration propagate unwrapped.
+- The writer logs nothing and has no `onError`. Callers handle the rejected promise.
 - Keep file I/O synchronous and inside `ChangelogWriter`. Keep presets and utils free of I/O.
+- Never edit `CHANGELOG.md` by hand. The writer generates it.
 
 ## Consumers
 
-`createChangelogWriter` (in `utils/`) picks the custom or default preset. `release` and `generateChangelogVersioned` call it. Never construct `ChangelogWriter` elsewhere.
+`createChangelogWriter` (in `utils/`) picks the custom or default preset and builds the instance. Three callers use it:
+
+- `releasePackages` calls `writeChangelog` once per released package.
+- `release` calls `writeChangelog` for one directory.
+- `generateChangelogVersioned` calls `writeChangelog` per version.
+
+Never construct `ChangelogWriter` elsewhere.

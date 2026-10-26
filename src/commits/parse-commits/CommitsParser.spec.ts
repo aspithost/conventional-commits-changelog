@@ -79,8 +79,8 @@ describe('CommitsParser', () => {
       {
         hash: 'abc123',
         commit:
-          'feat: add feature\n\nBREAKING CHANGE: old API removed\n' +
-          'BREAKING CHANGE: config format changed',
+          'feat: add feature\n\nBREAKING CHANGE: old API removed\n'
+          + 'BREAKING CHANGE: config format changed',
       },
     ]);
 
@@ -169,8 +169,8 @@ describe('CommitsParser', () => {
       {
         hash: 'abc123',
         commit:
-          'refactor: change config format\n\n' +
-          'BREAKING CHANGE: config now uses YAML instead of JSON',
+          'refactor: change config format\n\n'
+          + 'BREAKING CHANGE: config now uses YAML instead of JSON',
       },
     ]);
 

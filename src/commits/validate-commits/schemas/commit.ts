@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { DEFAULT_ALLOWED_TYPES } from '../../constants/commit.js';
-
 const commitMeta = z.record(z.string(), z.string());
 
 const commitNote = z.object({
@@ -18,7 +16,6 @@ const commitReference = z.object({
   prefix: z.string(),
 });
 
-// Note: only exported for unit testing purposes
 export const commitSchema = z.looseObject({
   hash: z.string(),
   body: z.string().nullable(),
@@ -34,34 +31,3 @@ export const commitSchema = z.looseObject({
   type: z.string().nullable(),
 });
 export type CommitSchema = z.infer<typeof commitSchema>;
-
-export function createCommitSchemaWithScope<T extends string>(
-  allowedScopes: readonly T[],
-) {
-  if (!allowedScopes.length) throw new Error('should provide at least one allowed scope');
-  return createCommitSchemaWithType(DEFAULT_ALLOWED_TYPES).extend({
-    scope: z.enum(allowedScopes),
-  });
-}
-
-export function createCommitSchemaWithType<T extends string>(
-  allowedTypes: readonly T[],
-) {
-  if (!allowedTypes.length) throw new Error('should provide at least one allowed type');
-  return commitSchema.extend({
-    type: z.enum(allowedTypes),
-  });
-}
-
-export function createCommitSchemaWithScopeAndType<
-  T extends string,
-  U extends string,
->(
-  allowedScopes: readonly T[],
-  allowedTypes: readonly U[],
-) {
-  return commitSchema.extend({
-    scope: z.enum(allowedScopes),
-    type: z.enum(allowedTypes),
-  });
-}
