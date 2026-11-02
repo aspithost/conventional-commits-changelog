@@ -1,10 +1,10 @@
-import { CommitsGrouper } from './group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 import { bumpVersion } from '../../version/bumpVersion.js';
 import { determineReleaseType } from '../utils/determineReleaseType.js';
 
+import { CommitsGrouper } from './group-commits/CommitsGrouper.js';
 import { releasePackages } from './releasePackages.js';
 import { logRejectedPromises } from './utils/logRejectedPromises.js';
 
@@ -37,7 +37,7 @@ const COMMIT_BY_SCOPE_MAP = vi.hoisted(() => new Map([
   [CARD_SCOPE, CARD_COMMITS],
   [DRAWER_SCOPE, DRAWER_COMMITS],
 ]));
-vi.mock('../../commits/group-commits/CommitsGrouper.js', () => {
+vi.mock('./group-commits/CommitsGrouper.js', () => {
   const CommitsGrouper = vi.fn(class {
     commitsByScopeMap = COMMIT_BY_SCOPE_MAP;
   });
