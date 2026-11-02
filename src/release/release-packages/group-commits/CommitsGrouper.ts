@@ -1,4 +1,4 @@
-import type { ValidatedCommit } from '../validate-commits/CommitsValidator.js';
+import type { ValidatedCommit } from '../../../commits/validate-commits/CommitsValidator.js';
 
 interface CommitsGrouperOptions {
   validatedCommits: Iterable<ValidatedCommit>;

@@ -1,4 +1,3 @@
-import { CommitsGrouper } from '../../commits/group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 import { logError } from '../../utils/error/logError.js';
@@ -6,6 +5,7 @@ import { bumpVersion } from '../../version/bumpVersion.js';
 import { createChangelogWriter } from '../../write-changelog/utils/createChangelogWriter.js';
 import { determineReleaseType } from '../utils/determineReleaseType.js';
 
+import { CommitsGrouper } from './group-commits/CommitsGrouper.js';
 import type { ReleasePackagesOptions } from './types/releasePackages.js';
 import { logRejectedPromises } from './utils/logRejectedPromises.js';
 

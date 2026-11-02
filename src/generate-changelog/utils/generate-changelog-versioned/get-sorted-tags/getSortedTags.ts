@@ -2,7 +2,6 @@ import { execFileSyncWrapper } from '../../../../utils/node/execFileSync.js';
 
 const VERSION_TAG_PATTERN = /^(?:v|.+@)?\d+\.\d+\.\d+$/;
 
-// to-do: add note to documentation that this only supports sorting on whole ref name
 export function getSortedTags(
   branch: string,
   cwd: string,
