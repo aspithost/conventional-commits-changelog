@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { releasePackages } from '../../release/release-packages/releasePackages.js';
 
 import {

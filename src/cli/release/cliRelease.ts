@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { release } from '../../release/release/release.js';
 
 import { parseReleaseArgs } from './parse-release-args/parseReleaseArgs.js';
