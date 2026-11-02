@@ -25,11 +25,15 @@
       "import": "./dist/index.js"
     }
   },
+  "bin": {
+    "release": "./dist/cli/release.js",
+    "release-packages": "./dist/cli/release-packages.js"
+  },
   "files": [
     "dist"
   ],
   "engines": {
-    "node": ">=24"
+    "node": ">=26"
   },
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.spec.json && tsc -p tsconfig.build.json && npm run deps:check",
@@ -57,7 +61,7 @@
     "@abelspithost/vitest-config": "^0.1.1",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^10.13.0",
     "husky": "^9.1.7",
