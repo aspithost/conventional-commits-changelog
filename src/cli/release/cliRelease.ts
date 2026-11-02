@@ -2,7 +2,7 @@ import { release } from '../../release/release/release.js';
 
 import { parseReleaseArgs } from './parse-release-args/parseReleaseArgs.js';
 
-export async function cliRelease() {
+export async function cliRelease(): Promise<void> {
   try {
     await release(parseReleaseArgs());
   } catch (err: unknown) {

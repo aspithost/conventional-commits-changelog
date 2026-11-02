@@ -30,7 +30,7 @@ describe('cliRelease', () => {
     },
   );
 
-  it('should throw an error if parseReleaseArgs throws an error', async () => {
+  it('should log an error if parseReleaseArgs throws an error', async () => {
     const error = new Error('parse error');
     vi.mocked(parseReleaseArgs).mockImplementationOnce(() => {
       throw error;
@@ -38,13 +38,14 @@ describe('cliRelease', () => {
 
     await cliRelease();
 
+    expect(release).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledTimes(2);
     expect(console.error).toHaveBeenNthCalledWith(1, 'Release failed:', error.message);
     expect(console.error).toHaveBeenNthCalledWith(2, error.stack);
     expect(process.exitCode).toBe(1);
   });
 
-  it('should throw an error if release throws an error', async () => {
+  it('should log an error if release throws an error', async () => {
     const error = new Error('release error');
     vi.mocked(release).mockImplementationOnce(() => {
       throw error;

@@ -11,10 +11,8 @@ const VALID_OPTIONS: CliReleaseOptions = {
 };
 
 describe('validateReleaseArgs', () => {
-  it('should not throw an error when the user provides valid release input parameters', () => {
-    expect(() => {
-      validateReleaseArgs(VALID_OPTIONS);
-    }).not.toThrow();
+  it('should return the options when the user provides valid release parameters', () => {
+    expect(validateReleaseArgs(VALID_OPTIONS)).toStrictEqual(VALID_OPTIONS);
   });
 
   test.each([

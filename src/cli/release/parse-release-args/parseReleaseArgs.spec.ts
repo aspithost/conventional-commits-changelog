@@ -7,9 +7,9 @@ vi.mock('./utils/validateReleaseArgs.js', () => ({
 }));
 
 const ARGV = [
-  '--dry-run',
   '--cwd',
   '/some/path',
+  '--dry-run',
   '--type',
   'minor',
 ];
