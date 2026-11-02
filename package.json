@@ -26,8 +26,8 @@
     }
   },
   "bin": {
-    "release": "./dist/cli/release.js",
-    "release-packages": "./dist/cli/release-packages.js"
+    "release": "./dist/cli/release/cliRelease.js",
+    "release-packages": "./dist/cli/release-packages/cliReleasePackages.js"
   },
   "files": [
     "dist"
