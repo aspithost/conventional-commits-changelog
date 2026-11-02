@@ -1,7 +1,7 @@
 ---
 name: 'CommitsGrouper architecture'
 description: 'Use when you change CommitsGrouper or its architecture'
-applyTo: 'src/commits/group-commits/**'
+applyTo: 'src/release/release-packages/group-commits/**'
 ---
 # CommitsGrouper architecture
 

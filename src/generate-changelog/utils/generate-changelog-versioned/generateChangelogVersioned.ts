@@ -35,24 +35,25 @@ export async function generateChangelogVersioned(
         versionCurrent,
         tagPrevious ? parseSemverVersionFromTag(tagPrevious) : undefined,
       );
+      const validatedCommitsIterator = retrieveValidatedCommits({
+        commitsParserOptions,
+        commitsRetrieverOptions: {
+          ...commitsRetrieverOptions,
+          cwd: directoryPath,
+          from: tagPrevious ?? null,
+          to: tagCurrent,
+          onError,
+        },
+        tagRetrieverOptions,
+        onError,
+      });
 
       try {
         await changelogWriter.writeChangelog(
           directoryPath,
           versionCurrent,
           releaseType,
-          retrieveValidatedCommits({
-            commitsParserOptions,
-            commitsRetrieverOptions: {
-              ...commitsRetrieverOptions,
-              cwd: directoryPath,
-              from: tagPrevious ?? null,
-              to: tagCurrent,
-              onError,
-            },
-            tagRetrieverOptions,
-            onError,
-          }),
+          validatedCommitsIterator,
           { date },
         );
       } catch (err) {

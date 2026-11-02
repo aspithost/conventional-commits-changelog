@@ -29,7 +29,6 @@ import { validateReleaseInput } from './utils/validateReleaseInput.js';
  * ```
  */
 export async function release({
-  // to-do: allow option to specify commit types?
   changelogWriterOptions,
   commits,
   commitsParserOptions,

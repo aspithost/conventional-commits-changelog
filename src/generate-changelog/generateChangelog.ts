@@ -14,6 +14,7 @@ const DEFAULT_REMOTE_SYMBOLIC_REF = 'refs/remotes/origin/HEAD';
 
 /**
  * Generates changelog entries for version tags merged into the configured branch.
+ * @experimental
  *
  * Use this function to add existing release history. Use `release` for
  * subsequent releases.

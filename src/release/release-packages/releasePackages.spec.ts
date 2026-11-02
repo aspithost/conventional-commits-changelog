@@ -1,4 +1,4 @@
-import { CommitsGrouper } from '../../commits/group-commits/CommitsGrouper.js';
+import { CommitsGrouper } from './group-commits/CommitsGrouper.js';
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
