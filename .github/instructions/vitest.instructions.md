@@ -14,7 +14,7 @@ Model every spec on `src/release/release-packages/releasePackages.spec.ts`.
 - Order the file: imports (collaborators, blank line, unit under test), fixtures and mocks, helper factories, `describe` tree.
 - Name the top-level `describe` after the unit. Nest `describe` blocks by method or behavior.
 - Start each `it` title with `should` plus an action verb that names the observable outcome.
-- Test one behavior per `it`. Use no conditional logic. Cover every source branch.
+- Test one behavior per `it`. Use no conditional logic. Cover every source branch with its own `it`, or with `it.each` when branches share one behavior and differ only in input.
 
 ## Mocks
 
