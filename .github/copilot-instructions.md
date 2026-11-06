@@ -1,6 +1,6 @@
 # Copilot Instructions
 
-This TypeScript library follows these rules for code, comments, and commit messages. Test files also follow `vitest.instructions.md`.
+This TypeScript library follows these rules for code, comments, and commit messages. Test files also follow the [Vitest instructions](./instructions/vitest.instructions.md).
 
 ## Shared presets
 
@@ -14,7 +14,7 @@ Every project extends these `@abelspithost` presets. Never duplicate their setti
 
 ## TypeScript
 
-- Never use type assertions: `as`, `<Type>value`, or `!`. Only test files may cast, under the rules in the Vitest instructions.
+- Never use type assertions: `as`, `<Type>value`, or `!`. Only test files may cast, under the rules in the [Vitest instructions](./instructions/vitest.instructions.md).
 - Type uncertain values as `unknown`, never `any`. Narrow them with type guards, control flow, or `zod` parsing. Fix the underlying type instead of asserting around it.
 - Prefer named functions over anonymous functions.
 - Never suggest `@ts-ignore` or `@ts-expect-error` unless the user asks.
@@ -34,6 +34,5 @@ Every project extends these `@abelspithost` presets. Never duplicate their setti
 Apply these rules to comments, JSDoc, README content, and commit bodies.
 
 - Write in active voice. Name the actor: "The parser rejects empty input", not "Empty input is rejected".
-- Never use a form of the verb "to be": is, are, was, were, be, been, being, am.
+- Avoid forms of the verb "to be" (is, are, was, were, be, been, being, am). Use a stronger verb.
 - Keep sentences short and direct.
-- Follow `@abelspithost/eslint-config-ts`. Never suggest rules that conflict with it.
