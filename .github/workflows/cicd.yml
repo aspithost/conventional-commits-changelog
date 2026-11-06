@@ -6,8 +6,8 @@ on:
 
 jobs:
   cicd:
-    # uses: aspithost/actions/.github/workflows/node-cicd.yml@v2
-    uses: aspithost/actions/.github/workflows/node-ci.yml@v2
+    # uses: aspithost/actions/.github/workflows/node-cicd.yml@v3
+    uses: aspithost/actions/.github/workflows/node-ci.yml@v3
     permissions:
       # contents: write
       # id-token: write
