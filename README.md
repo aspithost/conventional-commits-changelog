@@ -1,14 +1,12 @@
 # @abelspithost/conventional-commits-changelog
 
-![Build](https://img.shields.io/github/actions/workflow/status/aspithost/conventional-commits-changelog/ci.yml)
-[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
 ![NPM Version](https://img.shields.io/npm/v/@abelspithost/conventional-commits-changelog)
+![Build](https://img.shields.io/github/actions/workflow/status/aspithost/conventional-commits-changelog/ci.yml)
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=alert_status&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=security_rating&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=coverage&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
 
 Generate changelog entries and bump npm package versions from your Conventional Commits history.
-
-## Latest version
-
-0.0.0
 
 ## Requirements
 
