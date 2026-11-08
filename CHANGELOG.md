@@ -1,3 +1,15 @@
+
+
+## 0.0.2 (2026-11-08)
+
+### :bug: Bug Fixes
+
+* only override formatCommitUrl when user specifies remote repo info ([e0491b7](https://github.com/aspithost/conventional-commits-changelog/commit/e0491b71365da04f4768305a26ab0983639e6307))
+
+### :construction_worker: Continuous Integration
+
+* enable dependency review on PR and merge to main ([2967eee](https://github.com/aspithost/conventional-commits-changelog/commit/2967eee29dc9316a545db8f2da8a86dc79ec790c))
+
 ## 0.0.1 (2026-11-08)
 
 ### :bug: Bug Fixes
