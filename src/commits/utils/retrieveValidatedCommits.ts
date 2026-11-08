@@ -41,9 +41,12 @@ export function retrieveValidatedCommits({
   tagRetrieverOptions,
   onError,
 }: RetrieveValidatedCommitsOptions & OnError = {}): Iterable<ValidatedCommit> {
+  const from = commitsRetrieverOptions?.from === undefined
+    ? new TagRetriever(tagRetrieverOptions).getLatestTag()
+    : commitsRetrieverOptions.from;
   const rawCommits = new CommitsRetriever({
     ...commitsRetrieverOptions,
-    from: commitsRetrieverOptions?.from ?? new TagRetriever(tagRetrieverOptions).getLatestTag(),
+    from,
   }).getRawCommits();
   const parsedCommits = new CommitsParser(commitsParserOptions).getParsedCommits(rawCommits);
   const validatedCommits = new CommitsValidator({
