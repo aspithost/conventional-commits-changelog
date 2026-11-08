@@ -166,7 +166,7 @@ describe('releasePackages', () => {
         BUTTON_DIRECTORY_PATH,
         RELEASE_TYPE,
         {
-          isUpdateReadme: true,
+          isUpdateReadme: false,
           onError,
         },
       );
@@ -175,7 +175,7 @@ describe('releasePackages', () => {
         CARD_DIRECTORY_PATH,
         RELEASE_TYPE,
         {
-          isUpdateReadme: true,
+          isUpdateReadme: false,
           onError,
         },
       );
@@ -220,6 +220,7 @@ describe('releasePackages', () => {
     });
 
     it('should not release when the user wants to perform a dry run', async () => {
+      console.log = vi.fn(); // Note: suppress console output for this test
       await releasePackages({ isDryRun: true });
 
       expect(determineReleaseType).toHaveBeenCalledTimes(2);

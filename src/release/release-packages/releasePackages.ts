@@ -35,7 +35,7 @@ export async function releasePackages({
     directoryPath: process.cwd(),
   },
   isDryRun = false,
-  isUpdateReadme = true,
+  isUpdateReadme = false,
   tagRetrieverOptions,
   onError = logError,
 }: ReleasePackagesOptions = {}): Promise<void> {

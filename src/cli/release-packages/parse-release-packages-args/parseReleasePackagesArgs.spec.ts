@@ -15,7 +15,7 @@ const ARGV = [
 const RELEASE_PACKAGES_ARGS = {
   directoryPath: '/some/path',
   isDryRun: true,
-  isUpdateReadme: true,
+  isUpdateReadme: false,
 };
 
 describe('parseReleasePackagesArgs', () => {

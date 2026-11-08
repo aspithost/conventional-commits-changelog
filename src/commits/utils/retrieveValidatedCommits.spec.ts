@@ -24,7 +24,7 @@ vi.mock('../retrieve-commits/CommitsRetriever.js', () => {
 });
 
 const VALIDATED_COMMITS = ['validated-commit-one', 'validated-commit-two'];
-const mockGetValidatedCommits = vi.fn(() => VALIDATED_COMMITS);
+const mockGetValidatedCommits = vi.fn((): Iterable<string> => VALIDATED_COMMITS);
 vi.mock('../validate-commits/CommitsValidator.js', () => {
   const CommitsValidator = vi.fn(class {
     getValidatedCommits = mockGetValidatedCommits;
@@ -43,7 +43,7 @@ vi.mock('../retrieve-tags/TagRetriever.js', () => {
 
 describe('retrieveValidatedCommits', () => {
   describe('TagRetriever', () => {
-    it('should retrieve the latest tag', () => {
+    it('should retrieve the latest tag when the user does not specify a tag', () => {
       const TAG_RETRIEVER_OPTIONS = {
         remoteSymbolicRef: 'some/remote',
       };
@@ -60,10 +60,25 @@ describe('retrieveValidatedCommits', () => {
         commitsRetrieverOptions: { from: FROM },
       });
 
+      expect(TagRetriever).not.toHaveBeenCalled();
       expect(mockGetLatestTag).not.toHaveBeenCalled();
       expect(CommitsRetriever)
         .toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ from: FROM }));
     });
+
+    it(
+      'should retrieve the full commit history when the user specifies the from param as null',
+      () => {
+        retrieveValidatedCommits({
+          commitsRetrieverOptions: { from: null },
+        });
+
+        expect(TagRetriever).not.toHaveBeenCalled();
+        expect(mockGetLatestTag).not.toHaveBeenCalled();
+        expect(CommitsRetriever)
+          .toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ from: null }));
+      },
+    );
   });
 
   it('should retrieve raw commits since the latest tag', () => {

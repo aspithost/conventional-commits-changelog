@@ -17,7 +17,7 @@ const ARGV = [
 const RELEASE_ARGS = {
   directoryPath: '/some/path',
   isDryRun: true,
-  isUpdateReadme: true,
+  isUpdateReadme: false,
   releaseType: 'minor',
   releaseVersion: undefined,
 };

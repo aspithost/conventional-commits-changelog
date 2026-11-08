@@ -35,7 +35,7 @@ export async function release({
   commitsRetrieverOptions,
   directoryPath = process.cwd(),
   isDryRun = false,
-  isUpdateReadme = true,
+  isUpdateReadme = false,
   releaseType: _releaseType,
   releaseVersion,
   tagRetrieverOptions,
