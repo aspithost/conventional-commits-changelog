@@ -35,55 +35,118 @@ When `release` finds no commit that warrants a release, it defaults to a `patch`
 
 ## Usage
 
-### `release`
+The package offers two commands, `release` and `release-packages`. You can use each in two ways:
 
-Release a single package. The command acts on the current working directory.
+| Approach                    | Use it when                                                                    | Options                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [CLI](#cli)                 | You want a one-line release step in a script, a CI job, or a terminal.         | The CLI flags, marked in the option tables below.                        |
+| [Programmatic](#programmatic) | You want to call the release from your own Node.js code, or you need to customize git, commit parsing, or changelog links. | Every option in the option tables below. |
+
+The CLI exposes a subset of the options. Both approaches run the same release logic.
+
+The two commands behave differently:
+
+| Aspect         | `release`                                                                | `releasePackages` / `release-packages`                                                                  |
+| -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| Scope          | Bumps the version and writes the changelog of one package.               | Bumps the version and writes the changelog of each package in a monorepo that has releasable commits.   |
+| Git history    | Reads the history of the repository that contains the package.           | Requires a monorepo with one shared git history. Every package must live in that single repository.     |
+| Commits        | Uses every commit since the latest version tag.                          | Groups the commits since the latest tag by scope. Each package receives only the commits of its scope.  |
+| Release type   | Defaults to `patch`. You can force a type or a version.                  | Determines the type per package. It skips packages without a commit that warrants a release.            |
+| Package lookup | Uses the `package.json` in `directoryPath`.                              | Searches `directoriesReaderOptions.directoryPath` for packages and maps their names to commit scopes.   |
+
+### CLI
+
+Run a command without installing the package.
 
 ```sh
-npx release
+npx --package @abelspithost/conventional-commits-changelog release --dry-run
+npx --package @abelspithost/conventional-commits-changelog release-packages --cwd packages --dry-run
 ```
+
+Or install the package and add the commands to your project's `package.json`:
+
+```json
+{
+  "scripts": {
+    "release": "release",
+    "release-packages": "release-packages"
+  }
+}
+```
+
+Run either command through `npm run`. Pass CLI options after `--`. Use `--dry-run` to preview a release before updating files. After you install the package, `npx release` and `npx release-packages` also resolve to the local binaries.
+
+Both commands print the error and exit with code 1 when a release fails or when you pass an unknown flag.
+
+### Programmatic
+
+Install the package locally, then import the functions. The option tables for each command below list every programmatic option and its CLI flag.
 
 ```ts
-import { release } from '@abelspithost/conventional-commits-changelog';
+import { release, releasePackages } from '@abelspithost/conventional-commits-changelog';
 
 await release({ isDryRun: true });
+await releasePackages({ isDryRun: true });
 ```
 
-| CLI flag                         | Option            | Description                                                                  |
-| -------------------------------- | ----------------- | ---------------------------------------------------------------------------- |
-| `--cwd <path>`                   | `directoryPath`   | Directory with the `package.json` and changelog. Defaults to the current directory. |
-| `--dry-run`                      | `isDryRun`        | Log the release type without bumping the version or writing the changelog.   |
-| `--update-readme` (default: on)  | `isUpdateReadme`  | Update the version in `README.md`. Set the option to `false` in code to skip it. |
-| `-t, --type <major\|minor\|patch>` | `releaseType`     | Force the release type.                                                      |
-| `-v, --version <version>`        | `releaseVersion`  | Force the release version. Cannot combine with `--type`.                     |
+The functions reject with the error instead of setting an exit code. Wrap the call in `try`/`catch` to handle failures. The package exports the `ReleaseOptions` and `ReleasePackagesOptions` types.
 
-The function also accepts `changelogWriterOptions`, `commits`, `commitsParserOptions`, `commitsRetrieverOptions`, `tagRetrieverOptions`, and `onError`. See `ReleaseOptions` in the type declarations.
+### `release`
+
+Release a single package: `release` retrieves the commits since the latest version tag, determines the release type, bumps the version in `package.json`, and writes the changelog. Run it from the package directory:
+
+```sh
+npm run release -- --dry-run
+npm run release
+```
+
+Pass `--type minor` or `--version 1.2.3` to force the release; use one, not both. The programmatic function accepts these options:
+
+| Option                    | CLI flag                           | Description                                                                                                  |
+| ------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `directoryPath`           | `--cwd <path>`                     | Directory with the `package.json` and changelog. Defaults to `process.cwd()`.                                |
+| `isDryRun`                | `--dry-run`                        | Log the release type without bumping the version or writing the changelog. Defaults to `false`.              |
+| `isUpdateReadme`          | `--update-readme` (default: on)    | Update the version in `README.md`. Defaults to `true`. Set it to `false` in code to skip it.                 |
+| `releaseType`             | `-t, --type <major\|minor\|patch>` | Force the release type.                                                                                      |
+| `releaseVersion`          | `-v, --version <version>`          | Force the release version. Cannot combine with `releaseType`.                                                |
+| `commits`                 | None                               | Iterable of validated commits to release. When omitted, the function retrieves the commits from git.         |
+| `commitsParserOptions`    | None                               | Commit parser settings. Set `parserStreamOptions` to change how the library parses commit messages.          |
+| `commitsRetrieverOptions` | None                               | Git settings for retrieving commits: `commitFormat`, `cwd`, `from`, and `to`.                                |
+| `tagRetrieverOptions`     | None                               | Git settings for finding the latest tag: `cwd` and `remoteSymbolicRef`.                                      |
+| `changelogWriterOptions`  | None                               | Changelog writer settings. Set `remoteRepositoryInformation` (`host`, `owner`, `repository`) to build links. |
+| `onError`                 | None                               | Handler for errors that the library reports without throwing. Set it to `null` to opt out.                   |
+
+The git options default to `process.cwd()`, not to `directoryPath`. Set `commitsRetrieverOptions.cwd` and `tagRetrieverOptions.cwd` when you release a package outside the current directory. See `ReleaseOptions` in the type declarations.
 
 ### `releasePackages`
 
-Release every package in a monorepo whose name matches a commit scope. The package name without its npm scope maps to the commit scope: a commit with scope `package-a` releases `@scope/package-a`.
-
-```sh
-npx release-packages
-```
-
-```ts
-import { releasePackages } from '@abelspithost/conventional-commits-changelog';
-
-await releasePackages({ isDryRun: true });
-```
+Release every package in a monorepo that has commits with a matching scope. `releasePackages` reads one shared git history, groups the commits since the latest version tag by scope, and then bumps the version and writes the changelog of each matching package. It only works for a monorepo with a single git history. The package name without its npm scope maps to the commit scope: a commit with scope `package-a` releases `@scope/package-a`.
 
 ```text
 feat(package-a): add a new option
 ```
 
-| CLI flag                        | Option                                 | Description                                                                |
-| ------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `--cwd <path>`                  | `directoriesReaderOptions.directoryPath` | Directory to search for packages. Defaults to the current directory.       |
-| `--dry-run`                     | `isDryRun`                             | Log the planned releases without bumping versions or writing changelogs.   |
-| `--update-readme` (default: on) | `isUpdateReadme`                       | Update the version in each package `README.md`. Set the option to `false` in code to skip it. |
+```sh
+npm run release-packages -- --cwd packages --dry-run
+npm run release-packages -- --cwd packages
+```
 
-The function also accepts `changelogWriterOptions`, `commitsParserOptions`, `commitsRetrieverOptions`, `tagRetrieverOptions`, and `onError`. See `ReleasePackagesOptions` in the type declarations.
+Run these commands from the monorepo root and replace `packages` with the directory that contains your packages. The command accepts neither `--type` nor `--version`: it determines the release type per package and skips packages without a commit that warrants a release.
+
+The command searches directories recursively, including `node_modules`. Use `--cwd` to narrow the search. Every discovered `package.json` must contain a `name`. The programmatic function accepts these options:
+
+| Option                                   | CLI flag                        | Description                                                                                                  |
+| ---------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `directoriesReaderOptions.directoryPath` | `--cwd <path>`                  | Directory to search for packages. Defaults to `process.cwd()`.                                               |
+| `isDryRun`                               | `--dry-run`                     | Log the planned releases without bumping versions or writing changelogs. Defaults to `false`.                |
+| `isUpdateReadme`                         | `--update-readme` (default: on) | Update the version in each package `README.md`. Defaults to `true`. Set it to `false` in code to skip it.    |
+| `commitsParserOptions`                   | None                            | Commit parser settings. Set `parserStreamOptions` to change how the library parses commit messages.          |
+| `commitsRetrieverOptions`                | None                            | Git settings for retrieving commits: `commitFormat`, `cwd`, `from`, and `to`.                                |
+| `tagRetrieverOptions`                    | None                            | Git settings for finding the latest tag: `cwd` and `remoteSymbolicRef`.                                      |
+| `changelogWriterOptions`                 | None                            | Changelog writer settings. Set `remoteRepositoryInformation` (`host`, `owner`, `repository`) to build links. |
+| `onError`                                | None                            | Handler for errors that the library reports without throwing. Set it to `null` to opt out.                   |
+
+The function does not accept `commits`, `directoryPath`, `releaseType`, or `releaseVersion`. The git options default to `process.cwd()`, not to `directoriesReaderOptions.directoryPath`. Run the function from the monorepo root, or set `commitsRetrieverOptions.cwd` and `tagRetrieverOptions.cwd`. See `ReleasePackagesOptions` in the type declarations.
 
 ### Version in the README
 
@@ -101,16 +164,6 @@ import { generateChangelog } from '@abelspithost/conventional-commits-changelog'
 
 await generateChangelog({ isDryRun: true });
 ```
-
-## Development
-
-| Script               | Description                          |
-| -------------------- | ------------------------------------ |
-| `npm run build`      | Compile the library.                 |
-| `npm run lint`       | Run ESLint and publint.              |
-| `npm run typecheck`  | Type-check the source and tests.     |
-| `npm run test:unit`  | Run the unit tests in watch mode.    |
-| `npm run test:cov`   | Run the unit tests with coverage.    |
 
 ## License
 

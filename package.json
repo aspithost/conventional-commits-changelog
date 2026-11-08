@@ -44,6 +44,8 @@
     "lint": "eslint . && npm run publint",
     "prepare": "husky || true",
     "publint": "npx -y publint",
+    "release": "npx @abelspithost/conventional-commits-changelog release",
+    "release:dry-run": "npx @abelspithost/conventional-commits-changelog release --dry-run",
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
     "test:cov:ci": "vitest run --coverage",
