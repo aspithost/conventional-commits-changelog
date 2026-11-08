@@ -48,7 +48,7 @@ describe('release', () => {
       const RELEASE_INPUT: BaseReleaseOptions = {
         changelogWriterOptions: {},
         directoryPath: '/some-path',
-        isDryRun: true,
+        isDryRun: false,
         isUpdateReadme: false,
         releaseType: 'patch',
         releaseVersion: '1.2.3',
@@ -137,7 +137,7 @@ describe('release', () => {
           expect.any(String),
           RELEASE_TYPE,
           expect.objectContaining({
-            isUpdateReadme: true,
+            isUpdateReadme: false,
             onError: expect.any(Function) as OnError,
           }),
         );
@@ -158,7 +158,7 @@ describe('release', () => {
         process.cwd(),
         RELEASE_VERSION,
         expect.objectContaining({
-          isUpdateReadme: true,
+          isUpdateReadme: false,
           onError: expect.any(Function) as OnError,
         }),
       );
@@ -173,7 +173,7 @@ describe('release', () => {
         .toHaveBeenCalledWith(
           DIRECTORY_PATH,
           'minor',
-          expect.objectContaining({ isUpdateReadme: true }),
+          expect.objectContaining({ isUpdateReadme: false }),
         );
     });
 

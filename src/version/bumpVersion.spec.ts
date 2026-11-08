@@ -19,18 +19,27 @@ describe('bumpVersion', () => {
     vi.mocked(updateReadme);
   });
 
-  it('it should bump the version, update the README version, and return the new version', () => {
+  it('it should bump the version and return the new version', () => {
     const bumpVersionResult = bumpVersion(WORKING_DIRECTORY, RELEASE_TYPE_MINOR);
 
-    expect(bumpNpmVersion).toHaveBeenCalledWith(WORKING_DIRECTORY, RELEASE_TYPE_MINOR);
+    expect(bumpNpmVersion).toHaveBeenCalledExactlyOnceWith(WORKING_DIRECTORY, RELEASE_TYPE_MINOR);
     expect(bumpVersionResult).toBe(NEW_VERSION);
+    expect(updateReadme).not.toHaveBeenCalled();
   });
 
-  it('should not update the README if the user opts out', () => {
-    bumpVersion(WORKING_DIRECTORY, RELEASE_TYPE_MINOR, { isUpdateReadme: false });
+  it('should update the README if the user opts in', () => {
+    const onError = vi.fn();
+    bumpVersion(WORKING_DIRECTORY, RELEASE_TYPE_MINOR, {
+      isUpdateReadme: true,
+      onError,
+    });
 
-    expect(bumpNpmVersion).toHaveBeenCalledWith(WORKING_DIRECTORY, RELEASE_TYPE_MINOR);
-    expect(updateReadme).not.toHaveBeenCalled();
+    expect(bumpNpmVersion).toHaveBeenCalledExactlyOnceWith(WORKING_DIRECTORY, RELEASE_TYPE_MINOR);
+    expect(updateReadme).toHaveBeenCalledExactlyOnceWith(
+      WORKING_DIRECTORY,
+      NEW_VERSION,
+      { onError },
+    );
   });
 
   it('should throw an error if the user does not provide a path to a working directory', () => {
