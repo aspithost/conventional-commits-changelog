@@ -111,7 +111,7 @@ describe('releasePackages', () => {
     );
   });
 
-  describe('retrieve validaterd commits', () => {
+  describe('retrieve validated commits', () => {
     it('should retrieve validated commits with the correct parameters', async () => {
       const COMMITS_PARSER_OPTIONS = {};
       const COMMITS_RETRIEVER_OPTIONS = {};
@@ -249,7 +249,6 @@ describe('releasePackages', () => {
 
     await releasePackages({ onError });
 
-    expect(vi.mocked(logRejectedPromises)).toHaveBeenCalledOnce();
     expect(vi.mocked(logRejectedPromises))
       .toHaveBeenCalledExactlyOnceWith([
         {

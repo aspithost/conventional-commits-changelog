@@ -1,9 +1,9 @@
 ---
-name: document-public-api
+name: write-tsdoc
 description: 'Write or update TSDoc for public TypeScript function and interface signatures. Use when documenting the exported public API; do not use for README documentation.'
 ---
 
-# Document public API
+# Write TSDoc
 
 Document only TSDoc for function and interface signatures exposed through `src/index.ts`.
 
