@@ -55,7 +55,8 @@
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^10.4.1",
     "conventional-changelog-writer": "^9.3.0",
-    "conventional-commits-parser": "^7.1.4"
+    "conventional-commits-parser": "^7.1.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@abelspithost/commitlint": "^0.2.0",
@@ -71,7 +72,6 @@
     "jiti": "^2.7.0",
     "rimraf": "^6.1.4",
     "typescript": "^6.0.3",
-    "vitest": "^5.1.0",
-    "zod": "^4.6.7"
+    "vitest": "^5.1.0"
   }
 }
