@@ -52,23 +52,23 @@
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^10.4.1",
     "conventional-changelog-writer": "^9.3.0",
-    "conventional-commits-parser": "^7.1.3"
+    "conventional-commits-parser": "^7.1.4"
   },
   "devDependencies": {
-    "@abelspithost/commitlint": "^0.1.10",
-    "@abelspithost/eslint-config-ts": "^3.2.0",
+    "@abelspithost/commitlint": "^0.2.0",
+    "@abelspithost/eslint-config-ts": "^3.2.1",
     "@abelspithost/tsconfig-node": "^0.1.2",
-    "@abelspithost/vitest-config": "^0.1.1",
+    "@abelspithost/vitest-config": "^0.2.0",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@types/node": "^26.6.6",
-    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.14.0",
     "husky": "^9.1.7",
     "jiti": "^2.7.0",
-    "rimraf": "^6.1.3",
+    "rimraf": "^6.1.4",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5",
+    "vitest": "^5.1.0",
     "zod": "^4.6.7"
   }
 }
