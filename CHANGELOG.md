@@ -1,3 +1,18 @@
+
+
+## 0.0.1 (2026-11-08)
+
+### :bug: Bug Fixes
+
+* allow full commit history retrieval when specified by user ([5d38251](https://github.com/aspithost/conventional-commits-changelog/commit/5d382518ee8670956015ca92bcdf5e5a73a19ef9))
+* release commands for local development ([c77d9dd](https://github.com/aspithost/conventional-commits-changelog/commit/c77d9dd34c2af266a55ad39d4db7e3f5ccd4b944))
+* set default for updateReadme to false ([910e599](https://github.com/aspithost/conventional-commits-changelog/commit/910e59936565e735804a1109b30ec07e62399e20))
+
+### :books: Documentation
+
+* adds initital changelog ([f082e3d](https://github.com/aspithost/conventional-commits-changelog/commit/f082e3d2d5f6a850e74582dbf7b2b5f47fadfffa))
+* improves readme ([fd20f43](https://github.com/aspithost/conventional-commits-changelog/commit/fd20f43173781c8e19a1523f022281468a6e57cf))
+
 ## 0.0.0 (2026-11-08)
 
 ### :sparkles: Features

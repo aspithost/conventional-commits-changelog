@@ -1,11 +1,12 @@
 {
   "name": "@abelspithost/conventional-commits-changelog",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "A conventional commits changelog and release tool with monorepo support",
   "keywords": [
     "conventional-changelog-monorepo",
     "conventional",
     "changelog",
+    "release",
     "monorepo"
   ],
   "license": "ISC",
