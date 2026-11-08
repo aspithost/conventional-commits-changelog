@@ -21,7 +21,7 @@ directoryPath/filename ─► read file ─► conventional-changelog-writer (pr
 
 - The constructor validates its options with `changelogWriterOptions` and throws `Error('Invalid changelog writer options.', { cause })` on failure.
 - The schema validates `remoteRepositoryInformation` only. `conventional-changelog-writer` defines the preset shape, so the schema skips it. The constructor stores the original values, not the parsed result.
-- `ChangelogWriter.withDefaultPreset` builds the preset with `createWriterPreset`. Callers can pass their own `changelogWriterPreset` to the constructor instead.
+- `ChangelogWriter.withDefaultPreset` builds the preset with `createWriterPreset`. The default preset formats commit URLs only when callers provide `remoteRepositoryInformation`. Callers can pass their own `changelogWriterPreset` to the constructor instead.
 - `createWriterPreset` wraps `conventional-changelog-conventionalcommits`. `COMMIT_TYPES` in `presets/constants/writer.ts` maps each commit type to a section heading. Its optional `config` spreads last and overrides the defaults, including the custom `formatCommitUrl`.
 
 ### Entry creation

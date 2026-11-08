@@ -51,7 +51,7 @@ export class ChangelogWriter {
   static withDefaultPreset({
     remoteRepositoryInformation,
   }: Omit<ChangelogWriterOptions, 'changelogWriterPreset'> = {}): ChangelogWriter {
-    const changelogWriterPreset = createWriterPreset();
+    const changelogWriterPreset = createWriterPreset(remoteRepositoryInformation);
     return new ChangelogWriter({
       changelogWriterPreset,
       remoteRepositoryInformation,
