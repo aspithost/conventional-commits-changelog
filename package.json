@@ -44,7 +44,7 @@
     "lint": "eslint . && npm run publint",
     "prepare": "husky || true",
     "publint": "npx -y publint",
-    "release": "npx tsx src/cli/release/cliRelease.ts",
+    "release": "npx tsx release.config.ts",
     "release:dry-run": "npx tsx src/cli/release/cliRelease.ts --dry-run",
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
