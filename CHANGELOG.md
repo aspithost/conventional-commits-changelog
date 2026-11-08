@@ -1,5 +1,11 @@
 
 
+## 0.0.3 (2026-11-08)
+
+### :bug: Bug Fixes
+
+* move zod to dependencies ([8a34f95](https://github.com/aspithost/conventional-commits-changelog/commit/8a34f95b9bca1e3fcf06e6ca38a536aca3350ac8))
+
 ## 0.0.2 (2026-11-08)
 
 ### :bug: Bug Fixes
