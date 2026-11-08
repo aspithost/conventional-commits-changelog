@@ -106,7 +106,7 @@ Pass `--type minor` or `--version 1.2.3` to force the release; use one, not both
 | ------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `directoryPath`           | `--cwd <path>`                     | Directory with the `package.json` and changelog. Defaults to `process.cwd()`.                                |
 | `isDryRun`                | `--dry-run`                        | Log the release type without bumping the version or writing the changelog. Defaults to `false`.              |
-| `isUpdateReadme`          | `--update-readme` (default: on)    | Update the version in `README.md`. Defaults to `true`. Set it to `false` in code to skip it.                 |
+| `isUpdateReadme`          | `--update-readme` (default: off)   | Update the version in `README.md`. Defaults to `false`. Set it to `true` in code to enable it.               |
 | `releaseType`             | `-t, --type <major\|minor\|patch>` | Force the release type.                                                                                      |
 | `releaseVersion`          | `-v, --version <version>`          | Force the release version. Cannot combine with `releaseType`.                                                |
 | `commits`                 | None                               | Iterable of validated commits to release. When omitted, the function retrieves the commits from git.         |
@@ -139,7 +139,7 @@ The command searches directories recursively, including `node_modules`. Use `--c
 | ---------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `directoriesReaderOptions.directoryPath` | `--cwd <path>`                  | Directory to search for packages. Defaults to `process.cwd()`.                                               |
 | `isDryRun`                               | `--dry-run`                     | Log the planned releases without bumping versions or writing changelogs. Defaults to `false`.                |
-| `isUpdateReadme`                         | `--update-readme` (default: on) | Update the version in each package `README.md`. Defaults to `true`. Set it to `false` in code to skip it.    |
+| `isUpdateReadme`                         | `--update-readme` (default: off)| Update the version in each package `README.md`. Defaults to `false`. Set it to `true` in code to enable it.  |
 | `commitsParserOptions`                   | None                            | Commit parser settings. Set `parserStreamOptions` to change how the library parses commit messages.          |
 | `commitsRetrieverOptions`                | None                            | Git settings for retrieving commits: `commitFormat`, `cwd`, `from`, and `to`.                                |
 | `tagRetrieverOptions`                    | None                            | Git settings for finding the latest tag: `cwd` and `remoteSymbolicRef`.                                      |

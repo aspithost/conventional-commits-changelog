@@ -16,7 +16,7 @@ export function bumpVersion(
   workingDirectory: string,
   releaseType: string,
   {
-    isUpdateReadme = true,
+    isUpdateReadme,
     onError,
   }: BumpVersionOptions & OnError = {},
 ): string {

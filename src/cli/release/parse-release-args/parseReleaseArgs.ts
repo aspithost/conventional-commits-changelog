@@ -16,7 +16,7 @@ export function parseReleaseArgs(
       },
       'update-readme': {
         type: 'boolean',
-        default: true,
+        default: false,
       },
       type: {
         type: 'string',
