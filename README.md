@@ -1,7 +1,7 @@
 # @abelspithost/conventional-commits-changelog
 
 ![NPM Version](https://img.shields.io/npm/v/@abelspithost/conventional-commits-changelog)
-![Build](https://img.shields.io/github/actions/workflow/status/aspithost/conventional-commits-changelog/ci.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/aspithost/conventional-commits-changelog/cicd.yml)
 [![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=alert_status&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=security_rating&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=aspithost_conventional-commits-changelog&metric=coverage&token=34d4ebaf9ae28eb47b597e65f2fec6d87871513f)](https://sonarcloud.io/summary/new_code?id=aspithost_conventional-commits-changelog)
@@ -60,7 +60,7 @@ Run a command without installing the package.
 
 ```sh
 npx --package @abelspithost/conventional-commits-changelog release --dry-run
-npx --package @abelspithost/conventional-commits-changelog release-packages --cwd packages --dry-run
+npx --package @abelspithost/conventional-commits-changelog release-packages --dry-run
 ```
 
 Or install the package and add the commands to your project's `package.json`:
@@ -127,17 +127,17 @@ feat(package-a): add a new option
 ```
 
 ```sh
-npm run release-packages -- --cwd packages --dry-run
-npm run release-packages -- --cwd packages
+npm run release-packages -- --dry-run
+npm run release-packages
 ```
 
-Run these commands from the monorepo root and replace `packages` with the directory that contains your packages. The command accepts neither `--type` nor `--version`: it determines the release type per package and skips packages without a commit that warrants a release.
+Run these commands from the monorepo root. They search the `packages` directory by default. Pass `--cwd <path>` to use another directory that contains your packages. The command accepts neither `--type` nor `--version`: it determines the release type per package and skips packages without a commit that warrants a release.
 
-The command searches directories recursively, including `node_modules`. Use `--cwd` to narrow the search. Every discovered `package.json` must contain a `name`. The programmatic function accepts these options:
+The command searches directories recursively. Use `--cwd` to narrow the search further. Every discovered `package.json` must contain a `name`. The programmatic function accepts these options:
 
 | Option                                   | CLI flag                        | Description                                                                                                  |
 | ---------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `directoriesReaderOptions.directoryPath` | `--cwd <path>`                  | Directory to search for packages. Defaults to `process.cwd()`.                                               |
+| `directoriesReaderOptions.directoryPath` | `--cwd <path>`                  | Directory to search for packages. Defaults to `packages` in `process.cwd()`.                                  |
 | `isDryRun`                               | `--dry-run`                     | Log the planned releases without bumping versions or writing changelogs. Defaults to `false`.                |
 | `isUpdateReadme`                         | `--update-readme` (default: off)| Update the version in each package `README.md`. Defaults to `false`. Set it to `true` in code to enable it.  |
 | `commitsParserOptions`                   | None                            | Commit parser settings. Set `parserStreamOptions` to change how the library parses commit messages.          |

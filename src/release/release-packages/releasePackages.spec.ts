@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
@@ -91,6 +93,14 @@ describe('releasePackages', () => {
 
       expect(DirectoriesReader).toHaveBeenCalledWith({
         directoryPath: DIRECTORY_PATH,
+      });
+    });
+
+    it('should read the packages directory by default', async () => {
+      await releasePackages();
+
+      expect(DirectoriesReader).toHaveBeenCalledWith({
+        directoryPath: join(process.cwd(), 'packages'),
       });
     });
 

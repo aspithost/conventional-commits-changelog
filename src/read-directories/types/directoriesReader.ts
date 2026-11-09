@@ -2,7 +2,7 @@ export interface DirectoriesReaderOptions {
   /**
    * Directory that contains the packages.
    *
-   * @defaultValue {@link process.cwd}
+   * @defaultValue `join(process.cwd(), 'packages')`
    */
   directoryPath?: string;
 }

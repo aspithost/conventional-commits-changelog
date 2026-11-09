@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import type { CliReleasePackagesOptions } from './schemas/cliReleasePackagesOptions.js';
@@ -9,7 +10,10 @@ export function parseReleasePackagesArgs(
   const { values } = parseArgs({
     args: argv,
     options: {
-      cwd: { type: 'string' },
+      cwd: {
+        type: 'string',
+        default: join(process.cwd(), 'packages'),
+      },
       'dry-run': {
         type: 'boolean',
         default: false,
