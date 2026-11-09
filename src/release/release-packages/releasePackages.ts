@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 import { logError } from '../../utils/error/logError.js';
@@ -32,7 +34,7 @@ export async function releasePackages({
   commitsParserOptions,
   commitsRetrieverOptions,
   directoriesReaderOptions = {
-    directoryPath: process.cwd(),
+    directoryPath: join(process.cwd(), 'packages'),
   },
   isDryRun = false,
   isUpdateReadme = false,

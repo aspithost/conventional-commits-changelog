@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { parseReleasePackagesArgs } from './parseReleasePackagesArgs.js';
 import type { CliReleasePackagesOptions } from './schemas/cliReleasePackagesOptions.js';
 import { validateReleasePackagesArgs } from './utils/validateReleasePackagesArgs.js';
@@ -23,6 +25,16 @@ describe('parseReleasePackagesArgs', () => {
     const parsedArgs = parseReleasePackagesArgs(ARGV);
 
     expect(parsedArgs).toStrictEqual(RELEASE_PACKAGES_ARGS);
+  });
+
+  it('should default to the packages directory path', () => {
+    parseReleasePackagesArgs([]);
+
+    expect(validateReleasePackagesArgs).toHaveBeenCalledExactlyOnceWith({
+      ...RELEASE_PACKAGES_ARGS,
+      directoryPath: join(process.cwd(), 'packages'),
+      isDryRun: false,
+    });
   });
 
   it('should validate parser input arguments', () => {
