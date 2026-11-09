@@ -1,5 +1,11 @@
 
 
+## 0.0.4 (2026-11-09)
+
+### :bug: Bug Fixes
+
+* sets default directory path for release-packages to packages dir ([a86dfaf](https://github.com/aspithost/conventional-commits-changelog/commit/a86dfaf9b33f80d9d3b3b598afb932e43622fe91))
+
 ## 0.0.3 (2026-11-08)
 
 ### :bug: Bug Fixes
