@@ -1,6 +1,6 @@
 {
   "name": "@abelspithost/conventional-commits-changelog",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A conventional commits changelog and release tool with monorepo support",
   "keywords": [
     "conventional-changelog-monorepo",
@@ -46,7 +46,6 @@
     "prepare": "husky || true",
     "publint": "npx -y publint",
     "release": "npx tsx release.config.ts",
-    "release:dry-run": "npx tsx src/cli/release/cliRelease.ts --dry-run",
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
     "test:cov:ci": "vitest run --coverage",

@@ -1,5 +1,21 @@
 
 
+## 0.0.5 (2026-11-24)
+
+### :bug: Bug Fixes
+
+* improve logging when no remote tags found ([352ca2a](https://github.com/aspithost/conventional-commits-changelog/commit/352ca2ad2adadeaed07fcfd1e38082abc79db3b1))
+* pass error handler to TagRetriever ([12ee173](https://github.com/aspithost/conventional-commits-changelog/commit/12ee173a9d3af9455509ccfb323fb10253859eb4))
+* remove accidental stderr logging from execFileSync ([ed2718f](https://github.com/aspithost/conventional-commits-changelog/commit/ed2718f479096ca4c6d50cb03679481b08e0480b))
+
+### :construction_worker: Continuous Integration
+
+* updates sonar project properties ([58a7649](https://github.com/aspithost/conventional-commits-changelog/commit/58a7649d84e5596e88b938112eeb4c3381975b30))
+
+### :books: Documentation
+
+* update readme with no remote tags scenario ([3362eaf](https://github.com/aspithost/conventional-commits-changelog/commit/3362eaf56324ecf428a8548b5d7a9d70ab152aab))
+
 ## 0.0.4 (2026-11-09)
 
 ### :bug: Bug Fixes
