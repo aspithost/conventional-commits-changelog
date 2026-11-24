@@ -52,7 +52,10 @@ export class TagRetriever {
         remoteBranch,
       ]);
     } catch (err) {
-      this.#onError?.('WARN: no tags found on remote branch.', err);
+      this.#onError?.(
+        'WARN: no tags found on remote branch. Will retrieve full commit history.',
+        err,
+      );
       return null;
     }
   }

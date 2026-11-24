@@ -127,7 +127,7 @@ describe('TagRetriever', () => {
 
     expect(latestTag).toBeNull();
     expect(MOCK_ON_ERROR).toHaveBeenCalledExactlyOnceWith(
-      'WARN: no tags found on remote branch.',
+      'WARN: no tags found on remote branch. Will retrieve full commit history.',
       TAG_ERROR,
     );
 
