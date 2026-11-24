@@ -18,6 +18,11 @@ describe('execFileSyncWrapper', () => {
       cwd: CWD,
       encoding: 'utf-8',
       maxBuffer: 1024 * 1024 * 10, // 10MB
+      stdio: [
+        'ignore',
+        'pipe',
+        'pipe', // Note: should pipe stderr
+      ],
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@abelspithost/conventional-commits-changelog",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A conventional commits changelog and release tool with monorepo support",
   "keywords": [
     "conventional-changelog-monorepo",
@@ -46,7 +46,6 @@
     "prepare": "husky || true",
     "publint": "npx -y publint",
     "release": "npx tsx release.config.ts",
-    "release:dry-run": "npx tsx src/cli/release/cliRelease.ts --dry-run",
     "test:unit": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text",
     "test:cov:ci": "vitest run --coverage",
@@ -59,19 +58,19 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@abelspithost/commitlint": "^0.2.0",
-    "@abelspithost/eslint-config-ts": "^3.2.1",
+    "@abelspithost/commitlint": "^0.3.1",
+    "@abelspithost/eslint-config-ts": "^3.2.3",
     "@abelspithost/tsconfig-node": "^0.1.2",
-    "@abelspithost/vitest-config": "^0.2.0",
+    "@abelspithost/vitest-config": "^0.2.2",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@types/node": "^26.6.6",
-    "@vitest/coverage-v8": "^5.1.0",
-    "eslint": "^10.14.0",
+    "@vitest/coverage-v8": "^5.1.1",
+    "eslint": "^10.15.0",
     "husky": "^9.1.7",
     "jiti": "^2.7.0",
     "rimraf": "^6.1.4",
     "typescript": "^6.0.3",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }

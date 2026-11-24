@@ -18,5 +18,11 @@ export function execFileSyncWrapper(
     cwd,
     encoding,
     maxBuffer,
+    // Pipe stderr so git's output reaches only the caller's error handler, not the terminal.
+    stdio: [
+      'ignore',
+      'pipe',
+      'pipe',
+    ],
   }).trim();
 }

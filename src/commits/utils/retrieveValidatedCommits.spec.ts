@@ -47,10 +47,17 @@ describe('retrieveValidatedCommits', () => {
       const TAG_RETRIEVER_OPTIONS = {
         remoteSymbolicRef: 'some/remote',
       };
+      const onError = vi.fn();
 
-      retrieveValidatedCommits({ tagRetrieverOptions: TAG_RETRIEVER_OPTIONS });
+      retrieveValidatedCommits({
+        tagRetrieverOptions: TAG_RETRIEVER_OPTIONS,
+        onError,
+      });
 
-      expect(TagRetriever).toHaveBeenCalledExactlyOnceWith(TAG_RETRIEVER_OPTIONS);
+      expect(TagRetriever).toHaveBeenCalledExactlyOnceWith({
+        ...TAG_RETRIEVER_OPTIONS,
+        onError,
+      });
       expect(mockGetLatestTag).toHaveBeenCalledOnce();
     });
 
