@@ -29,7 +29,7 @@ npm install --save-dev @abelspithost/conventional-commits-changelog
    - A `fix` commit triggers a `patch` release.
 4. It bumps the version in `package.json`, updates the README, and writes the changelog.
 
-The library does not commit, tag, or publish. Run those steps yourself after the release.
+When the default remote branch has no reachable tags, the library reads the full commit history. The library does not commit, tag, or publish. Run those steps yourself after the release.
 
 When `release` finds no commit that warrants a release, it defaults to a `patch` release. `releasePackages` skips packages without such commits.
 
