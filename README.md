@@ -120,7 +120,7 @@ The git options default to `process.cwd()`, not to `directoryPath`. Set `commits
 
 ### `releasePackages`
 
-Release every package in a monorepo that has commits with a matching scope. `releasePackages` reads one shared git history, groups the commits since the latest version tag by scope, and then bumps the version and writes the changelog of each matching package. It only works for a monorepo with a single git history. The package name without its npm scope maps to the commit scope: a commit with scope `package-a` releases `@scope/package-a`.
+Release every package in a monorepo that has commits with a matching scope. `releasePackages` reads one shared git history, groups the commits since the latest version tag by scope, and then bumps the version and writes the changelog of each matching package. It only works for a monorepo with a single git history. A commit scope must exactly match the `package.json` name without its npm scope: `@scope/package-a` requires commit scope `package-a`, not `@scope/package-a`.
 
 ```text
 feat(package-a): add a new option
