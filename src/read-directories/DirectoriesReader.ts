@@ -13,10 +13,12 @@ export class DirectoriesReader {
   readonly #packagesDirectoryMap: PackagesDirectoriesMap;
 
   constructor({
-    directoryPath = process.cwd(),
+    directoryPath = join(process.cwd(), 'packages'),
+    packageNameToScopeMap,
   }: DirectoriesReaderOptions = {}) {
     this.#packagesDirectoryMap = this.#createPackagesDirectoryMap(
       directoryPath,
+      packageNameToScopeMap,
     );
   }
 
@@ -26,11 +28,12 @@ export class DirectoriesReader {
 
   #createPackagesDirectoryMap(
     directoryPath: string,
+    packageNameToScopeMap?: Map<string, string>,
   ): PackagesDirectoriesMap {
     const directories = this.#readDirectories(directoryPath);
     const filteredDirectories = this.#filterDirectories(directories);
     const packagesDirectoryMap: PackagesDirectoriesMap = new Map();
-    this.#addMapEntries(packagesDirectoryMap, filteredDirectories);
+    this.#addMapEntries(packagesDirectoryMap, filteredDirectories, packageNameToScopeMap);
 
     return packagesDirectoryMap;
   }
@@ -53,6 +56,7 @@ export class DirectoriesReader {
   #addMapEntries(
     packagesDirectoryMap: PackagesDirectoriesMap,
     directories: Dirent[],
+    packageNameToScopeMap?: Map<string, string>,
   ): PackagesDirectoriesMap {
     for (const directory of directories) {
       const directoryPath = join(directory.parentPath, directory.name);
@@ -62,31 +66,9 @@ export class DirectoriesReader {
       }
       const parsedPackageJson = this.#parseJson(packageJson, directoryPath);
       const { name } = this.#validatePackageJson(parsedPackageJson);
-      const strippedName = this.#stripScopeFromPackageName(name);
-      packagesDirectoryMap.set(strippedName, { directoryPath });
+      this.#setMapEntry(packagesDirectoryMap, name, directoryPath, packageNameToScopeMap);
     }
     return packagesDirectoryMap;
-  }
-
-  #validatePackageJson(pkg: unknown): PackageJsonSchema {
-    const validationResult = packageJsonSchema.safeParse(pkg);
-    if (!validationResult.success) {
-      throw new Error('Error parsing package.json');
-    }
-    return validationResult.data;
-  }
-
-  #stripScopeFromPackageName(packageName: string): string {
-    const parts = packageName.split('/');
-    return parts.length > 1 ? parts[1] : parts[0];
-  }
-
-  #parseJson(json: string, packageJsonPath: string): unknown {
-    try {
-      return JSON.parse(json);
-    } catch (err) {
-      throw new Error(`Invalid JSON in package.json at: ${packageJsonPath}`, { cause: err });
-    }
   }
 
   #readPackageJson(directoryPath: string): string | undefined {
@@ -100,6 +82,43 @@ export class DirectoriesReader {
       }
       throw new Error(`Could not read package.json at: ${packageJsonPath}`, { cause: err });
     }
+  }
+
+  #parseJson(json: string, packageJsonPath: string): unknown {
+    try {
+      return JSON.parse(json);
+    } catch (err) {
+      throw new Error(`Invalid JSON in package.json at: ${packageJsonPath}`, { cause: err });
+    }
+  }
+
+  #validatePackageJson(pkg: unknown): PackageJsonSchema {
+    const validationResult = packageJsonSchema.safeParse(pkg);
+    if (!validationResult.success) {
+      throw new Error('Error parsing package.json');
+    }
+    return validationResult.data;
+  }
+
+  #setMapEntry(
+    packagesDirectoryMap: PackagesDirectoriesMap,
+    packageName: string,
+    directoryPath: string,
+    packageNameToScopeMap?: Map<string, string>,
+  ): void {
+    const scopeEntry = packageNameToScopeMap?.get(packageName);
+    if (scopeEntry) {
+      packagesDirectoryMap.set(scopeEntry, { directoryPath });
+      return;
+    }
+
+    const strippedName = this.#stripScopeFromPackageName(packageName);
+    packagesDirectoryMap.set(strippedName, { directoryPath });
+  }
+
+  #stripScopeFromPackageName(packageName: string): string {
+    const parts = packageName.split('/');
+    return parts.length > 1 ? parts[1] : parts[0];
   }
 
   #isFileNotFoundError(err: unknown): err is NodeJS.ErrnoException {

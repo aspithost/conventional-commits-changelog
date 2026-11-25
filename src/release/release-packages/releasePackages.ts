@@ -1,5 +1,3 @@
-import { join } from 'node:path';
-
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
 import { logError } from '../../utils/error/logError.js';
@@ -33,19 +31,14 @@ export async function releasePackages({
   changelogWriterOptions,
   commitsParserOptions,
   commitsRetrieverOptions,
-  directoriesReaderOptions = {
-    directoryPath: join(process.cwd(), 'packages'),
-  },
+  directoriesReaderOptions,
   isDryRun = false,
   isUpdateReadme = false,
   tagRetrieverOptions,
   onError = logError,
 }: ReleasePackagesOptions = {}): Promise<void> {
   // Read package directories and map package.json name to directory path
-  const { directoryPath } = directoriesReaderOptions;
-  const directoriesReader = new DirectoriesReader({
-    directoryPath,
-  });
+  const directoriesReader = new DirectoriesReader(directoriesReaderOptions);
   const { packagesDirectoriesMap } = directoriesReader;
   if (!packagesDirectoriesMap.size) {
     throw new Error('No packages with a valid package.json found in the specified directory');

@@ -5,6 +5,18 @@ export interface DirectoriesReaderOptions {
    * @defaultValue `join(process.cwd(), 'packages')`
    */
   directoryPath?: string;
+  /**
+   * Maps package.json names to a commit scope.
+   *
+   * @example
+   * ```
+   * const packageToScopeMap = new Map<string, string>([
+   *   ['@abelspithost/my-package', 'my-package'],
+   *   ['button-with-very-long-name', 'button']
+   * ]);
+   * ```
+   */
+  packageNameToScopeMap?: Map<string, string>;
 }
 
 /**

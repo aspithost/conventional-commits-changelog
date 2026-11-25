@@ -1,5 +1,3 @@
-import { join } from 'node:path';
-
 import { retrieveValidatedCommits } from '../../commits/utils/retrieveValidatedCommits.js';
 import type { ValidatedCommit } from '../../commits/validate-commits/CommitsValidator.js';
 import { DirectoriesReader } from '../../read-directories/DirectoriesReader.js';
@@ -84,24 +82,27 @@ vi.mock('./utils/logRejectedPromises.js', () => ({
 
 describe('releasePackages', () => {
   describe('reading directories', () => {
-    it('should read the directories in the provided directory path', async () => {
+    it('should pass the directory reader options to DirectoriesReader', async () => {
       const DIRECTORY_PATH = 'packages';
+      const packageNameToScopeMap = new Map([['@some-scope/button', 'button']]);
 
       await releasePackages({
-        directoriesReaderOptions: { directoryPath: DIRECTORY_PATH },
+        directoriesReaderOptions: {
+          directoryPath: DIRECTORY_PATH,
+          packageNameToScopeMap,
+        },
       });
 
-      expect(DirectoriesReader).toHaveBeenCalledWith({
+      expect(DirectoriesReader).toHaveBeenCalledExactlyOnceWith({
         directoryPath: DIRECTORY_PATH,
+        packageNameToScopeMap,
       });
     });
 
     it('should read the packages directory by default', async () => {
       await releasePackages();
 
-      expect(DirectoriesReader).toHaveBeenCalledWith({
-        directoryPath: join(process.cwd(), 'packages'),
-      });
+      expect(DirectoriesReader).toHaveBeenCalledExactlyOnceWith(undefined);
     });
 
     it(

@@ -120,10 +120,27 @@ The git options default to `process.cwd()`, not to `directoryPath`. Set `commits
 
 ### `releasePackages`
 
-Release every package in a monorepo that has commits with a matching scope. `releasePackages` reads one shared git history, groups the commits since the latest version tag by scope, and then bumps the version and writes the changelog of each matching package. It only works for a monorepo with a single git history. The package name without its npm scope maps to the commit scope: a commit with scope `package-a` releases `@scope/package-a`.
+Release every package in a monorepo that has commits with a matching scope. `releasePackages` reads one shared git history, groups the commits since the latest version tag by scope, and then bumps the version and writes the changelog of each matching package. It only works for a monorepo with a single git history.
+
+By default, `releasePackages` strips the npm scope from each discovered `package.json` name and uses the stripped package name to match the result to a validated commit scope. A commit with scope `package-a` releases `@some-scope/package-a`.
 
 ```text
 feat(package-a): add a new option
+```
+
+Set `directoriesReaderOptions.packageNameToScopeMap` to map full `package.json` names to different commit scope names. Packages without an entry in the map keep the default stripped-name behavior.
+
+```ts
+import { releasePackages } from '@abelspithost/conventional-commits-changelog';
+
+await releasePackages({
+  directoriesReaderOptions: {
+    packageNameToScopeMap: new Map([
+      ['@some-scope/very-long-package-name', 'package'],
+      ['button-components', 'button'],
+    ]),
+  },
+});
 ```
 
 ```sh
@@ -140,11 +157,12 @@ The command searches directories recursively. Use `--cwd` to narrow the search f
 | `directoriesReaderOptions.directoryPath` | `--cwd <path>`                  | Directory to search for packages. Defaults to `packages` in `process.cwd()`.                                  |
 | `isDryRun`                               | `--dry-run`                     | Log the planned releases without bumping versions or writing changelogs. Defaults to `false`.                |
 | `isUpdateReadme`                         | `--update-readme` (default: off)| Update the version in each package `README.md`. Defaults to `false`. Set it to `true` in code to enable it.  |
+| `changelogWriterOptions`                 | None                            | Changelog writer settings. Set `remoteRepositoryInformation` (`host`, `owner`, `repository`) to build links. |
 | `commitsParserOptions`                   | None                            | Commit parser settings. Set `parserStreamOptions` to change how the library parses commit messages.          |
 | `commitsRetrieverOptions`                | None                            | Git settings for retrieving commits: `commitFormat`, `cwd`, `from`, and `to`.                                |
-| `tagRetrieverOptions`                    | None                            | Git settings for finding the latest tag: `cwd` and `remoteSymbolicRef`.                                      |
-| `changelogWriterOptions`                 | None                            | Changelog writer settings. Set `remoteRepositoryInformation` (`host`, `owner`, `repository`) to build links. |
-| `onError`                                | None                            | Handler for errors that the library reports without throwing. Set it to `null` to opt out.                   |
+| `directoriesReaderOptions.packageNameToScopeMap` | None                    | Maps full `package.json` names to commit scope names. Packages without a match use the stripped package name. |
+| `onError`                                | None                            | Handler for errors that the library reports without throwing. Set it to `null` to opt out.      
+| `tagRetrieverOptions`                    | None                            | Git settings for finding the latest tag: `cwd` and `remoteSymbolicRef`.                                      |             |
 
 The function does not accept `commits`, `directoryPath`, `releaseType`, or `releaseVersion`. The git options default to `process.cwd()`, not to `directoriesReaderOptions.directoryPath`. Run the function from the monorepo root, or set `commitsRetrieverOptions.cwd` and `tagRetrieverOptions.cwd`. See `ReleasePackagesOptions` in the type declarations.
 
